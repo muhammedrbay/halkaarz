@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Fiyat Takibi ve Bildirim Sistemi
-yfinance ile BIST hisselerini kontrol eder ve FCM bildirim gönderir.
+yfinance ile BIST hisselerini kontrol eder ve FCM v1 API üzerinden bildirim gönderir.
 GitHub Actions üzerinde 15 dakikada bir çalışır.
 """
 
@@ -13,19 +13,41 @@ from typing import Optional
 
 import requests
 import yfinance as yf
+from google.oauth2 import service_account
+from google.auth.transport.requests import Request
 
 # --- Yapılandırma ---
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 IPOS_FILE = os.path.join(DATA_DIR, "ipos.json")
 STATE_FILE = os.path.join(DATA_DIR, "notification_state.json")
 
-# Firebase Cloud Messaging
-FCM_URL = "https://fcm.googleapis.com/fcm/send"
-FCM_SERVER_KEY = os.environ.get("FCM_SERVER_KEY", "")
+# Firebase Cloud Messaging v1 API
+FIREBASE_PROJECT_ID = os.environ.get("FIREBASE_PROJECT_ID", "")
+FIREBASE_SA_KEY_JSON = os.environ.get("FIREBASE_SA_KEY_JSON", "")  # Service Account JSON string
+FCM_V1_URL = "https://fcm.googleapis.com/v1/projects/{project_id}/messages:send"
 
 # BIST tavan/taban limitleri (varsayılan %10)
 TAVAN_CARPANI = 1.10
 TABAN_CARPANI = 0.90
+
+
+def get_fcm_access_token() -> Optional[str]:
+    """Firebase Service Account ile OAuth2 access token alır."""
+    if not FIREBASE_SA_KEY_JSON:
+        print("[UYARI] FIREBASE_SA_KEY_JSON ayarlanmadı.")
+        return None
+
+    try:
+        sa_info = json.loads(FIREBASE_SA_KEY_JSON)
+        credentials = service_account.Credentials.from_service_account_info(
+            sa_info,
+            scopes=["https://www.googleapis.com/auth/firebase.messaging"],
+        )
+        credentials.refresh(Request())
+        return credentials.token
+    except Exception as e:
+        print(f"[HATA] FCM access token alınamadı: {e}")
+        return None
 
 
 def load_ipos() -> list[dict]:
@@ -56,34 +78,58 @@ def save_notification_state(state: dict):
 
 
 def send_fcm_notification(title: str, body: str, data: Optional[dict] = None) -> bool:
-    """Firebase Cloud Messaging ile bildirim gönderir."""
-    if not FCM_SERVER_KEY:
-        print(f"[UYARI] FCM_SERVER_KEY ayarlanmadı. Bildirim gönderilmedi: {title}")
+    """FCM v1 API ile bildirim gönderir (topic: halka_arz)."""
+    if not FIREBASE_PROJECT_ID:
+        print(f"[UYARI] FIREBASE_PROJECT_ID ayarlanmadı. Bildirim atlandı: {title}")
         return False
 
-    payload = {
-        "to": "/topics/halka_arz",
-        "notification": {
-            "title": title,
-            "body": body,
-            "sound": "default",
-            "click_action": "FLUTTER_NOTIFICATION_CLICK",
-        },
-        "data": data or {},
+    access_token = get_fcm_access_token()
+    if not access_token:
+        print(f"[UYARI] Access token alınamadı. Bildirim atlandı: {title}")
+        return False
+
+    url = FCM_V1_URL.format(project_id=FIREBASE_PROJECT_ID)
+
+    # FCM v1 payload
+    message = {
+        "message": {
+            "topic": "halka_arz",
+            "notification": {
+                "title": title,
+                "body": body,
+            },
+            "android": {
+                "priority": "high",
+                "notification": {
+                    "sound": "default",
+                    "channel_id": "halka_arz_channel",
+                    "click_action": "FLUTTER_NOTIFICATION_CLICK",
+                },
+            },
+            "apns": {
+                "payload": {
+                    "aps": {
+                        "sound": "default",
+                        "badge": 1,
+                    }
+                }
+            },
+            "data": {k: str(v) for k, v in (data or {}).items()},
+        }
     }
 
     headers = {
-        "Authorization": f"key={FCM_SERVER_KEY}",
-        "Content-Type": "application/json",
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json; UTF-8",
     }
 
     try:
-        response = requests.post(FCM_URL, json=payload, headers=headers, timeout=10)
+        response = requests.post(url, json=message, headers=headers, timeout=10)
         if response.status_code == 200:
-            print(f"[BİLDİRİM] Gönderildi: {title} - {body}")
+            print(f"[BİLDİRİM ✓] {title} — {body}")
             return True
         else:
-            print(f"[HATA] FCM hatası ({response.status_code}): {response.text}")
+            print(f"[HATA] FCM v1 ({response.status_code}): {response.text}")
             return False
     except requests.RequestException as e:
         print(f"[HATA] FCM isteği başarısız: {e}")
@@ -91,32 +137,27 @@ def send_fcm_notification(title: str, body: str, data: Optional[dict] = None) ->
 
 
 def get_stock_data(ticker: str) -> Optional[dict]:
-    """
-    Yahoo Finance'den hisse verisi çeker.
-    BIST hisseleri için ticker formatı: SIRKET.IS (örn: THYAO.IS)
-    """
+    """Yahoo Finance'den hisse verisi çeker. BIST: SIRKET.IS"""
     try:
         bist_ticker = f"{ticker}.IS"
         stock = yf.Ticker(bist_ticker)
-
-        # Son 2 günlük veri çek
         hist = stock.history(period="2d")
+
         if hist.empty or len(hist) < 1:
             print(f"[UYARI] {bist_ticker} için veri bulunamadı.")
             return None
 
-        # Güncel ve dünkü kapanış
         current_price = hist["Close"].iloc[-1]
         previous_close = hist["Close"].iloc[-2] if len(hist) >= 2 else hist["Close"].iloc[-1]
-
-        # Gün içi en yüksek fiyat (tavan kontrolü için)
         today_high = hist["High"].iloc[-1]
+        today_low = hist["Low"].iloc[-1]
 
         return {
             "ticker": ticker,
             "current_price": round(float(current_price), 2),
             "previous_close": round(float(previous_close), 2),
             "today_high": round(float(today_high), 2),
+            "today_low": round(float(today_low), 2),
         }
     except Exception as e:
         print(f"[HATA] {ticker} verisi çekilemedi: {e}")
@@ -124,20 +165,14 @@ def get_stock_data(ticker: str) -> Optional[dict]:
 
 
 def check_tavan_bozdu(stock_data: dict, state: dict) -> bool:
-    """
-    Tavan Bozdu kontrolü:
-    Dünkü kapanış * 1.10 = Tavan fiyatı
-    Gün içinde tavana ulaştıysa VE şu an tavanın altındaysa → Tavan Bozdu
-    """
+    """Gün içinde tavana ulaşıp sonra düştüyse → Tavan Bozdu."""
     ticker = stock_data["ticker"]
     prev_close = stock_data["previous_close"]
     current = stock_data["current_price"]
     today_high = stock_data["today_high"]
 
     tavan_fiyat = round(prev_close * TAVAN_CARPANI, 2)
-
-    # Gün içinde tavan yapıp sonra düştü mü?
-    hit_tavan = today_high >= tavan_fiyat * 0.999  # Küçük tolerans
+    hit_tavan = today_high >= tavan_fiyat * 0.999
     currently_below = current < tavan_fiyat * 0.999
 
     if hit_tavan and currently_below:
@@ -148,17 +183,13 @@ def check_tavan_bozdu(stock_data: dict, state: dict) -> bool:
 
 
 def check_taban_yapti(stock_data: dict, state: dict) -> bool:
-    """
-    Taban Yaptı kontrolü:
-    Anlık fiyat <= Dünkü Kapanış * 0.90 ise → Taban Yaptı
-    """
+    """Fiyat tabana ulaştıysa → Taban Yaptı."""
     ticker = stock_data["ticker"]
     prev_close = stock_data["previous_close"]
     current = stock_data["current_price"]
 
     taban_fiyat = round(prev_close * TABAN_CARPANI, 2)
-
-    if current <= taban_fiyat * 1.001:  # Küçük tolerans
+    if current <= taban_fiyat * 1.001:
         state_key = f"taban_yapti_{ticker}_{datetime.now().strftime('%Y-%m-%d')}"
         if state_key not in state:
             return True
@@ -166,103 +197,117 @@ def check_taban_yapti(stock_data: dict, state: dict) -> bool:
 
 
 def check_sure_bitiyor(ipo: dict, state: dict) -> bool:
-    """
-    Süre Bitiyor kontrolü:
-    Talep toplama bitimine 30 dakika kala bildirim gönder.
-    """
+    """Talep toplama bitimine 30 dakika kala bildirim."""
     talep_bitis = ipo.get("talep_bitis", "")
     if not talep_bitis:
         return False
 
     try:
         bitis_zamani = datetime.fromisoformat(talep_bitis.replace("Z", ""))
-        now = datetime.now()
-        kalan = bitis_zamani - now
+        kalan = bitis_zamani - datetime.now()
 
-        # 30 dakika (1800 saniye) kala bildirim
         if timedelta(minutes=0) < kalan <= timedelta(minutes=30):
             state_key = f"sure_bitiyor_{ipo['sirket_kodu']}_{bitis_zamani.strftime('%Y-%m-%d')}"
             if state_key not in state:
                 return True
     except (ValueError, TypeError):
         pass
+    return False
 
+
+def check_yeni_halka_arz(ipo: dict, state: dict) -> bool:
+    """Yeni halka arz eklendiyse bildirim gönder."""
+    code = ipo["sirket_kodu"]
+    state_key = f"yeni_arz_{code}"
+    if state_key not in state:
+        return True
     return False
 
 
 def process_islem_gorenler(ipos: list[dict], state: dict) -> dict:
     """İşlem gören halka arzların fiyatlarını kontrol eder."""
-    for ipo in ipos:
-        if ipo.get("durum") != "islem_goruyor":
-            continue
+    islem_gorenler = [i for i in ipos if i.get("durum") == "islem_goruyor"]
 
+    for ipo in islem_gorenler:
         ticker = ipo["sirket_kodu"]
         sirket_adi = ipo.get("sirket_adi", ticker)
 
-        print(f"[KONTROL] {sirket_adi} ({ticker}) kontrol ediliyor...")
+        print(f"[KONTROL] {sirket_adi} ({ticker})...")
         stock_data = get_stock_data(ticker)
         if not stock_data:
             continue
 
         print(
             f"  Fiyat: {stock_data['current_price']} TL | "
-            f"Dünkü Kapanış: {stock_data['previous_close']} TL | "
-            f"Gün İçi Yüksek: {stock_data['today_high']} TL"
+            f"Önceki Kpn: {stock_data['previous_close']} TL | "
+            f"Yüksek: {stock_data['today_high']} TL"
         )
 
-        # Tavan Bozdu kontrolü
+        # Tavan Bozdu
         if check_tavan_bozdu(stock_data, state):
             tavan = round(stock_data["previous_close"] * TAVAN_CARPANI, 2)
             send_fcm_notification(
                 title="⚠️ Tavan Bozdu!",
-                body=f"Dikkat! {sirket_adi} tavan bozdu! "
-                     f"Tavan: {tavan} TL → Anlık: {stock_data['current_price']} TL",
+                body=f"{sirket_adi} tavan bozdu! Tavan: {tavan}₺ → Anlık: {stock_data['current_price']}₺",
                 data={"type": "tavan_bozdu", "ticker": ticker},
             )
-            state_key = f"tavan_bozdu_{ticker}_{datetime.now().strftime('%Y-%m-%d')}"
-            state[state_key] = datetime.now().isoformat()
+            state[f"tavan_bozdu_{ticker}_{datetime.now().strftime('%Y-%m-%d')}"] = datetime.now().isoformat()
 
-        # Taban Yaptı kontrolü
+        # Taban Yaptı
         if check_taban_yapti(stock_data, state):
             taban = round(stock_data["previous_close"] * TABAN_CARPANI, 2)
             send_fcm_notification(
                 title="🔴 Taban Yaptı!",
-                body=f"Uyarı! {sirket_adi} taban yaptı! "
-                     f"Taban: {taban} TL → Anlık: {stock_data['current_price']} TL",
+                body=f"{sirket_adi} taban yaptı! Taban: {taban}₺ → Anlık: {stock_data['current_price']}₺",
                 data={"type": "taban_yapti", "ticker": ticker},
             )
-            state_key = f"taban_yapti_{ticker}_{datetime.now().strftime('%Y-%m-%d')}"
-            state[state_key] = datetime.now().isoformat()
+            state[f"taban_yapti_{ticker}_{datetime.now().strftime('%Y-%m-%d')}"] = datetime.now().isoformat()
 
     return state
 
 
 def process_talep_toplayanlar(ipos: list[dict], state: dict) -> dict:
-    """Talep toplayan halka arzların süresini kontrol eder."""
+    """Talep toplayan arzların süresini kontrol eder."""
     for ipo in ipos:
         if ipo.get("durum") != "talep_topluyor":
             continue
 
         sirket_adi = ipo.get("sirket_adi", ipo["sirket_kodu"])
 
-        # Süre Bitiyor kontrolü
         if check_sure_bitiyor(ipo, state):
             send_fcm_notification(
                 title="⏰ Son 30 Dakika!",
-                body=f"Son 30 Dakika! {sirket_adi} halka arzı birazdan kapanıyor.",
+                body=f"{sirket_adi} halka arzı birazdan kapanıyor! Acele edin.",
                 data={"type": "sure_bitiyor", "ticker": ipo["sirket_kodu"]},
             )
             bitis = ipo.get("talep_bitis", "")
             bitis_dt = datetime.fromisoformat(bitis.replace("Z", ""))
-            state_key = f"sure_bitiyor_{ipo['sirket_kodu']}_{bitis_dt.strftime('%Y-%m-%d')}"
-            state[state_key] = datetime.now().isoformat()
+            state[f"sure_bitiyor_{ipo['sirket_kodu']}_{bitis_dt.strftime('%Y-%m-%d')}"] = datetime.now().isoformat()
+
+    return state
+
+
+def process_yeni_arzlar(ipos: list[dict], state: dict) -> dict:
+    """Yeni eklenen halka arzlar için bildirim gönderir."""
+    for ipo in ipos:
+        if check_yeni_halka_arz(ipo, state):
+            sirket_adi = ipo.get("sirket_adi", ipo["sirket_kodu"])
+            fiyat = ipo.get("arz_fiyati", 0)
+            katilim = "✅ Katılım Endeksine Uygun" if ipo.get("katilim_endeksine_uygun") else ""
+
+            send_fcm_notification(
+                title="🆕 Yeni Halka Arz!",
+                body=f"{sirket_adi} — Arz Fiyatı: {fiyat}₺ {katilim}".strip(),
+                data={"type": "yeni_arz", "ticker": ipo["sirket_kodu"]},
+            )
+            state[f"yeni_arz_{ipo['sirket_kodu']}"] = datetime.now().isoformat()
 
     return state
 
 
 def cleanup_old_states(state: dict) -> dict:
-    """3 günden eski bildirim kayıtlarını temizler."""
-    cutoff = datetime.now() - timedelta(days=3)
+    """7 günden eski bildirim kayıtlarını temizler."""
+    cutoff = datetime.now() - timedelta(days=7)
     cleaned = {}
     for key, timestamp in state.items():
         try:
@@ -270,39 +315,40 @@ def cleanup_old_states(state: dict) -> dict:
             if ts > cutoff:
                 cleaned[key] = timestamp
         except (ValueError, TypeError):
-            pass
+            cleaned[key] = timestamp  # Geçersiz format, koru
     return cleaned
 
 
 def main():
     """Ana çalıştırma fonksiyonu."""
     print("=" * 60)
-    print(f"Fiyat Takip ve Bildirim Sistemi - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    print(f"Fiyat Takip & Bildirim — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     print("=" * 60)
 
-    # 1. Verileri yükle
     ipos = load_ipos()
     if not ipos:
-        print("[BİLGİ] İşlenecek IPO verisi yok.")
+        print("[BİLGİ] İşlenecek IPO yok.")
         return
 
     state = load_notification_state()
-    print(f"[BİLGİ] {len(ipos)} adet IPO yüklendi. Bildirim durumu: {len(state)} kayıt.")
+    print(f"[BİLGİ] {len(ipos)} IPO yüklendi. {len(state)} bildirim kaydı.")
 
-    # 2. İşlem gören hisseleri kontrol et
+    # 1. Yeni arzlar
+    state = process_yeni_arzlar(ipos, state)
+
+    # 2. İşlem gören hisseler — tavan/taban kontrolü
     state = process_islem_gorenler(ipos, state)
 
-    # 3. Talep toplayan arzların süresini kontrol et
+    # 3. Talep toplayan — süre bitiyor
     state = process_talep_toplayanlar(ipos, state)
 
-    # 4. Eski state kayıtlarını temizle
+    # 4. Eski kayıtları temizle
     state = cleanup_old_states(state)
 
-    # 5. State kaydet
+    # 5. Kaydet
     save_notification_state(state)
-
     print("=" * 60)
-    print("[BİLGİ] Kontrol tamamlandı.")
+    print("[BİLGİ] Tamamlandı.")
 
 
 if __name__ == "__main__":

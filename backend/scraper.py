@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Halka Arz Veri Çekme Motoru
+Halka Arz Veri Çekme ve Güncelleme Motoru
 KAP duyurularından ve resmi kaynaklardan halka arz verisi çeker.
-Günde sadece 2-3 kez çalışacak şekilde planlanmıştır.
+Yeni halka arz bulunursa FCM bildirim gönderir.
+Günde 2 kez çalışır (GitHub Actions).
 """
 
 import json
 import os
 import time
-import re
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -19,71 +19,126 @@ from bs4 import BeautifulSoup
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 OUTPUT_FILE = os.path.join(DATA_DIR, "ipos.json")
 MANUAL_FILE = os.path.join(DATA_DIR, "manual_ipos.json")
-REQUEST_DELAY = 3  # İstekler arası bekleme (saniye)
+STATE_FILE = os.path.join(DATA_DIR, "notification_state.json")
+REQUEST_DELAY = 3
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (compatible; HalkaArzTakip/1.0; +https://github.com/halka-arz-takip)",
+    "User-Agent": "Mozilla/5.0 (compatible; HalkaArzTakip/1.0)",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
 }
 
-# Katılım endeksine uygun bilinen şirketler (manuel güncellenir)
-KATILIM_ENDEKSI_SIRKETLERI = set()
+# FCM v1 API (bildirimler price_checker.py tarafından da kullanılır)
+FIREBASE_PROJECT_ID = os.environ.get("FIREBASE_PROJECT_ID", "")
+FIREBASE_SA_KEY_JSON = os.environ.get("FIREBASE_SA_KEY_JSON", "")
+
+
+def get_fcm_access_token() -> Optional[str]:
+    """Firebase Service Account ile OAuth2 access token alır."""
+    if not FIREBASE_SA_KEY_JSON:
+        return None
+    try:
+        from google.oauth2 import service_account
+        from google.auth.transport.requests import Request
+
+        sa_info = json.loads(FIREBASE_SA_KEY_JSON)
+        credentials = service_account.Credentials.from_service_account_info(
+            sa_info,
+            scopes=["https://www.googleapis.com/auth/firebase.messaging"],
+        )
+        credentials.refresh(Request())
+        return credentials.token
+    except Exception as e:
+        print(f"[HATA] FCM token alınamadı: {e}")
+        return None
+
+
+def send_notification(title: str, body: str, data: Optional[dict] = None) -> bool:
+    """FCM v1 API ile bildirim gönderir."""
+    if not FIREBASE_PROJECT_ID:
+        print(f"[BİLDİRİM SİMÜLE] {title} — {body}")
+        return False
+
+    token = get_fcm_access_token()
+    if not token:
+        return False
+
+    url = f"https://fcm.googleapis.com/v1/projects/{FIREBASE_PROJECT_ID}/messages:send"
+    payload = {
+        "message": {
+            "topic": "halka_arz",
+            "notification": {"title": title, "body": body},
+            "android": {
+                "priority": "high",
+                "notification": {"sound": "default", "channel_id": "halka_arz_channel"},
+            },
+            "apns": {"payload": {"aps": {"sound": "default"}}},
+            "data": {k: str(v) for k, v in (data or {}).items()},
+        }
+    }
+
+    try:
+        resp = requests.post(
+            url, json=payload,
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            timeout=10,
+        )
+        if resp.status_code == 200:
+            print(f"[BİLDİRİM ✓] {title}")
+            return True
+        print(f"[HATA] FCM ({resp.status_code}): {resp.text}")
+    except Exception as e:
+        print(f"[HATA] FCM: {e}")
+    return False
 
 
 def safe_request(url: str, timeout: int = 15) -> Optional[requests.Response]:
-    """Hata yönetimli HTTP GET isteği."""
+    """Rate-limited HTTP GET."""
     try:
         time.sleep(REQUEST_DELAY)
         response = requests.get(url, headers=HEADERS, timeout=timeout)
         response.raise_for_status()
         return response
     except requests.RequestException as e:
-        print(f"[HATA] İstek başarısız: {url} -> {e}")
+        print(f"[HATA] İstek: {url} → {e}")
         return None
 
 
-def parse_kap_halka_arz_page() -> list[dict]:
-    """
-    KAP Halka Arz Duyurularını parse eder.
-    KAP'ın halka arz sayfasından güncel verileri çeker.
-    """
+def parse_kap_halka_arz() -> list[dict]:
+    """KAP halka arz duyurularını çeker."""
     results = []
 
-    # KAP halka arz bildirim sayfası
-    url = "https://www.kap.org.tr/tr/bist-sirketler"
-    response = safe_request(url)
-    if not response:
-        print("[UYARI] KAP sayfasına erişilemedi, manuel veriler kullanılacak.")
-        return results
+    # KAP bildirim API
+    url = "https://www.kap.org.tr/tr/api/memberDisclosureQuery"
+    payload = {
+        "fromDate": (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d"),
+        "toDate": datetime.now().strftime("%Y-%m-%d"),
+        "subject": "halka arz",
+    }
 
     try:
-        soup = BeautifulSoup(response.text, "html.parser")
-        # KAP'ın yapısı değişebilir, temel parse mantığı
-        # Bu bölüm KAP'ın güncel HTML yapısına göre güncellenmeli
-        print("[BİLGİ] KAP sayfası başarıyla çekildi.")
+        time.sleep(REQUEST_DELAY)
+        resp = requests.post(url, json=payload, headers=HEADERS, timeout=15)
+        if resp.status_code == 200:
+            data = resp.json()
+            if isinstance(data, list):
+                for item in data:
+                    try:
+                        code = item.get("stockCodes", "").split(",")[0].strip()
+                        if code:
+                            results.append({
+                                "sirket_kodu": code,
+                                "sirket_adi": item.get("companyName", code),
+                                "kaynak": "kap",
+                                "tarih": item.get("publishDate", ""),
+                            })
+                    except Exception:
+                        continue
+            print(f"[BİLGİ] KAP'tan {len(results)} duyuru bulundu.")
+        else:
+            print(f"[UYARI] KAP API ({resp.status_code})")
     except Exception as e:
-        print(f"[HATA] KAP parse hatası: {e}")
-
-    return results
-
-
-def fetch_spk_bulteni() -> list[dict]:
-    """
-    SPK haftalık bülteninden halka arz onaylarını kontrol eder.
-    """
-    results = []
-    url = "https://www.spk.gov.tr/Bulten/Goster"
-    response = safe_request(url)
-    if not response:
-        print("[UYARI] SPK bültenine erişilemedi.")
-        return results
-
-    try:
-        soup = BeautifulSoup(response.text, "html.parser")
-        print("[BİLGİ] SPK bülteni başarıyla çekildi.")
-    except Exception as e:
-        print(f"[HATA] SPK parse hatası: {e}")
+        print(f"[HATA] KAP: {e}")
 
     return results
 
@@ -91,8 +146,8 @@ def fetch_spk_bulteni() -> list[dict]:
 def create_ipo_entry(
     sirket_kodu: str,
     sirket_adi: str,
-    arz_fiyati: float,
-    toplam_lot: int,
+    arz_fiyati: float = 0,
+    toplam_lot: int = 0,
     dagitim_sekli: str = "Eşit",
     konsorsiyum_lideri: str = "",
     iskonto_orani: float = 0.0,
@@ -114,29 +169,27 @@ def create_ipo_entry(
         "konsorsiyum_lideri": konsorsiyum_lideri,
         "iskonto_orani": iskonto_orani,
         "fon_kullanim_yeri": fon_kullanim_yeri or {
-            "yatirim": 0,
-            "borc_odeme": 0,
-            "isletme_sermayesi": 0,
+            "yatirim": 0, "borc_odeme": 0, "isletme_sermayesi": 0
         },
         "katilim_endeksine_uygun": katilim_endeksine_uygun,
         "talep_baslangic": talep_baslangic,
         "talep_bitis": talep_bitis,
         "borsada_islem_tarihi": borsada_islem_tarihi,
-        "durum": durum,  # taslak | talep_topluyor | islem_goruyor
+        "durum": durum,
         "son_katilimci_sayilari": son_katilimci_sayilari or [],
         "guncelleme_zamani": datetime.now().isoformat(),
     }
 
 
 def load_manual_data() -> list[dict]:
-    """Manuel olarak girilen IPO verilerini yükler."""
+    """Manuel IPO verilerini yükler."""
     if not os.path.exists(MANUAL_FILE):
         return []
     try:
         with open(MANUAL_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
     except (json.JSONDecodeError, IOError) as e:
-        print(f"[HATA] Manuel veri okunamadı: {e}")
+        print(f"[HATA] Manuel veri: {e}")
         return []
 
 
@@ -148,20 +201,34 @@ def load_existing_data() -> list[dict]:
         with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
     except (json.JSONDecodeError, IOError) as e:
-        print(f"[HATA] Mevcut veri okunamadı: {e}")
+        print(f"[HATA] Mevcut veri: {e}")
         return []
 
 
+def load_notification_state() -> dict:
+    """Bildirim state yükler."""
+    if not os.path.exists(STATE_FILE):
+        return {}
+    try:
+        with open(STATE_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return {}
+
+
+def save_notification_state(state: dict):
+    """Bildirim state kaydeder."""
+    os.makedirs(DATA_DIR, exist_ok=True)
+    with open(STATE_FILE, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False, indent=2)
+
+
 def merge_ipo_data(existing: list[dict], new_data: list[dict]) -> list[dict]:
-    """
-    Mevcut ve yeni IPO verilerini birleştirir.
-    Aynı şirket kodu varsa günceller, yoksa ekler.
-    """
+    """Mevcut ve yeni verileri birleştirir (şirket koduna göre)."""
     merged = {item["sirket_kodu"]: item for item in existing}
     for item in new_data:
         code = item["sirket_kodu"]
         if code in merged:
-            # Mevcut veriyi güncelle, ama kullanıcı girişlerini koru
             existing_item = merged[code]
             item["guncelleme_zamani"] = datetime.now().isoformat()
             merged[code] = {**existing_item, **item}
@@ -171,7 +238,7 @@ def merge_ipo_data(existing: list[dict], new_data: list[dict]) -> list[dict]:
 
 
 def update_ipo_statuses(ipos: list[dict]) -> list[dict]:
-    """IPO durumlarını tarihlere göre günceller."""
+    """IPO durumlarını tarihlere göre otomatik günceller."""
     now = datetime.now()
     for ipo in ipos:
         try:
@@ -191,51 +258,67 @@ def update_ipo_statuses(ipos: list[dict]) -> list[dict]:
                 if bas_date <= now <= bit_date:
                     ipo["durum"] = "talep_topluyor"
                 elif now > bit_date:
-                    ipo["durum"] = "talep_topluyor"  # Talep bitti ama henüz işlem görmüyor
+                    ipo["durum"] = "talep_topluyor"  # Bitti ama henüz işlem görmüyor
                 else:
                     ipo["durum"] = "taslak"
         except (ValueError, TypeError):
             pass
-
     return ipos
 
 
+def notify_new_ipos(existing_codes: set, all_ipos: list[dict], state: dict) -> dict:
+    """Yeni eklenen IPO'lar için bildirim gönderir."""
+    for ipo in all_ipos:
+        code = ipo["sirket_kodu"]
+        state_key = f"yeni_arz_{code}"
+        if code not in existing_codes and state_key not in state:
+            send_notification(
+                title="🆕 Yeni Halka Arz!",
+                body=f"{ipo.get('sirket_adi', code)} halka arza hazırlanıyor.",
+                data={"type": "yeni_arz", "ticker": code},
+            )
+            state[state_key] = datetime.now().isoformat()
+    return state
+
+
 def save_data(ipos: list[dict]):
-    """IPO verilerini JSON dosyasına kaydeder."""
+    """IPO verilerini JSON'a kaydeder."""
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(ipos, f, ensure_ascii=False, indent=2)
-    print(f"[BİLGİ] {len(ipos)} adet IPO verisi kaydedildi: {OUTPUT_FILE}")
+    print(f"[BİLGİ] {len(ipos)} IPO kaydedildi → {OUTPUT_FILE}")
 
 
 def main():
-    """Ana çalıştırma fonksiyonu."""
+    """Ana fonksiyon."""
     print("=" * 60)
-    print(f"Halka Arz Veri Çekme Motoru - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    print(f"Halka Arz Veri Motoru — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     print("=" * 60)
 
-    # 1. Mevcut verileri yükle
+    # 1. Mevcut veriler
     existing_data = load_existing_data()
-    print(f"[BİLGİ] Mevcut veri sayısı: {len(existing_data)}")
+    existing_codes = {item["sirket_kodu"] for item in existing_data}
+    print(f"[BİLGİ] Mevcut: {len(existing_data)} IPO")
 
-    # 2. KAP'tan veri çek
-    kap_data = parse_kap_halka_arz_page()
-    print(f"[BİLGİ] KAP'tan çekilen veri sayısı: {len(kap_data)}")
+    # 2. KAP'tan çek
+    kap_data = parse_kap_halka_arz()
+    print(f"[BİLGİ] KAP: {len(kap_data)} kayıt")
 
-    # 3. SPK bülteninden veri çek
-    spk_data = fetch_spk_bulteni()
-    print(f"[BİLGİ] SPK'dan çekilen veri sayısı: {len(spk_data)}")
-
-    # 4. Manuel verileri yükle
+    # 3. Manuel veriler
     manual_data = load_manual_data()
-    print(f"[BİLGİ] Manuel veri sayısı: {len(manual_data)}")
+    print(f"[BİLGİ] Manuel: {len(manual_data)} kayıt")
 
-    # 5. Tüm verileri birleştir
-    all_new = kap_data + spk_data + manual_data
+    # 4. Birleştir
+    all_new = kap_data + manual_data
     merged = merge_ipo_data(existing_data, all_new)
 
-    # 6. Durumları güncelle
+    # 5. Durumları güncelle
     updated = update_ipo_statuses(merged)
+
+    # 6. Yeni IPO'lar için bildirim
+    state = load_notification_state()
+    state = notify_new_ipos(existing_codes, updated, state)
+    save_notification_state(state)
 
     # 7. Kaydet
     save_data(updated)
