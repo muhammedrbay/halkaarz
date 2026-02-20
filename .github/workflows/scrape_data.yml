@@ -1,0 +1,37 @@
+name: Halka Arz Veri Çekme
+
+on:
+  schedule:
+    # Günde 2 kez (Türkiye saati 09:00 ve 18:00)
+    - cron: '0 6,15 * * 1-5'
+  workflow_dispatch: # Manuel tetikleme
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Run scraper
+        run: python backend/scraper.py
+
+      - name: Commit and push data
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add backend/data/ipos.json
+          git diff --staged --quiet || git commit -m "chore: IPO verileri güncellendi [$(date +'%Y-%m-%d %H:%M')]"
+          git push

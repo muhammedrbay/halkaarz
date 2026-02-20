@@ -1,0 +1,40 @@
+name: halka_arz
+description: "Halka Arz Takip ve Portföy Asistanı"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Firebase
+  firebase_core: ^3.12.1
+  firebase_messaging: ^15.2.5
+
+  # Local DB
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Network
+  http: ^1.4.0
+
+  # Utils
+  intl: ^0.20.2
+  google_fonts: ^6.2.1
+  flutter_local_notifications: ^18.0.1
+  url_launcher: ^6.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.13
+
+flutter:
+  uses-material-design: true

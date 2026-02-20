@@ -1,0 +1,29 @@
+{
+    "project_info": {
+        "project_number": "306838879846",
+        "project_id": "halkaarz-fb398",
+        "storage_bucket": "halkaarz-fb398.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:306838879846:android:35c95070a2de51641af7a7",
+                "android_client_info": {
+                    "package_name": "com.halkaarz.halka_arz"
+                }
+            },
+            "oauth_client": [],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyDg6jiNG5IKIAbS07z8b0qAcuyB0v3pQDc"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": []
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}
