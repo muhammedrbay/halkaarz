@@ -4,8 +4,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'services/firebase_service.dart';
 import 'services/data_service.dart';
 import 'services/portfolio_service.dart';
+import 'services/historical_ipo_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/portfolio_screen.dart';
+import 'screens/historical_ipo_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +16,7 @@ void main() async {
   await Hive.initFlutter();
   await DataService.init();
   await PortfolioService.init();
+  await HistoricalIpoService.init();
 
   // Firebase başlat (hata olursa uygulama yine çalışır)
   try {
@@ -93,6 +96,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   final _screens = const [
     HomeScreen(),
+    HistoricalIpoScreen(),
     PortfolioScreen(),
   ];
 
@@ -124,7 +128,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             BottomNavigationBarItem(
               icon: Icon(Icons.trending_up_rounded),
               activeIcon: Icon(Icons.trending_up_rounded, size: 28),
-              label: 'Halka Arzlar',
+              label: 'Arzlar',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.analytics_outlined),
+              activeIcon: Icon(Icons.analytics_rounded, size: 28),
+              label: 'Performans',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.account_balance_wallet_outlined),
