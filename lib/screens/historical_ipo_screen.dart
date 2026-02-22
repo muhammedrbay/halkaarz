@@ -511,8 +511,34 @@ class _IpoCard extends StatelessWidget {
               SizedBox(
                 height: 70,
                 width: double.infinity,
-                child: ipo.sparkline.length >= 3
-                    ? _Sparkline(prices: ipo.sparkline, color: renk)
+                child: ipo.islemTarihi.isAfter(DateTime.now())
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.schedule_rounded,
+                              color: Color(0xFFFFBE0B),
+                              size: 24,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Henüz işlemlere başlamadı',
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFFFFBE0B),
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ipo.sparkline.length >= 3
+                    ? _Sparkline(
+                        prices: ipo.sparkline,
+                        color: renk,
+                        islemTarihi: ipo.islemTarihi,
+                      )
                     : Center(
                         child: ipo.staticFetched == true
                             ? Column(
@@ -618,8 +644,13 @@ class _IpoCard extends StatelessWidget {
 class _Sparkline extends StatelessWidget {
   final List<double> prices;
   final Color color;
+  final DateTime islemTarihi;
 
-  const _Sparkline({required this.prices, required this.color});
+  const _Sparkline({
+    required this.prices,
+    required this.color,
+    required this.islemTarihi,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -663,7 +694,51 @@ class _Sparkline extends StatelessWidget {
             ),
           ),
         ],
-        lineTouchData: const LineTouchData(enabled: false),
+        lineTouchData: LineTouchData(
+          enabled: true,
+          handleBuiltInTouches: true,
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (_) => const Color(0xFF1A1F38),
+            tooltipBorder: BorderSide(color: color.withValues(alpha: 0.3)),
+            tooltipRoundedRadius: 8,
+            tooltipPadding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 6,
+            ),
+            getTooltipItems: (touchedSpots) {
+              return touchedSpots.map((spot) {
+                final dayIndex = spot.x.toInt();
+                final date = islemTarihi.add(Duration(days: dayIndex));
+                final dateStr =
+                    '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+                return LineTooltipItem(
+                  '₺${spot.y.toStringAsFixed(2)}\n$dateStr',
+                  GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                );
+              }).toList();
+            },
+          ),
+          getTouchedSpotIndicator: (barData, spotIndexes) {
+            return spotIndexes.map((i) {
+              return TouchedSpotIndicatorData(
+                FlLine(color: color.withValues(alpha: 0.4), strokeWidth: 1),
+                FlDotData(
+                  show: true,
+                  getDotPainter: (spot, pct, bar, idx) => FlDotCirclePainter(
+                    radius: 4,
+                    color: color,
+                    strokeWidth: 2,
+                    strokeColor: Colors.white,
+                  ),
+                ),
+              );
+            }).toList();
+          },
+        ),
       ),
     );
   }

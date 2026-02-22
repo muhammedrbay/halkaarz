@@ -139,20 +139,14 @@ class _HomeScreenState extends State<HomeScreen>
               ),
               Text(
                 'Güncel halka arzları keşfet',
-                style: GoogleFonts.inter(
-                  color: Colors.white38,
-                  fontSize: 12,
-                ),
+                style: GoogleFonts.inter(color: Colors.white38, fontSize: 12),
               ),
             ],
           ),
           const Spacer(),
           IconButton(
             onPressed: _loadData,
-            icon: const Icon(
-              Icons.refresh_rounded,
-              color: Color(0xFF00D4AA),
-            ),
+            icon: const Icon(Icons.refresh_rounded, color: Color(0xFF00D4AA)),
           ),
         ],
       ),
@@ -191,8 +185,7 @@ class _HomeScreenState extends State<HomeScreen>
               children: [
                 const Icon(Icons.edit_note_rounded, size: 16),
                 const SizedBox(width: 4),
-                Text('Taslaklar',
-                    style: GoogleFonts.inter(fontSize: 12)),
+                Text('Taslaklar', style: GoogleFonts.inter(fontSize: 12)),
               ],
             ),
           ),
@@ -202,8 +195,7 @@ class _HomeScreenState extends State<HomeScreen>
               children: [
                 const Icon(Icons.how_to_vote_rounded, size: 16),
                 const SizedBox(width: 4),
-                Text('Talep',
-                    style: GoogleFonts.inter(fontSize: 12)),
+                Text('Talep', style: GoogleFonts.inter(fontSize: 12)),
               ],
             ),
           ),
@@ -213,8 +205,7 @@ class _HomeScreenState extends State<HomeScreen>
               children: [
                 const Icon(Icons.show_chart_rounded, size: 16),
                 const SizedBox(width: 4),
-                Text('İşlem',
-                    style: GoogleFonts.inter(fontSize: 12)),
+                Text('İşlem', style: GoogleFonts.inter(fontSize: 12)),
               ],
             ),
           ),
@@ -226,6 +217,62 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _buildIpoList(String durum) {
     final ipos = _getFilteredIpos(durum);
     if (ipos.isEmpty) {
+      // Taslaklar sekmesine özel mesaj
+      if (durum == 'taslak') {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1A1F38),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: const Color(0xFFFFBE0B).withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFBE0B).withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.hourglass_empty_rounded,
+                      color: Color(0xFFFFBE0B),
+                      size: 32,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Şu an aktif taslak veri bulunmuyor',
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Yeni taslaklar yakında sisteme eklenecektir.',
+                    style: GoogleFonts.inter(
+                      color: Colors.white38,
+                      fontSize: 13,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -84,11 +84,20 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
                   const SizedBox(height: 12),
                   _buildInfoCard([
                     _buildInfoRow('Şirket Adı', ipo.sirketAdi),
-                    _buildInfoRow('Arz Fiyatı', '₺${ipo.arzFiyati.toStringAsFixed(2)}'),
-                    _buildInfoRow('Toplam Lot', '${_formatNumber(ipo.toplamLot)} Lot'),
+                    _buildInfoRow(
+                      'Arz Fiyatı',
+                      '₺${ipo.arzFiyati.toStringAsFixed(2)}',
+                    ),
+                    _buildInfoRow(
+                      'Toplam Lot',
+                      '${_formatNumber(ipo.toplamLot)} Lot',
+                    ),
                     _buildInfoRow('Dağıtım Şekli', ipo.dagitimSekli),
                     _buildInfoRow('Konsorsiyum Lideri', ipo.konsorsiyumLideri),
-                    _buildInfoRow('İskonto Oranı', '%${ipo.iskontoOrani.toStringAsFixed(1)}'),
+                    _buildInfoRow(
+                      'İskonto Oranı',
+                      '%${ipo.iskontoOrani.toStringAsFixed(1)}',
+                    ),
                     _buildInfoRow(
                       'Katılım Endeksine Uygun',
                       ipo.katilimEndeksineUygun ? '✅ Evet' : '❌ Hayır',
@@ -102,9 +111,12 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
                   const SizedBox(height: 12),
                   _buildInfoCard([
                     _buildInfoRow('Talep Toplama', ipo.talepTarihAraligi),
-                    _buildInfoRow('Borsada İşlem', ipo.borsadaIslemTarihi.isEmpty
-                        ? 'Belirtilmedi'
-                        : _formatDate(ipo.borsadaIslemTarihi)),
+                    _buildInfoRow(
+                      'Borsada İşlem',
+                      ipo.borsadaIslemTarihi.isEmpty
+                          ? 'Belirtilmedi'
+                          : _formatDate(ipo.borsadaIslemTarihi),
+                    ),
                   ]),
 
                   const SizedBox(height: 20),
@@ -115,6 +127,13 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
                   _buildFonKullanimCard(ipo),
 
                   const SizedBox(height: 24),
+
+                  // ---- Kişi Başı Lot Kartı (sadece sonuçlanmış arzlarda) ----
+                  if (ipo.durum == 'islem_goruyor' &&
+                      ipo.sonKatilimciSayilari.isNotEmpty) ...[
+                    _buildKisiBasiLotCard(ipo),
+                    const SizedBox(height: 24),
+                  ],
 
                   // ---- Tahmini Lot Hesaplayıcı ----
                   _buildSectionTitle('Tahmini Lot Hesaplayıcı'),
@@ -382,11 +401,7 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
                       ],
                     ),
                   ),
-                  Container(
-                    width: 1,
-                    height: 40,
-                    color: Colors.white12,
-                  ),
+                  Container(width: 1, height: 40, color: Colors.white12),
                   Expanded(
                     child: Column(
                       children: [
@@ -496,6 +511,72 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
     );
   }
 
+  Widget _buildKisiBasiLotCard(IpoModel ipo) {
+    final katilimci = ipo.sonKatilimciSayilari.last;
+    final kisiBasiLot = katilimci > 0 ? (ipo.toplamLot / katilimci) : 0.0;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF00D4AA).withValues(alpha: 0.08),
+            const Color(0xFF00B4D8).withValues(alpha: 0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: const Color(0xFF00D4AA).withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF00D4AA).withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.person_rounded,
+              color: Color(0xFF00D4AA),
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Kişi Başı Ortalama',
+                  style: GoogleFonts.inter(color: Colors.white54, fontSize: 12),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${kisiBasiLot.toStringAsFixed(1)} Lot Düştü',
+                  style: GoogleFonts.inter(
+                    color: const Color(0xFF00D4AA),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${_formatNumber(ipo.toplamLot)} lot / ${_formatNumber(katilimci)} kişi',
+                  style: GoogleFonts.inter(color: Colors.white38, fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAddToPortfolioButton(IpoModel ipo) {
     return SizedBox(
       width: double.infinity,
@@ -503,18 +584,13 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => AddPortfolioScreen(ipo: ipo),
-            ),
+            MaterialPageRoute(builder: (_) => AddPortfolioScreen(ipo: ipo)),
           );
         },
         icon: const Icon(Icons.add_circle_outline_rounded),
         label: Text(
           'Portföye Ekle',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w700,
-            fontSize: 15,
-          ),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 15),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF00D4AA),
