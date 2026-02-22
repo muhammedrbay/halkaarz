@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../firebase_options.dart';
 
 /// Firebase ve bildirim servisi
 class FirebaseService {
@@ -12,15 +13,10 @@ class FirebaseService {
 
   /// Firebase'i başlat
   static Future<bool> init() async {
-    // Web platformunda Firebase yapılandırması farklı, şimdilik atla
-    if (kIsWeb) {
-      print('Web platformu — Firebase atlanıyor (bildirimler devre dışı)');
-      _initialized = false;
-      return false;
-    }
-
     try {
-      await Firebase.initializeApp();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
       _initialized = true;
       await _setupFCM();
       await _setupLocalNotifications();
@@ -40,11 +36,7 @@ class FirebaseService {
     final messaging = FirebaseMessaging.instance;
 
     // İzin iste
-    await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    await messaging.requestPermission(alert: true, badge: true, sound: true);
 
     // 'halka_arz' topic'ine abone ol
     await messaging.subscribeToTopic('halka_arz');
@@ -77,7 +69,12 @@ class FirebaseService {
       android: androidSettings,
       iOS: iosSettings,
     );
-    await _localNotifications.initialize(settings);
+    await _localNotifications.initialize(
+      settings: settings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        // Handle foreground click
+      },
+    );
   }
 
   /// Foreground bildirim göster
@@ -86,10 +83,10 @@ class FirebaseService {
     if (notification == null) return;
 
     await _localNotifications.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      const NotificationDetails(
+      id: notification.hashCode,
+      title: notification.title,
+      body: notification.body,
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'halka_arz_channel',
           'Halka Arz Bildirimleri',
@@ -103,15 +100,15 @@ class FirebaseService {
     );
   }
 
-  /// Background mesaj handler (top-level fonksiyon olmalı)
-  @pragma('vm:entry-point')
-  static Future<void> _handleBackgroundMessage(RemoteMessage message) async {
-    print('Background mesaj alındı: ${message.messageId}');
-  }
-
   /// Bildirime tıklanınca
   static void _handleMessageOpenedApp(RemoteMessage message) {
     print('Bildirime tıklandı: ${message.data}');
     // Gerekirse ilgili sayfaya yönlendir
   }
+}
+
+/// Background mesaj handler (top-level fonksiyon olmalı)
+@pragma('vm:entry-point')
+Future<void> _handleBackgroundMessage(RemoteMessage message) async {
+  print('Background mesaj alındı: ${message.messageId}');
 }
