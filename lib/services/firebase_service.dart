@@ -14,13 +14,20 @@ class FirebaseService {
   /// Firebase'i başlat
   static Future<bool> init() async {
     try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-      _initialized = true;
-      await _setupFCM();
-      await _setupLocalNotifications();
-      return true;
+      if (kIsWeb) {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+        _initialized = true;
+        print('Web platformunda Firebase başlatıldı (bildirimler hariç)');
+        return true;
+      } else {
+        await Firebase.initializeApp();
+        _initialized = true;
+        await _setupFCM();
+        await _setupLocalNotifications();
+        return true;
+      }
     } catch (e) {
       print('Firebase başlatılamadı: $e');
       _initialized = false;
@@ -71,9 +78,6 @@ class FirebaseService {
     );
     await _localNotifications.initialize(
       settings: settings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        // Handle foreground click
-      },
     );
   }
 
@@ -100,15 +104,15 @@ class FirebaseService {
     );
   }
 
+  /// Background mesaj handler (top-level fonksiyon olmalı)
+  @pragma('vm:entry-point')
+  static Future<void> _handleBackgroundMessage(RemoteMessage message) async {
+    print('Background mesaj alındı: ${message.messageId}');
+  }
+
   /// Bildirime tıklanınca
   static void _handleMessageOpenedApp(RemoteMessage message) {
     print('Bildirime tıklandı: ${message.data}');
     // Gerekirse ilgili sayfaya yönlendir
   }
-}
-
-/// Background mesaj handler (top-level fonksiyon olmalı)
-@pragma('vm:entry-point')
-Future<void> _handleBackgroundMessage(RemoteMessage message) async {
-  print('Background mesaj alındı: ${message.messageId}');
 }

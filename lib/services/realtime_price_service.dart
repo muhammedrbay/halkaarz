@@ -60,15 +60,23 @@ class RealtimePriceService {
   static Future<Map<String, double>> _fetchFromRtdb() async {
     try {
       debugPrint('[RTDB] Tek seferlik get() çağrısı → /prices');
-      final snapshot = await FirebaseDatabase.instance.ref('prices').get().timeout(const Duration(seconds: 8));
-      
-      if (!snapshot.exists) {
+
+      final ref = FirebaseDatabase.instance.ref('prices');
+      // TEK SEFERLİK — bağlantı hemen kapanır, stream açılmaz
+      final snapshot = await ref.get().timeout(const Duration(seconds: 8));
+
+      if (!snapshot.exists || snapshot.value == null) {
         debugPrint('[RTDB] /prices boş veya yok.');
         return Map.unmodifiable(_cache);
       }
-      
-      final raw = Map<String, dynamic>.from(snapshot.value as Map);
-      final prices = raw.map((key, value) => MapEntry(key, (value as num).toDouble()));
+
+      final raw = snapshot.value as Map;
+      final prices = <String, double>{};
+      for (final entry in raw.entries) {
+        try {
+          prices[entry.key.toString()] = (entry.value as num).toDouble();
+        } catch (_) {}
+      }
 
       debugPrint('[RTDB ✓] ${prices.length} fiyat alındı.');
       _cache = prices;
@@ -92,8 +100,6 @@ class RealtimePriceService {
 
   /// Sadece belirli tickerları çek (tüm listeyi indirmek yerine)
   static Future<double?> fetchSingle(String ticker) async {
-
-
     try {
       final ref = FirebaseDatabase.instance.ref('prices/$ticker');
       final snapshot = await ref.get().timeout(const Duration(seconds: 5));

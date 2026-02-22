@@ -16,13 +16,11 @@ class DefaultFirebaseOptions {
         return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+          'DefaultFirebaseOptions have not been configured for windows',
         );
       case TargetPlatform.linux:
         throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
+          'DefaultFirebaseOptions have not been configured for linux',
         );
       default:
         throw UnsupportedError(
@@ -33,14 +31,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyDg6jiNG5IKIAbS07z8b0qAcuyB0v3pQDc',
-    appId:
-        '1:306838879846:web:12abc', // Placeholder, we might need real web app id if it fails
+    appId: '1:306838879846:web:12abc', 
     messagingSenderId: '306838879846',
     projectId: 'halkaarz-fb398',
     authDomain: 'halkaarz-fb398.firebaseapp.com',
     storageBucket: 'halkaarz-fb398.firebasestorage.app',
-    databaseURL:
-        'https://halkaarz-fb398-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL: 'https://halkaarz-fb398-default-rtdb.europe-west1.firebasedatabase.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -49,8 +45,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '306838879846',
     projectId: 'halkaarz-fb398',
     storageBucket: 'halkaarz-fb398.firebasestorage.app',
-    databaseURL:
-        'https://halkaarz-fb398-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL: 'https://halkaarz-fb398-default-rtdb.europe-west1.firebasedatabase.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -59,8 +54,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '306838879846',
     projectId: 'halkaarz-fb398',
     storageBucket: 'halkaarz-fb398.firebasestorage.app',
-    databaseURL:
-        'https://halkaarz-fb398-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL: 'https://halkaarz-fb398-default-rtdb.europe-west1.firebasedatabase.app',
     iosBundleId: 'com.halkaarz.halkaArz',
   );
 
@@ -70,8 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '306838879846',
     projectId: 'halkaarz-fb398',
     storageBucket: 'halkaarz-fb398.firebasestorage.app',
-    databaseURL:
-        'https://halkaarz-fb398-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL: 'https://halkaarz-fb398-default-rtdb.europe-west1.firebasedatabase.app',
     iosBundleId: 'com.halkaarz.halkaArz',
   );
 }
