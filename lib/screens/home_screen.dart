@@ -4,6 +4,7 @@ import '../models/ipo_model.dart';
 import '../services/data_service.dart';
 import '../widgets/ipo_card.dart';
 import '../widgets/katilim_toggle.dart';
+import '../services/realtime_price_service.dart';
 
 /// Ana Ekran — 3 sekmeli halka arz listesi
 class HomeScreen extends StatefulWidget {
@@ -31,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen>
     setState(() => _isLoading = true);
     try {
       final ipos = await DataService.fetchFromRemote();
+      await RealtimePriceService.fetchAll();
       if (mounted) {
         setState(() {
           _allIpos = ipos;
@@ -39,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen>
       }
     } catch (e) {
       final ipos = await DataService.loadFromLocal();
+      await RealtimePriceService.fetchAll();
       if (mounted) {
         setState(() {
           _allIpos = ipos;

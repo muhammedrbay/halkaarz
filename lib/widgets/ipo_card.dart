@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/ipo_model.dart';
 import '../screens/ipo_detail_screen.dart';
+import '../services/realtime_price_service.dart';
 
 /// IPO listesi kart widget'ı — gradient, glow efektleri
 class IpoCard extends StatelessWidget {
@@ -153,12 +154,22 @@ class IpoCard extends StatelessWidget {
               // Alt satır: Fiyat, Lot, Katılım
               Row(
                 children: [
-                  _buildInfoChip(
-                    Icons.monetization_on_outlined,
-                    '₺${ipo.arzFiyati.toStringAsFixed(2)}',
-                    'Arz Fiyatı',
-                  ),
-                  const SizedBox(width: 16),
+                  if (ipo.durum == 'islem_goruyor' && RealtimePriceService.getPrice(ipo.sirketKodu) != null) ...[
+                    _buildInfoChip(
+                      Icons.show_chart_rounded,
+                      '₺${RealtimePriceService.getPrice(ipo.sirketKodu)!.toStringAsFixed(2)}',
+                      'Güncel Fiyat',
+                      color: const Color(0xFF00D4AA),
+                    ),
+                    const SizedBox(width: 16),
+                  ] else ...[
+                    _buildInfoChip(
+                      Icons.monetization_on_outlined,
+                      '₺${ipo.arzFiyati.toStringAsFixed(2)}',
+                      'Arz Fiyatı',
+                    ),
+                    const SizedBox(width: 16),
+                  ],
                   _buildInfoChip(
                     Icons.inventory_2_outlined,
                     '${_formatNumber(ipo.toplamLot)} Lot',
@@ -227,18 +238,18 @@ class IpoCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoChip(IconData icon, String value, String label) {
+  Widget _buildInfoChip(IconData icon, String value, String label, {Color? color}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(icon, color: Colors.white54, size: 14),
+            Icon(icon, color: color ?? Colors.white54, size: 14),
             const SizedBox(width: 4),
             Text(
               value,
               style: GoogleFonts.inter(
-                color: Colors.white,
+                color: color ?? Colors.white,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
