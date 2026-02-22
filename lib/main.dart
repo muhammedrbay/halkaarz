@@ -5,6 +5,7 @@ import 'services/firebase_service.dart';
 import 'services/data_service.dart';
 import 'services/portfolio_service.dart';
 import 'services/historical_ipo_service.dart';
+import 'services/realtime_price_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/portfolio_screen.dart';
 import 'screens/historical_ipo_screen.dart';
@@ -17,6 +18,7 @@ void main() async {
   await DataService.init();
   await PortfolioService.init();
   await HistoricalIpoService.init();
+  await RealtimePriceService.init();
 
   // Firebase başlat (hata olursa uygulama yine çalışır)
   try {

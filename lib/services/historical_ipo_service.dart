@@ -9,23 +9,25 @@ class HistoricalIpo {
   final String sirketKodu;
   final String sirketAdi;
 
-  // Statik veriler — bir kez yazılır, sonsuza kadar cache'te kalır
+  // Statik (GitHub ipos.json'dan, sonsuza kadar cache)
   final double arzFiyati;
-  final int kisiBasiLot;       // Kişi başına düşen lot
-  final int toplamLot;         // Toplam arz edilen lot sayısı
-  final DateTime islemTarihi;  // Borsada işlem tarihi
+  final int kisiBasiLot;
+  final int toplamLot;
+  final DateTime islemTarihi;
   final bool katilimEndeksi;
+  final String? sektor;
+  final String? fonKullanim;
 
-  // Yarı-statik — arz bitince değişmez, Yahoo'dan hesaplanır
-  double? ilkGunKapanis;       // Birinci gün kapanış
-  double? maxFiyat;            // Tüm zamanlarda max fiyat
-  double? minFiyat;            // Tüm zamanlarda min fiyat
-  int? tavanGunSayisi;         // Birinci günden tavan gün sayısı
-  List<double> sparkline;      // Son 30 günlük fiyat serisi
-  bool? staticFetched;         // Yukarıdaki veriler çekildi mi?
+  // Yarı-statik (Yahoo Finance'den, sadece 1 kez çekilir)
+  double? ilkGunKapanis;
+  double? maxFiyat;
+  double? minFiyat;
+  int? tavanGunSayisi;
+  List<double> sparkline;
+  bool? staticFetched;
   DateTime? staticFetchedAt;
 
-  // Dinamik — her 15 dakikada güncellenir
+  // Dinamik (RTDB'den — RealtimePriceService tarafından doldurulur)
   double? guncelFiyat;
   DateTime? priceUpdatedAt;
 
@@ -37,6 +39,8 @@ class HistoricalIpo {
     required this.toplamLot,
     required this.islemTarihi,
     this.katilimEndeksi = false,
+    this.sektor,
+    this.fonKullanim,
     this.ilkGunKapanis,
     this.maxFiyat,
     this.minFiyat,
@@ -67,27 +71,17 @@ class HistoricalIpo {
     return (guncelFiyat! - prev) / prev >= 0.095;
   }
 
-  bool get guncelFiyatBayat {
-    if (priceUpdatedAt == null) return true;
-    return DateTime.now().difference(priceUpdatedAt!) > const Duration(minutes: 15);
-  }
-
-  bool get staticVeriBayat {
-    if (staticFetched != true) return true;
-    if (staticFetchedAt == null) return true;
-    // Statik veri bir kez çekilip saklanır; şirket aktif değilse 30 günde bir kontrol yeter
-    return false;
-  }
-
   factory HistoricalIpo.fromJson(Map<String, dynamic> j) {
     return HistoricalIpo(
-      sirketKodu: j['kod'] ?? '',
-      sirketAdi: j['ad'] ?? '',
+      sirketKodu: (j['sirket_kodu'] ?? j['kod'] ?? '').toString().toUpperCase(),
+      sirketAdi: j['sirket_adi'] ?? j['ad'] ?? '',
       arzFiyati: (j['arz_fiyati'] ?? 0).toDouble(),
       kisiBasiLot: (j['kisi_basi_lot'] ?? 0).toInt(),
       toplamLot: (j['toplam_lot'] ?? 0).toInt(),
-      islemTarihi: DateTime.tryParse(j['islem_tarihi'] ?? '') ?? DateTime.now(),
-      katilimEndeksi: j['katilim'] ?? false,
+      islemTarihi: DateTime.tryParse(j['borsada_islem_tarihi'] ?? j['islem_tarihi'] ?? '') ?? DateTime.now(),
+      katilimEndeksi: j['katilim_endeksine_uygun'] ?? j['katilim'] ?? false,
+      sektor: j['sektor'] as String?,
+      fonKullanim: j['fon_kullanim_yeri'] is String ? j['fon_kullanim_yeri'] : null,
       ilkGunKapanis: (j['ilk_gun_kapanis'] as num?)?.toDouble(),
       maxFiyat: (j['max_fiyat'] as num?)?.toDouble(),
       minFiyat: (j['min_fiyat'] as num?)?.toDouble(),
@@ -108,13 +102,15 @@ class HistoricalIpo {
   }
 
   Map<String, dynamic> toJson() => {
-        'kod': sirketKodu,
-        'ad': sirketAdi,
+        'sirket_kodu': sirketKodu,
+        'sirket_adi': sirketAdi,
         'arz_fiyati': arzFiyati,
         'kisi_basi_lot': kisiBasiLot,
         'toplam_lot': toplamLot,
-        'islem_tarihi': islemTarihi.toIso8601String(),
-        'katilim': katilimEndeksi,
+        'borsada_islem_tarihi': islemTarihi.toIso8601String(),
+        'katilim_endeksine_uygun': katilimEndeksi,
+        'sektor': sektor,
+        'fon_kullanim_yeri': fonKullanim,
         'ilk_gun_kapanis': ilkGunKapanis,
         'max_fiyat': maxFiyat,
         'min_fiyat': minFiyat,
@@ -127,148 +123,25 @@ class HistoricalIpo {
       };
 }
 
-// ─── Statik IPO Veritabanı ───────────────────────────────────────────────────
-// Bu veriler (arz fiyatı, kişi başı lot, toplam lot) hiç değişmez.
-// Borsa bilgileri KAP ve SPK kaynaklıdır.
-
-const List<Map<String, dynamic>> _staticIpoDb = [
-  // --- 2026 ---
-  {
-    'kod': 'EMPAE', 'ad': 'Empa Elektronik San. ve Tic. A.Ş.',
-    'arz_fiyati': 72.0, 'kisi_basi_lot': 1, 'toplam_lot': 3750000,
-    'islem_tarihi': '2026-02-24', 'katilim': false,
-  },
-  {
-    'kod': 'ATATR', 'ad': 'Ata Turizm İşletmecilik A.Ş.',
-    'arz_fiyati': 40.0, 'kisi_basi_lot': 1, 'toplam_lot': 5000000,
-    'islem_tarihi': '2026-02-20', 'katilim': false,
-  },
-  {
-    'kod': 'BESTE', 'ad': 'Best Brands Grup Enerji Yatırım A.Ş.',
-    'arz_fiyati': 28.0, 'kisi_basi_lot': 1, 'toplam_lot': 3500000,
-    'islem_tarihi': '2026-02-11', 'katilim': false,
-  },
-  {
-    'kod': 'NETCD', 'ad': 'Netcad Yazılım A.Ş.',
-    'arz_fiyati': 110.0, 'kisi_basi_lot': 1, 'toplam_lot': 2000000,
-    'islem_tarihi': '2026-02-05', 'katilim': false,
-  },
-  {
-    'kod': 'UCAYM', 'ad': 'Üçay Mühendislik A.Ş.',
-    'arz_fiyati': 65.0, 'kisi_basi_lot': 1, 'toplam_lot': 2500000,
-    'islem_tarihi': '2026-01-22', 'katilim': false,
-  },
-  {
-    'kod': 'ZGYO', 'ad': 'Z Gayrimenkul Yatırım Ortaklığı A.Ş.',
-    'arz_fiyati': 14.5, 'kisi_basi_lot': 2, 'toplam_lot': 10000000,
-    'islem_tarihi': '2026-01-16', 'katilim': true,
-  },
-  {
-    'kod': 'FRMPL', 'ad': 'Formül Plastik ve Metal San. A.Ş.',
-    'arz_fiyati': 38.5, 'kisi_basi_lot': 1, 'toplam_lot': 3000000,
-    'islem_tarihi': '2026-01-15', 'katilim': false,
-  },
-  {
-    'kod': 'MEYSU', 'ad': 'Meysu Gıda San. ve Tic. A.Ş.',
-    'arz_fiyati': 52.0, 'kisi_basi_lot': 1, 'toplam_lot': 2800000,
-    'islem_tarihi': '2026-01-13', 'katilim': false,
-  },
-  {
-    'kod': 'ARFYE', 'ad': 'ARF Bio Yenilenebilir Enerji A.Ş.',
-    'arz_fiyati': 30.0, 'kisi_basi_lot': 2, 'toplam_lot': 8000000,
-    'islem_tarihi': '2026-01-05', 'katilim': true,
-  },
-  // --- 2025 ---
-  {
-    'kod': 'PAHOL', 'ad': 'Pasifik Holding A.Ş.',
-    'arz_fiyati': 18.0, 'kisi_basi_lot': 2, 'toplam_lot': 6000000,
-    'islem_tarihi': '2025-12-10', 'katilim': false,
-  },
-  {
-    'kod': 'VAKFA', 'ad': 'Vakıf Faktoring A.Ş.',
-    'arz_fiyati': 14.5, 'kisi_basi_lot': 3, 'toplam_lot': 12000000,
-    'islem_tarihi': '2025-11-20', 'katilim': true,
-  },
-  {
-    'kod': 'ECOGR', 'ad': 'Ecogreen Enerji Holding A.Ş.',
-    'arz_fiyati': 24.0, 'kisi_basi_lot': 1, 'toplam_lot': 5000000,
-    'islem_tarihi': '2025-11-03', 'katilim': false,
-  },
-  {
-    'kod': 'MARMR', 'ad': 'Marmara Holding A.Ş.',
-    'arz_fiyati': 22.0, 'kisi_basi_lot': 2, 'toplam_lot': 7500000,
-    'islem_tarihi': '2025-10-28', 'katilim': false,
-  },
-  {
-    'kod': 'DOFRB', 'ad': 'Dof Robotik Sanayi A.Ş.',
-    'arz_fiyati': 48.0, 'kisi_basi_lot': 1, 'toplam_lot': 3200000,
-    'islem_tarihi': '2025-10-15', 'katilim': false,
-  },
-  {
-    'kod': 'BALSU', 'ad': 'Balsu Gıda San. ve Tic. A.Ş.',
-    'arz_fiyati': 35.0, 'kisi_basi_lot': 1, 'toplam_lot': 4000000,
-    'islem_tarihi': '2025-09-25', 'katilim': false,
-  },
-  {
-    'kod': 'KLYPV', 'ad': 'Kalyon Güneş Teknolojileri A.Ş.',
-    'arz_fiyati': 78.0, 'kisi_basi_lot': 1, 'toplam_lot': 2500000,
-    'islem_tarihi': '2025-09-10', 'katilim': true,
-  },
-  {
-    'kod': 'GLRMK', 'ad': 'Gülermak Ağır Sanayi İnşaat A.Ş.',
-    'arz_fiyati': 85.0, 'kisi_basi_lot': 1, 'toplam_lot': 3000000,
-    'islem_tarihi': '2025-08-25', 'katilim': false,
-  },
-  {
-    'kod': 'AKFIS', 'ad': 'Akfen İnşaat Turizm ve Ticaret A.Ş.',
-    'arz_fiyati': 42.0, 'kisi_basi_lot': 2, 'toplam_lot': 6000000,
-    'islem_tarihi': '2025-08-01', 'katilim': false,
-  },
-  {
-    'kod': 'ENDAE', 'ad': 'Enda Enerji Holding A.Ş.',
-    'arz_fiyati': 96.0, 'kisi_basi_lot': 1, 'toplam_lot': 2200000,
-    'islem_tarihi': '2025-07-10', 'katilim': true,
-  },
-  {
-    'kod': 'SERNT', 'ad': 'Seranit Granit Seramik San. A.Ş.',
-    'arz_fiyati': 29.0, 'kisi_basi_lot': 2, 'toplam_lot': 7000000,
-    'islem_tarihi': '2025-06-20', 'katilim': false,
-  },
-  {
-    'kod': 'MOPAS', 'ad': 'Mopaş Marketcilik Gıda San. A.Ş.',
-    'arz_fiyati': 18.0, 'kisi_basi_lot': 3, 'toplam_lot': 9000000,
-    'islem_tarihi': '2025-06-05', 'katilim': false,
-  },
-  {
-    'kod': 'DSTKF', 'ad': 'Destek Finans Faktoring A.Ş.',
-    'arz_fiyati': 26.0, 'kisi_basi_lot': 2, 'toplam_lot': 5500000,
-    'islem_tarihi': '2025-05-15', 'katilim': true,
-  },
-  {
-    'kod': 'VSNMD', 'ad': 'Vişne Madencilik Üretim San. A.Ş.',
-    'arz_fiyati': 45.0, 'kisi_basi_lot': 1, 'toplam_lot': 4000000,
-    'islem_tarihi': '2025-05-02', 'katilim': false,
-  },
-  {
-    'kod': 'BIGEN', 'ad': 'Birleşim Grup Enerji Yatırımları A.Ş.',
-    'arz_fiyati': 32.0, 'kisi_basi_lot': 1, 'toplam_lot': 5000000,
-    'islem_tarihi': '2025-04-10', 'katilim': false,
-  },
-  {
-    'kod': 'BULGS', 'ad': 'Bulls Girişim Sermayesi YO A.Ş.',
-    'arz_fiyati': 15.0, 'kisi_basi_lot': 2, 'toplam_lot': 8000000,
-    'islem_tarihi': '2025-03-20', 'katilim': false,
-  },
-];
-
 // ─── Servis ──────────────────────────────────────────────────────────────────
 
 class HistoricalIpoService {
-  static const String _boxName = 'historical_ipos_v2';
+  static const String _boxName = 'historical_ipos_v3';
+  static const String _metaBoxName = 'historical_ipos_meta';
+
+  // GitHub raw URL — scraper.py'nin ürettiği dosya
+  static const String _githubJsonUrl =
+      'https://raw.githubusercontent.com/muhammedrbay/halkaarz/main/backend/data/ipos.json';
+
+  // Statik JSON ne kadar süre cache'te kalır (24 saat)
+  static const Duration _staticCacheTtl = Duration(hours: 24);
 
   static Future<void> init() async {
     await Hive.openBox(_boxName);
+    await Hive.openBox(_metaBoxName);
   }
+
+  // ─── Cache IO ──────────────────────────────────────────────────────────────
 
   static List<HistoricalIpo> loadFromCache() {
     final box = Hive.box(_boxName);
@@ -290,45 +163,112 @@ class HistoricalIpoService {
     await box.put('data', json.encode(ipos.map((e) => e.toJson()).toList()));
   }
 
-  /// Tüm verileri yükler:
-  /// 1. Cache varsa hemen döner
-  /// 2. Arka planda statik veri eksikse Yahoo'dan çeker (ilk gün, tavan days)
-  /// 3. Canlı fiyatları günceller (15dk cache)
-  static Future<List<HistoricalIpo>> loadAll({
-    void Function(int done, int total)? onProgress,
-  }) async {
-    // 1. Statik listeden base oluştur, cache ile merge et
-    final cached = {
-      for (final i in loadFromCache()) i.sirketKodu: i,
-    };
+  static DateTime? _lastStaticFetch() {
+    final box = Hive.box(_metaBoxName);
+    final raw = box.get('static_fetched_at') as String?;
+    return raw != null ? DateTime.tryParse(raw) : null;
+  }
 
-    final result = <HistoricalIpo>[];
-    for (final entry in _staticIpoDb) {
-      final cached_entry = cached[entry['kod']];
-      if (cached_entry != null) {
-        result.add(cached_entry);
-      } else {
-        result.add(HistoricalIpo.fromJson(entry));
+  static Future<void> _markStaticFetched() async {
+    final box = Hive.box(_metaBoxName);
+    await box.put('static_fetched_at', DateTime.now().toIso8601String());
+  }
+
+  static bool get _staticCacheExpired {
+    final last = _lastStaticFetch();
+    if (last == null) return true;
+    return DateTime.now().difference(last) > _staticCacheTtl;
+  }
+
+  // ─── GitHub JSON İndirme ───────────────────────────────────────────────────
+
+  /// GitHub'daki ipos.json'u indirir (24 saatte bir)
+  static Future<List<HistoricalIpo>?> _fetchFromGitHub() async {
+    try {
+      debugPrint('[GitHub] ipos.json indiriliyor...');
+      final resp = await http.get(
+        Uri.parse(_githubJsonUrl),
+        headers: {'Accept': 'application/json'},
+      ).timeout(const Duration(seconds: 15));
+
+      if (resp.statusCode != 200) {
+        debugPrint('[GitHub] HTTP ${resp.statusCode}');
+        return null;
+      }
+
+      final list = json.decode(resp.body) as List;
+      final ipos = list
+          .map((e) => HistoricalIpo.fromJson(e as Map<String, dynamic>))
+          .where((i) {
+            // Sadece son 1 yılın arzlarını göster
+            final cutoff = DateTime.now().subtract(const Duration(days: 365));
+            return i.islemTarihi.isAfter(cutoff);
+          })
+          .toList()
+        ..sort((a, b) => b.islemTarihi.compareTo(a.islemTarihi)); // Yeniden eskiye
+
+      debugPrint('[GitHub ✓] ${ipos.length} IPO indirildi.');
+      await _markStaticFetched();
+      return ipos;
+    } catch (e) {
+      debugPrint('[GitHub] İndirme hatası: $e');
+      return null;
+    }
+  }
+
+  // ─── Ana Yükleme ───────────────────────────────────────────────────────────
+
+  /// Cache'ten hemen yükle, arka planda GitHub'dan güncelle
+  static Future<List<HistoricalIpo>> loadAll() async {
+    final cached = loadFromCache();
+
+    // Cache geçerliyse hemen dön
+    if (cached.isNotEmpty && !_staticCacheExpired) {
+      debugPrint('[HistoricalIpo] Cache geçerli, direkt kullanılıyor.');
+      return cached;
+    }
+
+    // GitHub'dan taze veri çek
+    final fresh = await _fetchFromGitHub();
+    if (fresh == null || fresh.isEmpty) {
+      // İndirme başarısız — cache'i kullan
+      return cached;
+    }
+
+    // Cache'teki yarı-statik veriyi (sparkline, tavan, ilk gün) koru
+    final cachedMap = {for (final i in cached) i.sirketKodu: i};
+    for (final ipo in fresh) {
+      final old = cachedMap[ipo.sirketKodu];
+      if (old != null) {
+        ipo.ilkGunKapanis = old.ilkGunKapanis;
+        ipo.maxFiyat = old.maxFiyat;
+        ipo.minFiyat = old.minFiyat;
+        ipo.tavanGunSayisi = old.tavanGunSayisi;
+        ipo.sparkline = old.sparkline;
+        ipo.staticFetched = old.staticFetched;
+        ipo.staticFetchedAt = old.staticFetchedAt;
+        ipo.guncelFiyat = old.guncelFiyat;
+        ipo.priceUpdatedAt = old.priceUpdatedAt;
       }
     }
 
-    await saveToCache(result);
-    return result;
+    await saveToCache(fresh);
+    return fresh;
   }
 
-  /// Statik verileri çek: ilk gün kapanış, tavan gün, max/min, sparkline
-  /// — Sadece bir kez çekilir; cache'te kalır sonsuza kadar —
-  static Future<void> fetchStaticData(
+  // ─── Sparkline / Tavan Hesaplama (Yahoo Finance — sadece 1 kez) ────────────
+
+  /// İlk gün kapanış, tavan gün, max/min, sparkline çeker.
+  /// staticFetched == true ise bir daha çekilmez.
+  static Future<void> fetchStaticYahooData(
     HistoricalIpo ipo, {
     void Function(HistoricalIpo)? onUpdate,
   }) async {
-    if (ipo.staticFetched == true) return; // Zaten var
+    if (ipo.staticFetched == true) return;
 
     try {
       final symbol = '${ipo.sirketKodu}.IS';
-      // Tüm tarihsel veriyi çek (işlem tarihinden bugüne)
-      final fromDate = ipo.islemTarihi;
-      final fromEpoch = fromDate.millisecondsSinceEpoch ~/ 1000;
+      final fromEpoch = ipo.islemTarihi.millisecondsSinceEpoch ~/ 1000;
       final toEpoch = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
       final url = Uri.parse(
@@ -336,147 +276,83 @@ class HistoricalIpoService {
         '?interval=1d&period1=$fromEpoch&period2=$toEpoch',
       );
 
-      final response = await http.get(url, headers: {
+      final resp = await http.get(url, headers: {
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)',
       }).timeout(const Duration(seconds: 12));
 
-      if (response.statusCode != 200) {
-        debugPrint('[Yahoo] ${ipo.sirketKodu}: HTTP ${response.statusCode}');
-        return;
-      }
+      if (resp.statusCode != 200) return;
 
-      final data = json.decode(response.body) as Map?;
+      final data = json.decode(resp.body) as Map?;
       final chartResult = data?['chart']?['result'] as List?;
       if (chartResult == null || chartResult.isEmpty) return;
 
-      final indicators = chartResult[0]['indicators'] as Map?;
-      final quoteList = indicators?['quote'] as List?;
-      if (quoteList == null || quoteList.isEmpty) return;
+      final quote = ((chartResult[0]['indicators'] as Map?)
+              ?['quote'] as List?)
+          ?.firstOrNull as Map?;
+      if (quote == null) return;
 
-      final closeList = (quoteList[0] as Map)['close'] as List?;
-      final highList = (quoteList[0] as Map)['high'] as List?;
-      if (closeList == null || closeList.isEmpty) return;
-
-      final closes = closeList.whereType<num>().map((e) => e.toDouble()).toList();
-
+      final closes = (quote['close'] as List?)
+              ?.whereType<num>()
+              .map((e) => e.toDouble())
+              .toList() ??
+          [];
       if (closes.isEmpty) return;
 
-      // İlk gün kapanış
       ipo.ilkGunKapanis = closes.first;
-
-      // Max / min
       ipo.maxFiyat = closes.reduce((a, b) => a > b ? a : b);
       ipo.minFiyat = closes.reduce((a, b) => a < b ? a : b);
 
-      // Tavan gün sayısı (önceki güne göre %9.5+)
+      // Tavan gün say (önceki güne göre >=9.5%)
       int tavanCount = 0;
+      // İlk gün: arz fiyatına göre
+      if (ipo.arzFiyati > 0 && (closes.first - ipo.arzFiyati) / ipo.arzFiyati >= 0.095) {
+        tavanCount++;
+      }
       for (int i = 1; i < closes.length; i++) {
-        final prev = closes[i - 1];
-        if (prev > 0) {
-          final change = (closes[i] - prev) / prev;
-          if (change >= 0.095) tavanCount++;
+        if (closes[i - 1] > 0 && (closes[i] - closes[i - 1]) / closes[i - 1] >= 0.095) {
+          tavanCount++;
         }
       }
-      // İlk gün arz fiyatına göre de kontrol et
-      if (closes.isNotEmpty && ipo.arzFiyati > 0) {
-        final firstDayChange = (closes.first - ipo.arzFiyati) / ipo.arzFiyati;
-        if (firstDayChange >= 0.095) tavanCount++;
-      }
       ipo.tavanGunSayisi = tavanCount;
-
-      // Sparkline: son 30 gün
       ipo.sparkline = closes.length > 30 ? closes.sublist(closes.length - 30) : closes;
-
-      // Güncel fiyat
-      ipo.guncelFiyat = closes.last;
-      ipo.priceUpdatedAt = DateTime.now();
-
       ipo.staticFetched = true;
       ipo.staticFetchedAt = DateTime.now();
 
       onUpdate?.call(ipo);
-      debugPrint('[${ipo.sirketKodu}] Statik veri çekildi. Kapanış: ${closes.last} | Tavan: $tavanCount gün');
+      debugPrint('[Yahoo ✓] ${ipo.sirketKodu}: kapanış=${closes.last.toStringAsFixed(2)}, tavan=${tavanCount}g');
     } catch (e) {
-      debugPrint('[${ipo.sirketKodu}] Statik veri hatası: $e');
+      debugPrint('[Yahoo] ${ipo.sirketKodu} hata: $e');
     }
   }
 
-  /// Sadece canlı fiyatı güncelle (15dk cache kontrolü)
-  static Future<void> refreshPrice(HistoricalIpo ipo) async {
-    if (!ipo.guncelFiyatBayat) return;
-
-    try {
-      final symbol = '${ipo.sirketKodu}.IS';
-      final url = Uri.parse(
-        'https://query1.finance.yahoo.com/v8/finance/chart/$symbol?interval=1d&range=1d',
-      );
-
-      final response = await http.get(url, headers: {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)',
-      }).timeout(const Duration(seconds: 8));
-
-      if (response.statusCode != 200) return;
-
-      final data = json.decode(response.body) as Map?;
-      final chartResult = data?['chart']?['result'] as List?;
-      if (chartResult == null || chartResult.isEmpty) return;
-
-      final meta = chartResult[0]['meta'] as Map?;
-      final price = meta?['regularMarketPrice'];
-      if (price != null) {
-        ipo.guncelFiyat = (price as num).toDouble();
-        ipo.priceUpdatedAt = DateTime.now();
-
-        // Tavan kontrolü: sparkline'ı güncelle
-        if (ipo.sparkline.isNotEmpty) {
-          final newSparkline = [...ipo.sparkline.skip(1), ipo.guncelFiyat!];
-          ipo.sparkline = (newSparkline.length > 30 ? newSparkline.sublist(newSparkline.length - 30) : newSparkline)
-              .whereType<double>()
-              .toList();
-        }
-      }
-    } catch (e) {
-      debugPrint('[${ipo.sirketKodu}] Fiyat güncelleme hatası: $e');
-    }
-  }
-
-  /// Tüm IPO'ları teker teker güncelle ve kaydet
-  static Future<List<HistoricalIpo>> fetchAndRefreshAll({
-    required List<HistoricalIpo> ipos,
+  /// Tüm IPO'ların Yahoo verilerini çek + kaydet (arka planda)
+  static Future<void> fetchAllStaticYahoo(
+    List<HistoricalIpo> ipos, {
     void Function(int done, int total)? onProgress,
   }) async {
     int done = 0;
-    final total = ipos.length;
-
     for (final ipo in ipos) {
-      // Statik veri eksikse çek (bir kez)
       if (ipo.staticFetched != true) {
-        await fetchStaticData(ipo);
-        await Future.delayed(const Duration(milliseconds: 400)); // rate limit
-      } else if (ipo.guncelFiyatBayat) {
-        // Sadece fiyatı güncelle
-        await refreshPrice(ipo);
-        await Future.delayed(const Duration(milliseconds: 200));
+        await fetchStaticYahooData(ipo);
+        await Future.delayed(const Duration(milliseconds: 350));
       }
-
       done++;
-      onProgress?.call(done, total);
+      onProgress?.call(done, ipos.length);
     }
-
     await saveToCache(ipos);
-    return ipos;
   }
 
-  /// Sayfa açılışında sadece fiyatları yenile (statik veriye dokunma)
-  static Future<List<HistoricalIpo>> quickRefreshPrices(List<HistoricalIpo> ipos) async {
-    final stale = ipos.where((i) => i.guncelFiyatBayat).toList();
-    for (final ipo in stale) {
-      await refreshPrice(ipo);
-      await Future.delayed(const Duration(milliseconds: 150));
+  /// RTDB'den gelen fiyatları IPO listesine uygula
+  static void applyRtdbPrices(
+    List<HistoricalIpo> ipos,
+    Map<String, double> prices,
+  ) {
+    for (final ipo in ipos) {
+      final price = prices[ipo.sirketKodu];
+      if (price != null) {
+        ipo.guncelFiyat = price;
+        ipo.priceUpdatedAt = DateTime.now();
+      }
     }
-    if (stale.isNotEmpty) {
-      await saveToCache(ipos);
-    }
-    return ipos;
   }
 }

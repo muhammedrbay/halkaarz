@@ -15,6 +15,7 @@ dependencies:
   # Firebase
   firebase_core: ^3.12.1
   firebase_messaging: ^15.2.5
+  firebase_database: ^11.1.6
 
   # Local DB
   hive: ^2.2.3

@@ -26,13 +26,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
 
-      - name: Run price checker
+      - name: Run price checker (fiyat + RTDB + bildirim)
         env:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_SA_KEY_JSON: ${{ secrets.FIREBASE_SA_KEY_JSON }}
+          FIREBASE_RTDB_URL: ${{ secrets.FIREBASE_RTDB_URL }}
         run: python backend/price_checker.py
 
-      - name: Save notification state
+      - name: Bildirim durumunu kaydet
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
