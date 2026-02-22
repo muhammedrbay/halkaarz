@@ -21,10 +21,7 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
     with AutomaticKeepAliveClientMixin {
   List<HistoricalIpo> _ipos = [];
   bool _isLoading = true;
-  bool _fetchingStatic = false;
   bool _fetchingPrices = false;
-  int _progress = 0;
-  int _total = 0;
   _Filter _filter = _Filter.hepsi;
   Timer? _priceRefreshTimer;
 
@@ -67,9 +64,6 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
     // 3. RTDB'den canlı fiyatları tek seferlik çek
     await _fetchPrices(forceRefresh: false);
 
-    // 4. Yahoo'dan sparkline/tavan verisi eksik olanları arka planda çek
-    _backgroundStaticFetch(_ipos);
-
     // 5. 15 dakikada bir fiyatları otomatik yenile
     _priceRefreshTimer = Timer.periodic(
       const Duration(minutes: 15),
@@ -91,35 +85,6 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
     if (mounted) setState(() => _fetchingPrices = false);
   }
 
-  Future<void> _backgroundStaticFetch(List<HistoricalIpo> ipos) async {
-    final toFetch = ipos.where((i) => i.staticFetched != true).toList();
-    if (toFetch.isEmpty) return;
-
-    if (mounted)
-      setState(() {
-        _fetchingStatic = true;
-        _total = toFetch.length;
-        _progress = 0;
-      });
-
-    await HistoricalIpoService.fetchAllStaticYahoo(
-      ipos,
-      onProgress: (done, total) {
-        if (mounted)
-          setState(() {
-            _progress = done;
-            _total = total;
-          });
-      },
-    );
-
-    if (mounted)
-      setState(() {
-        _ipos = ipos;
-        _fetchingStatic = false;
-      });
-  }
-
   Future<void> _fullRefresh() async {
     // Tüm cache'i sıfırla ve yeniden çek
     final metaBox = Hive.box('historical_ipos_meta');
@@ -129,7 +94,6 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
     if (mounted) setState(() => _ipos = fresh);
 
     await _fetchPrices(forceRefresh: true);
-    _backgroundStaticFetch(_ipos);
   }
 
   List<HistoricalIpo> get _filtered {
@@ -161,7 +125,6 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
           children: [
             _buildHeader(),
             _buildFilters(),
-            if (_fetchingStatic) _buildProgressBar(),
             if (_isLoading)
               const Expanded(
                 child: Center(
@@ -233,41 +196,11 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
               ),
             ),
           IconButton(
-            onPressed: (_fetchingStatic || _fetchingPrices)
-                ? null
-                : _fullRefresh,
+            onPressed: _fetchingPrices ? null : _fullRefresh,
             icon: Icon(
               Icons.refresh_rounded,
-              color: (_fetchingStatic || _fetchingPrices)
-                  ? Colors.white24
-                  : const Color(0xFF7C3AED),
+              color: _fetchingPrices ? Colors.white24 : const Color(0xFF7C3AED),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgressBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(2),
-              child: LinearProgressIndicator(
-                value: _total > 0 ? _progress / max(_total, 1) : null,
-                backgroundColor: const Color(0xFF7C3AED).withValues(alpha: 0.1),
-                valueColor: const AlwaysStoppedAnimation(Color(0xFF7C3AED)),
-                minHeight: 2,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            '$_progress/$_total grafik',
-            style: GoogleFonts.inter(color: Colors.white24, fontSize: 9),
           ),
         ],
       ),

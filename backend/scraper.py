@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 import requests
+import yfinance as yf
 from bs4 import BeautifulSoup
 
 # --- Yapılandırma ---
@@ -266,6 +267,57 @@ def update_ipo_statuses(ipos: list[dict]) -> list[dict]:
     return ipos
 
 
+def fetch_historical_sparklines(ipos: list[dict]) -> list[dict]:
+    """Yahoo Finance'den son 30 günlük kapanışları ve istatistikleri çeker."""
+    for ipo in ipos:
+        # Sadece işlem görenlerin geçmiş grafiğini alalım
+        if ipo.get("durum") != "islem_goruyor":
+            continue
+            
+        try:
+            ticker = f"{ipo['sirket_kodu']}.IS"
+            # period="2y" ile ilk gününden itibaren tüm veriyi almak garanti olur 
+            # ancak biz sparkline için son 30 günü, tavan hesabı için tüm günleri kullanacağız.
+            hist = yf.Ticker(ticker).history(period="1y", interval="1d")
+            
+            if hist.empty:
+                continue
+                
+            closes = hist["Close"].dropna().tolist()
+            if not closes:
+                continue
+                
+            ipo["ilk_gun_kapanis"] = float(closes[0])
+            ipo["max_fiyat"] = float(max(closes))
+            ipo["min_fiyat"] = float(min(closes))
+            
+            # Tavan gün sayısı hesapla
+            tavan_count = 0
+            arz_fiyati = float(ipo.get("arz_fiyati", 0))
+            
+            # İlk gün tavan kontrolü
+            if arz_fiyati > 0 and (closes[0] - arz_fiyati) / arz_fiyati >= 0.095:
+                tavan_count += 1
+                
+            # Diğer günler tavan kontrolü
+            for i in range(1, len(closes)):
+                if closes[i-1] > 0 and (closes[i] - closes[i-1]) / closes[i-1] >= 0.095:
+                    tavan_count += 1
+                    
+            ipo["tavan_gun"] = tavan_count
+            
+            # Sparkline olarak son 30 iş gününü al
+            ipo["sparkline"] = [float(x) for x in closes[-30:]] if len(closes) > 30 else [float(x) for x in closes]
+            ipo["static_fetched"] = True
+            ipo["static_fetched_at"] = datetime.now().isoformat()
+            
+            print(f"[YAHOO] {ticker} verisi güncellendi: {tavan_count} tavan, fiyat {closes[-1]:.2f}")
+        except Exception as e:
+            print(f"[HATA] Yahoo Finance iterasyonu {ipo['sirket_kodu']}: {e}")
+            
+    return ipos
+
+
 def notify_new_ipos(existing_codes: set, all_ipos: list[dict], state: dict) -> dict:
     """Yeni eklenen IPO'lar için bildirim gönderir."""
     for ipo in all_ipos:
@@ -315,13 +367,17 @@ def main():
     # 5. Durumları güncelle
     updated = update_ipo_statuses(merged)
 
-    # 6. Yeni IPO'lar için bildirim
+    # 6. Yahoo Finance'den sparkline grafik verilerini çek
+    print("[BİLGİ] Grafik verileri güncelleniyor (YFinance)...")
+    updated_with_sparklines = fetch_historical_sparklines(updated)
+
+    # 7. Yeni IPO'lar için bildirim
     state = load_notification_state()
-    state = notify_new_ipos(existing_codes, updated, state)
+    state = notify_new_ipos(existing_codes, updated_with_sparklines, state)
     save_notification_state(state)
 
-    # 7. Kaydet
-    save_data(updated)
+    # 8. Kaydet
+    save_data(updated_with_sparklines)
 
     print("=" * 60)
     print("[BİLGİ] İşlem tamamlandı.")
