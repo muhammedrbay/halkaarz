@@ -47,13 +47,19 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
     // 1. Cache'ten anında yükle
     final cached = HistoricalIpoService.loadFromCache();
     if (cached.isNotEmpty) {
-      setState(() { _ipos = cached; _isLoading = false; });
+      setState(() {
+        _ipos = cached;
+        _isLoading = false;
+      });
     }
 
     // 2. GitHub'dan güncel static JSON çek (24h cache)
     final fresh = await HistoricalIpoService.loadAll();
     if (mounted && fresh.isNotEmpty) {
-      setState(() { _ipos = fresh; _isLoading = false; });
+      setState(() {
+        _ipos = fresh;
+        _isLoading = false;
+      });
     } else if (mounted) {
       setState(() => _isLoading = false);
     }
@@ -75,7 +81,9 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
     if (!forceRefresh && _fetchingPrices) return;
     if (mounted) setState(() => _fetchingPrices = true);
 
-    final prices = await RealtimePriceService.fetchAll(forceRefresh: forceRefresh);
+    final prices = await RealtimePriceService.fetchAll(
+      forceRefresh: forceRefresh,
+    );
     if (mounted && prices.isNotEmpty) {
       HistoricalIpoService.applyRtdbPrices(_ipos, prices);
       await HistoricalIpoService.saveToCache(_ipos);
@@ -87,16 +95,29 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
     final toFetch = ipos.where((i) => i.staticFetched != true).toList();
     if (toFetch.isEmpty) return;
 
-    if (mounted) setState(() { _fetchingStatic = true; _total = toFetch.length; _progress = 0; });
+    if (mounted)
+      setState(() {
+        _fetchingStatic = true;
+        _total = toFetch.length;
+        _progress = 0;
+      });
 
     await HistoricalIpoService.fetchAllStaticYahoo(
       ipos,
       onProgress: (done, total) {
-        if (mounted) setState(() { _progress = done; _total = total; });
+        if (mounted)
+          setState(() {
+            _progress = done;
+            _total = total;
+          });
       },
     );
 
-    if (mounted) setState(() { _ipos = ipos; _fetchingStatic = false; });
+    if (mounted)
+      setState(() {
+        _ipos = ipos;
+        _fetchingStatic = false;
+      });
   }
 
   Future<void> _fullRefresh() async {
@@ -113,9 +134,14 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
 
   List<HistoricalIpo> get _filtered {
     switch (_filter) {
-      case _Filter.hepsi: return _ipos;
-      case _Filter.tavanlar: return _ipos.where((i) => i.tavanMi || (i.tavanGunSayisi ?? 0) > 0).toList();
-      case _Filter.katilim: return _ipos.where((i) => i.katilimEndeksi).toList();
+      case _Filter.hepsi:
+        return _ipos;
+      case _Filter.tavanlar:
+        return _ipos
+            .where((i) => i.tavanMi || (i.tavanGunSayisi ?? 0) > 0)
+            .toList();
+      case _Filter.katilim:
+        return _ipos.where((i) => i.katilimEndeksi).toList();
     }
   }
 
@@ -137,7 +163,11 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
             _buildFilters(),
             if (_fetchingStatic) _buildProgressBar(),
             if (_isLoading)
-              const Expanded(child: Center(child: CircularProgressIndicator(color: Color(0xFF7C3AED))))
+              const Expanded(
+                child: Center(
+                  child: CircularProgressIndicator(color: Color(0xFF7C3AED)),
+                ),
+              )
             else
               Expanded(child: _buildList()),
           ],
@@ -159,19 +189,30 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)]),
+              gradient: const LinearGradient(
+                colors: [Color(0xFF7C3AED), Color(0xFF4F46E5)],
+              ),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.analytics_rounded, color: Colors.white, size: 22),
+            child: const Icon(
+              Icons.analytics_rounded,
+              color: Colors.white,
+              size: 22,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Performans', style: GoogleFonts.inter(
-                  color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700,
-                )),
+                Text(
+                  'Performans',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 Text(
                   '${_ipos.length} şirket · fiyat: $fetchInfo',
                   style: GoogleFonts.inter(color: Colors.white38, fontSize: 11),
@@ -182,13 +223,25 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
           if (_fetchingPrices)
             const Padding(
               padding: EdgeInsets.only(right: 8),
-              child: SizedBox(width: 16, height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00D4AA))),
+              child: SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFF00D4AA),
+                ),
+              ),
             ),
           IconButton(
-            onPressed: (_fetchingStatic || _fetchingPrices) ? null : _fullRefresh,
-            icon: Icon(Icons.refresh_rounded,
-                color: (_fetchingStatic || _fetchingPrices) ? Colors.white24 : const Color(0xFF7C3AED)),
+            onPressed: (_fetchingStatic || _fetchingPrices)
+                ? null
+                : _fullRefresh,
+            icon: Icon(
+              Icons.refresh_rounded,
+              color: (_fetchingStatic || _fetchingPrices)
+                  ? Colors.white24
+                  : const Color(0xFF7C3AED),
+            ),
           ),
         ],
       ),
@@ -212,15 +265,19 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
             ),
           ),
           const SizedBox(width: 8),
-          Text('$_progress/$_total grafik',
-              style: GoogleFonts.inter(color: Colors.white24, fontSize: 9)),
+          Text(
+            '$_progress/$_total grafik',
+            style: GoogleFonts.inter(color: Colors.white24, fontSize: 9),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildFilters() {
-    final tavanCount = _ipos.where((i) => i.tavanMi || (i.tavanGunSayisi ?? 0) > 0).length;
+    final tavanCount = _ipos
+        .where((i) => i.tavanMi || (i.tavanGunSayisi ?? 0) > 0)
+        .length;
     final katilimCount = _ipos.where((i) => i.katilimEndeksi).length;
 
     return SingleChildScrollView(
@@ -228,19 +285,36 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Row(
         children: [
-          _buildChip('Tümü (${_ipos.length})', Icons.list_rounded, _Filter.hepsi),
+          _buildChip(
+            'Tümü (${_ipos.length})',
+            Icons.list_rounded,
+            _Filter.hepsi,
+          ),
           const SizedBox(width: 8),
-          _buildChip('Tavan Alan ($tavanCount)', Icons.rocket_launch_rounded,
-              _Filter.tavanlar, color: const Color(0xFF00D4AA)),
+          _buildChip(
+            'Tavan Alan ($tavanCount)',
+            Icons.rocket_launch_rounded,
+            _Filter.tavanlar,
+            color: const Color(0xFF00D4AA),
+          ),
           const SizedBox(width: 8),
-          _buildChip('Katılım ($katilimCount)', Icons.verified_rounded,
-              _Filter.katilim, color: const Color(0xFF3B82F6)),
+          _buildChip(
+            'Katılım ($katilimCount)',
+            Icons.verified_rounded,
+            _Filter.katilim,
+            color: const Color(0xFF3B82F6),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildChip(String label, IconData icon, _Filter f, {Color color = const Color(0xFF7C3AED)}) {
+  Widget _buildChip(
+    String label,
+    IconData icon,
+    _Filter f, {
+    Color color = const Color(0xFF7C3AED),
+  }) {
     final selected = _filter == f;
     return GestureDetector(
       onTap: () => setState(() => _filter = f),
@@ -248,7 +322,9 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? color.withValues(alpha: 0.12) : const Color(0xFF1A1F38),
+          color: selected
+              ? color.withValues(alpha: 0.12)
+              : const Color(0xFF1A1F38),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: selected ? color : const Color(0xFF2A2F4A),
@@ -260,10 +336,14 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
           children: [
             Icon(icon, size: 13, color: selected ? color : Colors.white38),
             const SizedBox(width: 6),
-            Text(label, style: GoogleFonts.inter(
-              color: selected ? color : Colors.white54, fontSize: 12,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            )),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                color: selected ? color : Colors.white54,
+                fontSize: 12,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
@@ -273,8 +353,12 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
   Widget _buildList() {
     final filtered = _filtered;
     if (filtered.isEmpty) {
-      return Center(child: Text('Bu filtrede sonuç yok',
-          style: GoogleFonts.inter(color: Colors.white38)));
+      return Center(
+        child: Text(
+          'Bu filtrede sonuç yok',
+          style: GoogleFonts.inter(color: Colors.white38),
+        ),
+      );
     }
     return RefreshIndicator(
       onRefresh: _fullRefresh,
@@ -286,7 +370,9 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
           ipo: filtered[i],
           onTap: () => Navigator.push(
             ctx,
-            MaterialPageRoute(builder: (_) => HistoricalIpoDetailScreen(ipo: filtered[i])),
+            MaterialPageRoute(
+              builder: (_) => HistoricalIpoDetailScreen(ipo: filtered[i]),
+            ),
           ),
         ),
       ),
@@ -335,90 +421,227 @@ class _IpoCard extends StatelessWidget {
           child: Column(
             children: [
               // Üst: kod · ad · badge
-              Row(children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: renk.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(ipo.sirketKodu, style: GoogleFonts.inter(
-                    color: renk, fontWeight: FontWeight.w800, fontSize: 12, letterSpacing: 0.5,
-                  )),
-                ),
-                const SizedBox(width: 8),
-                Expanded(child: Text(ipo.sirketAdi, style: GoogleFonts.inter(
-                  color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13,
-                ), overflow: TextOverflow.ellipsis)),
-                if (ipo.tavanMi)
+              Row(
+                children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [Color(0xFF00D4AA), Color(0xFF00B4D8)]),
-                      borderRadius: BorderRadius.circular(20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
                     ),
-                    child: Text('🚀 TAVAN', style: GoogleFonts.inter(
-                      color: Colors.white, fontSize: 8, fontWeight: FontWeight.w800,
-                    )),
-                  )
-                else if (ipo.katilimEndeksi)
-                  const Icon(Icons.verified, color: Color(0xFF3B82F6), size: 16),
-              ]),
+                    decoration: BoxDecoration(
+                      color: renk.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      ipo.sirketKodu,
+                      style: GoogleFonts.inter(
+                        color: renk,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 12,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      ipo.sirketAdi,
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (ipo.tavanMi)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF00D4AA), Color(0xFF00B4D8)],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '🚀 TAVAN',
+                        style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    )
+                  else if (ipo.katilimEndeksi)
+                    const Icon(
+                      Icons.verified,
+                      color: Color(0xFF3B82F6),
+                      size: 16,
+                    ),
+                ],
+              ),
 
+              const SizedBox(height: 16),
+
+              // Orta: Fiyatlar
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        ipo.guncelFiyat != null
+                            ? '₺${ipo.guncelFiyat!.toStringAsFixed(2)}'
+                            : '₺${ipo.arzFiyati.toStringAsFixed(2)}',
+                        style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      if (ipo.guncelFiyat != null)
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: renk.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                '${isPos ? '+' : ''}%${getiri.toStringAsFixed(2)}',
+                                style: GoogleFonts.inter(
+                                  color: renk,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'arzdan getiri',
+                              style: GoogleFonts.inter(
+                                color: Colors.white38,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        Text(
+                          'Henüz veri yok',
+                          style: GoogleFonts.inter(
+                            color: Colors.white38,
+                            fontSize: 11,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const Spacer(),
+                  if (ipo.guncelFiyat != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Arz Fiyatı',
+                          style: GoogleFonts.inter(
+                            color: Colors.white38,
+                            fontSize: 10,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '₺${ipo.arzFiyati.toStringAsFixed(2)}',
+                          style: GoogleFonts.inter(
+                            color: Colors.white54,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // GRAFİK (Tam Boy)
+              SizedBox(
+                height: 70,
+                width: double.infinity,
+                child: ipo.sparkline.length >= 3
+                    ? _Sparkline(prices: ipo.sparkline, color: renk)
+                    : Center(
+                        child: ipo.staticFetched == true
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.show_chart_rounded,
+                                    color: Colors.white12,
+                                    size: 28,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Grafik verisi yok',
+                                    style: GoogleFonts.inter(
+                                      color: Colors.white24,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Color(0xFF7C3AED),
+                                ),
+                              ),
+                      ),
+              ),
+
+              const SizedBox(height: 16),
+              const Divider(color: Color(0xFF2A2F4A), height: 1),
               const SizedBox(height: 12),
 
-              // Orta: fiyat + sparkline
-              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                Expanded(child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(children: [
-                      Text('Arz: ', style: GoogleFonts.inter(color: Colors.white38, fontSize: 10)),
-                      Text('₺${ipo.arzFiyati.toStringAsFixed(2)}',
-                          style: GoogleFonts.inter(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600)),
-                    ]),
-                    const SizedBox(height: 3),
-                    Text(
-                      ipo.guncelFiyat != null ? '₺${ipo.guncelFiyat!.toStringAsFixed(2)}' : '—',
-                      style: GoogleFonts.inter(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
-                    ),
-                    const SizedBox(height: 3),
-                    if (ipo.guncelFiyat != null)
-                      Row(children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: renk.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text('${isPos ? '+' : ''}%${getiri.toStringAsFixed(1)}',
-                              style: GoogleFonts.inter(color: renk, fontSize: 11, fontWeight: FontWeight.w700)),
-                        ),
-                        const SizedBox(width: 6),
-                        Text('arzdan', style: GoogleFonts.inter(color: Colors.white24, fontSize: 10)),
-                      ]),
-                  ],
-                )),
-                SizedBox(width: 100, height: 55,
-                  child: ipo.sparkline.length >= 3
-                      ? _Sparkline(prices: ipo.sparkline, color: renk)
-                      : Center(child: ipo.staticFetched == true
-                          ? const Icon(Icons.show_chart, color: Colors.white12, size: 24)
-                          : const SizedBox(width: 16, height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 1.5, color: Color(0xFF7C3AED))))),
-              ]),
-
-              const SizedBox(height: 10),
-              const Divider(color: Color(0xFF2A2F4A), height: 1),
-              const SizedBox(height: 10),
-
               // Alt: istatistikler
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                _stat('Kişi Başı', '${ipo.kisiBasiLot} lot', Icons.person_outline_rounded),
-                _stat('Toplam', _fmt(ipo.toplamLot), Icons.bar_chart_rounded),
-                _stat('Tavan', ipo.tavanGunSayisi != null ? '${ipo.tavanGunSayisi} gün' : '—',
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _stat(
+                    'Kişi Başı',
+                    '${ipo.kisiBasiLot} lot',
+                    Icons.person_outline_rounded,
+                  ),
+                  _stat('Toplam', _fmt(ipo.toplamLot), Icons.bar_chart_rounded),
+                  _stat(
+                    'Tavan',
+                    ipo.tavanGunSayisi != null
+                        ? '${ipo.tavanGunSayisi} gün'
+                        : '—',
                     Icons.trending_up_rounded,
-                    color: (ipo.tavanGunSayisi ?? 0) > 0 ? const Color(0xFF00D4AA) : null),
-                _stat('İşlem', _date(ipo.islemTarihi), Icons.calendar_today_rounded),
-              ]),
+                    color: (ipo.tavanGunSayisi ?? 0) > 0
+                        ? const Color(0xFF00D4AA)
+                        : null,
+                  ),
+                  _stat(
+                    'İşlem',
+                    _date(ipo.islemTarihi),
+                    Icons.calendar_today_rounded,
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -427,14 +650,24 @@ class _IpoCard extends StatelessWidget {
   }
 
   Widget _stat(String label, String value, IconData icon, {Color? color}) {
-    return Column(children: [
-      Icon(icon, size: 12, color: color ?? Colors.white24),
-      const SizedBox(height: 2),
-      Text(value, style: GoogleFonts.inter(
-        color: color ?? Colors.white70, fontSize: 11, fontWeight: FontWeight.w600,
-      )),
-      Text(label, style: GoogleFonts.inter(color: Colors.white24, fontSize: 9)),
-    ]);
+    return Column(
+      children: [
+        Icon(icon, size: 12, color: color ?? Colors.white24),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: GoogleFonts.inter(
+            color: color ?? Colors.white70,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          label,
+          style: GoogleFonts.inter(color: Colors.white24, fontSize: 9),
+        ),
+      ],
+    );
   }
 
   String _fmt(int n) {
@@ -457,24 +690,48 @@ class _Sparkline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spots = prices.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value)).toList();
+    final spots = prices
+        .asMap()
+        .entries
+        .map((e) => FlSpot(e.key.toDouble(), e.value))
+        .toList();
     final minY = prices.reduce((a, b) => a < b ? a : b);
     final maxY = prices.reduce((a, b) => a > b ? a : b);
     final range = (maxY - minY).abs();
     final pad = range < 0.01 ? 1.0 : range * 0.15;
 
-    return LineChart(LineChartData(
-      gridData: const FlGridData(show: false),
-      titlesData: const FlTitlesData(show: false),
-      borderData: FlBorderData(show: false),
-      minX: 0, maxX: (prices.length - 1).toDouble(),
-      minY: minY - pad, maxY: maxY + pad,
-      lineBarsData: [LineChartBarData(
-        spots: spots, isCurved: true, color: color, barWidth: 1.8,
-        isStrokeCapRound: true, dotData: const FlDotData(show: false),
-        belowBarData: BarAreaData(show: true, color: color.withValues(alpha: 0.08)),
-      )],
-      lineTouchData: const LineTouchData(enabled: false),
-    ));
+    return LineChart(
+      LineChartData(
+        gridData: const FlGridData(show: false),
+        titlesData: const FlTitlesData(show: false),
+        borderData: FlBorderData(show: false),
+        minX: 0,
+        maxX: (prices.length - 1).toDouble(),
+        minY: minY - pad,
+        maxY: maxY + pad,
+        lineBarsData: [
+          LineChartBarData(
+            spots: spots,
+            isCurved: true,
+            color: color,
+            barWidth: 2.5,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  color.withValues(alpha: 0.25),
+                  color.withValues(alpha: 0.0),
+                ],
+              ),
+            ),
+          ),
+        ],
+        lineTouchData: const LineTouchData(enabled: false),
+      ),
+    );
   }
 }

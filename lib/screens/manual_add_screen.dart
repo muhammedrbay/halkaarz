@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/portfolio_item.dart';
 import '../services/portfolio_service.dart';
+import '../services/data_service.dart';
+import '../services/historical_ipo_service.dart';
 
 /// Manuel portföy ekleme — Kullanıcı şirket kodu, adı, fiyat girer
 class ManualAddScreen extends StatefulWidget {
@@ -25,6 +27,44 @@ class _ManualAddScreenState extends State<ManualAddScreen> {
   int get _toplamLot => _lot * _hesap;
   int get _toplamHisse => _toplamLot * 100;
   double get _toplamMaliyet => _toplamHisse * _fiyat;
+
+  List<Map<String, dynamic>> _allIpoData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadIpos();
+  }
+
+  Future<void> _loadIpos() async {
+    final current = await DataService.loadFromLocal();
+    final historical = HistoricalIpoService.loadFromCache();
+
+    final Map<String, Map<String, dynamic>> map = {};
+
+    for (var c in current) {
+      map[c.sirketKodu] = {
+        'kod': c.sirketKodu,
+        'ad': c.sirketAdi,
+        'arzFiyati': c.arzFiyati,
+      };
+    }
+    for (var h in historical) {
+      if (!map.containsKey(h.sirketKodu)) {
+        map[h.sirketKodu] = {
+          'kod': h.sirketKodu,
+          'ad': h.sirketAdi,
+          'arzFiyati': h.arzFiyati,
+        };
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _allIpoData = map.values.toList();
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -92,14 +132,129 @@ class _ManualAddScreenState extends State<ManualAddScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Şirket Kodu
-              _buildLabel('Şirket Kodu (BIST)', Icons.business_rounded),
+              // Şirket Kodu (Autocomplete)
+              _buildLabel(
+                'Şirket Kodu (Arama Eklendi)',
+                Icons.business_rounded,
+              ),
               const SizedBox(height: 8),
-              _buildTextField(
-                controller: _kodController,
-                hint: 'Örn: THYAO',
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Zorunlu alan' : null,
+              Autocomplete<Map<String, dynamic>>(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  if (textEditingValue.text.isEmpty) {
+                    return const Iterable<Map<String, dynamic>>.empty();
+                  }
+                  final query = textEditingValue.text.toLowerCase();
+                  return _allIpoData.where((ipo) {
+                    return ipo['kod'].toString().toLowerCase().contains(
+                          query,
+                        ) ||
+                        ipo['ad'].toString().toLowerCase().contains(query);
+                  });
+                },
+                displayStringForOption: (option) => option['kod'],
+                onSelected: (selection) {
+                  _kodController.text = selection['kod'];
+                  _adController.text = selection['ad'];
+                  if (selection['arzFiyati'] != null &&
+                      selection['arzFiyati'] > 0) {
+                    _fiyatController.text = selection['arzFiyati'].toString();
+                  }
+                  setState(() {}); // Detayları güncelle
+                },
+                fieldViewBuilder:
+                    (context, controller, focusNode, onEditingComplete) {
+                      // Bizim kendi kodController'ımız yerine, Autocomplete'in içsel controller'ını baz alıyoruz
+                      // ama _kodController içerisine de kopyalıyoruz
+                      controller.addListener(() {
+                        _kodController.text = controller.text;
+                      });
+                      return _buildTextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        hint: 'Aramak için yazın (Örn: THYAO)',
+                        validator: (v) => (v == null || v.trim().isEmpty)
+                            ? 'Zorunlu alan'
+                            : null,
+                      );
+                    },
+                optionsViewBuilder: (context, onSelected, options) {
+                  return Align(
+                    alignment: Alignment.topLeft,
+                    child: Material(
+                      elevation: 8,
+                      color: Colors.transparent,
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 8, right: 32),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1A1F38),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFF2A2F4A)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        constraints: const BoxConstraints(maxHeight: 250),
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          itemCount: options.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final option = options.elementAt(index);
+                            return InkWell(
+                              onTap: () => onSelected(option),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xFF00D4AA,
+                                        ).withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        option['kod'],
+                                        style: GoogleFonts.inter(
+                                          color: const Color(0xFF00D4AA),
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        option['ad'],
+                                        style: GoogleFonts.inter(
+                                          color: Colors.white70,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 20),
@@ -117,12 +272,17 @@ class _ManualAddScreenState extends State<ManualAddScreen> {
               const SizedBox(height: 20),
 
               // Arz Fiyatı
-              _buildLabel('Arz / Alış Fiyatı (₺)', Icons.monetization_on_outlined),
+              _buildLabel(
+                'Arz / Alış Fiyatı (₺)',
+                Icons.monetization_on_outlined,
+              ),
               const SizedBox(height: 8),
               _buildTextField(
                 controller: _fiyatController,
                 hint: 'Örn: 32.50',
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return 'Zorunlu alan';
                   final val = double.tryParse(v);
@@ -140,7 +300,10 @@ class _ManualAddScreenState extends State<ManualAddScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLabel('Hesap Sayısı', Icons.account_balance_outlined),
+                        _buildLabel(
+                          'Hesap Sayısı',
+                          Icons.account_balance_outlined,
+                        ),
                         const SizedBox(height: 8),
                         _buildTextField(
                           controller: _hesapController,
@@ -248,12 +411,14 @@ class _ManualAddScreenState extends State<ManualAddScreen> {
 
   Widget _buildTextField({
     required TextEditingController controller,
+    FocusNode? focusNode,
     required String hint,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       keyboardType: keyboardType,
       validator: validator,
       style: GoogleFonts.inter(
@@ -291,7 +456,11 @@ class _ManualAddScreenState extends State<ManualAddScreen> {
     );
   }
 
-  Widget _buildSummaryRow(String label, String value, {bool highlight = false}) {
+  Widget _buildSummaryRow(
+    String label,
+    String value, {
+    bool highlight = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
