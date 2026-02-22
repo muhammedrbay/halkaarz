@@ -2,7 +2,7 @@
   {
     "sirket_kodu": "EMPAE",
     "sirket_adi": "Empa Elektronik San. ve Tic. A.Ş.",
-    "arz_fiyati": 72.0,
+    "arz_fiyati": 22.0,
     "toplam_lot": 37500000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
@@ -24,7 +24,7 @@
   {
     "sirket_kodu": "ATATR",
     "sirket_adi": "Ata Turizm İşletmecilik A.Ş.",
-    "arz_fiyati": 12.32,
+    "arz_fiyati": 11.2,
     "toplam_lot": 50000000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
@@ -60,7 +60,7 @@
   {
     "sirket_kodu": "BESTE",
     "sirket_adi": "Best Brands Grup Enerji Yatırım A.Ş.",
-    "arz_fiyati": 16.17,
+    "arz_fiyati": 14.7,
     "toplam_lot": 35000000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
@@ -108,7 +108,7 @@
   {
     "sirket_kodu": "NETCD",
     "sirket_adi": "Netcad Yazılım A.Ş.",
-    "arz_fiyati": 50.6,
+    "arz_fiyati": 46.0,
     "toplam_lot": 20000000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
@@ -164,7 +164,7 @@
   {
     "sirket_kodu": "UCAYM",
     "sirket_adi": "Üçay Mühendislik A.Ş.",
-    "arz_fiyati": 19.8,
+    "arz_fiyati": 18.0,
     "toplam_lot": 25000000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
@@ -240,7 +240,7 @@
   {
     "sirket_kodu": "ZGYO",
     "sirket_adi": "Z Gayrimenkul Yatırım Ortaklığı A.Ş.",
-    "arz_fiyati": 10.74,
+    "arz_fiyati": 9.77,
     "toplam_lot": 100000000,
     "kisi_basi_lot": 2,
     "dagitim_sekli": "Eşit",
@@ -324,7 +324,7 @@
   {
     "sirket_kodu": "FRMPL",
     "sirket_adi": "Formül Plastik ve Metal San. A.Ş.",
-    "arz_fiyati": 33.26,
+    "arz_fiyati": 30.24,
     "toplam_lot": 30000000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
@@ -410,7 +410,7 @@
   {
     "sirket_kodu": "MEYSU",
     "sirket_adi": "Meysu Gıda San. ve Tic. A.Ş.",
-    "arz_fiyati": 8.25,
+    "arz_fiyati": 7.5,
     "toplam_lot": 28000000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
@@ -500,7 +500,7 @@
   {
     "sirket_kodu": "ARFYE",
     "sirket_adi": "ARF Bio Yenilenebilir Enerji A.Ş.",
-    "arz_fiyati": 21.44,
+    "arz_fiyati": 19.5,
     "toplam_lot": 80000000,
     "kisi_basi_lot": 2,
     "dagitim_sekli": "Eşit",
@@ -602,7 +602,7 @@
   {
     "sirket_kodu": "PAHOL",
     "sirket_adi": "Pasifik Holding A.Ş.",
-    "arz_fiyati": 1.65,
+    "arz_fiyati": 1.5,
     "toplam_lot": 60000000,
     "kisi_basi_lot": 2,
     "dagitim_sekli": "Eşit",
@@ -764,7 +764,7 @@
   {
     "sirket_kodu": "VAKFA",
     "sirket_adi": "Vakıf Faktoring A.Ş.",
-    "arz_fiyati": 15.62,
+    "arz_fiyati": 14.2,
     "toplam_lot": 120000000,
     "kisi_basi_lot": 3,
     "dagitim_sekli": "Eşit",
@@ -928,7 +928,7 @@
   {
     "sirket_kodu": "ECOGR",
     "sirket_adi": "Ecogreen Enerji Holding A.Ş.",
-    "arz_fiyati": 11.44,
+    "arz_fiyati": 10.4,
     "toplam_lot": 50000000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
@@ -1118,7 +1118,7 @@
   {
     "sirket_kodu": "DOFRB",
     "sirket_adi": "Dof Robotik Sanayi A.Ş.",
-    "arz_fiyati": 49.5,
+    "arz_fiyati": 45.0,
     "toplam_lot": 32000000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
@@ -1380,7 +1380,7 @@
   {
     "sirket_kodu": "KLYPV",
     "sirket_adi": "Kalyon Güneş Teknolojileri A.Ş.",
-    "arz_fiyati": 72.0,
+    "arz_fiyati": 70.3,
     "toplam_lot": 25000000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
@@ -1916,7 +1916,7 @@
   {
     "sirket_kodu": "GLRMK",
     "sirket_adi": "Gülermak Ağır Sanayi İnşaat A.Ş.",
-    "arz_fiyati": 137.5,
+    "arz_fiyati": 125.0,
     "toplam_lot": 30000000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",

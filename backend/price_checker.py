@@ -193,74 +193,51 @@ def get_stock_data(ticker: str) -> Optional[dict]:
         return None
 
 
-# ─── Bildirim Kontrolleri ─────────────────────────────────────────────────────
+# ─── Durum Makinesi (State Machine) Bildirim Sistemi ──────────────────────────
+#
+# Her hissenin durumu: "normal", "tavan", "taban"
+# Bildirim sadece durum DEĞİŞTİĞİNDE gider:
+#   normal → tavan  = "Tavan Yaptı!"
+#   tavan  → normal = "Tavan Bozdu!"
+#   normal → taban  = "Taban Yaptı!"
+#   taban  → normal = "Taban Bozdu!"
+#   tavan  → taban  = "Tavan Bozdu!" + "Taban Yaptı!" (iki bildirim)
+#   taban  → tavan  = "Taban Bozdu!" + "Tavan Yaptı!" (iki bildirim)
+#
+# Aynı durumda kalınca (örn. tavan → tavan) bildirim GİTMEZ.
 
 def _today() -> str:
     return datetime.now().strftime("%Y-%m-%d")
 
 
-def check_tavan_yapti(stock_data: dict, state: dict) -> bool:
-    """Fiyat bugün tavan seviyesine ulaştıysa → Tavan Yaptı."""
-    ticker = stock_data["ticker"]
+def get_stock_state(stock_data: dict) -> str:
+    """
+    Hissenin mevcut durumunu belirler.
+    Dönüş: "tavan", "taban", veya "normal"
+    """
     prev = stock_data["previous_close"]
     current = stock_data["current_price"]
+
     tavan = round(prev * TAVAN_CARPANI, 2)
+    taban = round(prev * TABAN_CARPANI, 2)
 
     if current >= tavan * TAVAN_ESIGI:
-        key = f"tavan_yapti_{ticker}_{_today()}"
-        if key not in state:
-            return True
-    return False
+        return "tavan"
+    elif current <= taban * TABAN_ESIGI:
+        return "taban"
+    else:
+        return "normal"
 
 
-def check_tavan_bozdu(stock_data: dict, state: dict) -> bool:
-    """Gün içinde tavana ulaşıp sonra düştüyse → Tavan Bozdu."""
-    ticker = stock_data["ticker"]
-    prev = stock_data["previous_close"]
-    current = stock_data["current_price"]
-    high = stock_data["today_high"]
-    tavan = round(prev * TAVAN_CARPANI, 2)
-
-    hit_tavan = high >= tavan * TAVAN_ESIGI
-    below_tavan = current < tavan * TAVAN_ESIGI
-
-    if hit_tavan and below_tavan:
-        key = f"tavan_bozdu_{ticker}_{_today()}"
-        if key not in state:
-            return True
-    return False
+def get_previous_state(ticker: str, state: dict) -> str:
+    """State dosyasından hissenin son bilinen durumunu oku."""
+    return state.get(f"stock_state_{ticker}", "normal")
 
 
-def check_taban_yapti(stock_data: dict, state: dict) -> bool:
-    """Fiyat taban seviyesine ulaştıysa → Taban Yaptı."""
-    ticker = stock_data["ticker"]
-    prev = stock_data["previous_close"]
-    current = stock_data["current_price"]
-    taban = round(prev * TABAN_CARPANI, 2)
-
-    if current <= taban * TABAN_ESIGI:
-        key = f"taban_yapti_{ticker}_{_today()}"
-        if key not in state:
-            return True
-    return False
-
-
-def check_taban_bozdu(stock_data: dict, state: dict) -> bool:
-    """Gün içinde tabana ulaşıp sonra toparlandıysa → Taban Bozdu."""
-    ticker = stock_data["ticker"]
-    prev = stock_data["previous_close"]
-    current = stock_data["current_price"]
-    low = stock_data["today_low"]
-    taban = round(prev * TABAN_CARPANI, 2)
-
-    hit_taban = low <= taban * TABAN_ESIGI
-    above_taban = current > taban * TABAN_ESIGI
-
-    if hit_taban and above_taban:
-        key = f"taban_bozdu_{ticker}_{_today()}"
-        if key not in state:
-            return True
-    return False
+def set_stock_state(ticker: str, new_state: str, state: dict):
+    """Hissenin durumunu state'e yaz."""
+    state[f"stock_state_{ticker}"] = new_state
+    state[f"stock_state_ts_{ticker}"] = datetime.now().isoformat()
 
 
 def check_sure_bitiyor(ipo: dict, state: dict) -> bool:
@@ -290,6 +267,7 @@ def check_yeni_arz(ipo: dict, state: dict) -> bool:
 def process_islem_gorenler(ipos: list[dict], state: dict) -> tuple[dict, dict[str, float]]:
     """
     İşlem gören hisselerin fiyatlarını kontrol eder.
+    Durum makinesi ile bildirim gönderir — sadece durum değişince.
     Dönüş: (güncel state, {ticker: fiyat} dict)
     """
     islem_gorenler = [i for i in ipos if i.get("durum") == "islem_goruyor"]
@@ -305,49 +283,75 @@ def process_islem_gorenler(ipos: list[dict], state: dict) -> tuple[dict, dict[st
             continue
 
         prices[ticker] = sd["current_price"]
-        print(
-            f"  ₺{sd['current_price']} | Önceki: ₺{sd['previous_close']} "
-            f"| Yük: ₺{sd['today_high']} | Düş: ₺{sd['today_low']}"
-        )
 
         tavan = round(sd["previous_close"] * TAVAN_CARPANI, 2)
         taban = round(sd["previous_close"] * TABAN_CARPANI, 2)
 
-        # 1. Tavan Yaptı 🚀
-        if check_tavan_yapti(sd, state):
+        print(
+            f"  ₺{sd['current_price']} | Tavan: ₺{tavan} | Taban: ₺{taban} "
+            f"| Yük: ₺{sd['today_high']} | Düş: ₺{sd['today_low']}"
+        )
+
+        # Mevcut ve önceki durumu belirle
+        current_state = get_stock_state(sd)
+        previous_state = get_previous_state(ticker, state)
+
+        print(f"  Durum: {previous_state} → {current_state}")
+
+        # Durum değişmediyse bildirim gönderme
+        if current_state == previous_state:
+            continue
+
+        # ─── Durum Geçişleri ─────────────────────────────
+
+        # normal/taban → tavan = "Tavan Yaptı!"
+        if current_state == "tavan" and previous_state != "tavan":
+            # Eğer tabandan geliyorsa önce "Taban Bozdu" gönder
+            if previous_state == "taban":
+                send_fcm_notification(
+                    title="📈 Taban Bozdu!",
+                    body=f"{adi} tabandan çıktı! Taban: ₺{taban} → Anlık: ₺{sd['current_price']}",
+                    data={"type": "taban_bozdu", "ticker": ticker},
+                )
             send_fcm_notification(
                 title="🚀 Tavan Yaptı!",
                 body=f"{adi} tavan yaptı! Tavan: ₺{tavan} | Anlık: ₺{sd['current_price']}",
                 data={"type": "tavan_yapti", "ticker": ticker},
             )
-            state[f"tavan_yapti_{ticker}_{_today()}"] = datetime.now().isoformat()
 
-        # 2. Tavan Bozdu ⚠️ (tavana ulaşıp düştü)
-        if check_tavan_bozdu(sd, state):
+        # tavan → normal/taban = "Tavan Bozdu!"
+        elif previous_state == "tavan" and current_state != "tavan":
             send_fcm_notification(
                 title="⚠️ Tavan Bozdu!",
                 body=f"{adi} tavan bozdu! Tavan: ₺{tavan} → Anlık: ₺{sd['current_price']}",
                 data={"type": "tavan_bozdu", "ticker": ticker},
             )
-            state[f"tavan_bozdu_{ticker}_{_today()}"] = datetime.now().isoformat()
+            # Eğer doğrudan tabana düştüyse "Taban Yaptı" da gönder
+            if current_state == "taban":
+                send_fcm_notification(
+                    title="📉 Taban Yaptı!",
+                    body=f"{adi} tabana indi! Taban: ₺{taban} | Anlık: ₺{sd['current_price']}",
+                    data={"type": "taban_yapti", "ticker": ticker},
+                )
 
-        # 3. Taban Yaptı 📉
-        if check_taban_yapti(sd, state):
+        # normal/tavan → taban = "Taban Yaptı!"
+        elif current_state == "taban" and previous_state != "taban":
             send_fcm_notification(
                 title="📉 Taban Yaptı!",
                 body=f"{adi} tabana indi! Taban: ₺{taban} | Anlık: ₺{sd['current_price']}",
                 data={"type": "taban_yapti", "ticker": ticker},
             )
-            state[f"taban_yapti_{ticker}_{_today()}"] = datetime.now().isoformat()
 
-        # 4. Taban Bozdu 📈 (tabanda iken toparlandı)
-        if check_taban_bozdu(sd, state):
+        # taban → normal = "Taban Bozdu!"
+        elif previous_state == "taban" and current_state == "normal":
             send_fcm_notification(
                 title="📈 Taban Bozdu!",
                 body=f"{adi} tabandan çıktı! Taban: ₺{taban} → Anlık: ₺{sd['current_price']}",
                 data={"type": "taban_bozdu", "ticker": ticker},
             )
-            state[f"taban_bozdu_{ticker}_{_today()}"] = datetime.now().isoformat()
+
+        # Durumu güncelle
+        set_stock_state(ticker, current_state, state)
 
     return state, prices
 
