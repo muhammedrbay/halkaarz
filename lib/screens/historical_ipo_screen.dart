@@ -579,9 +579,9 @@ class _IpoCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _stat(
-                    'Kişi Başı',
-                    '${ipo.kisiBasiLot} lot',
-                    Icons.person_outline_rounded,
+                    'Arz Fiyatı',
+                    '₺${ipo.arzFiyati.toStringAsFixed(2)}',
+                    Icons.monetization_on_outlined,
                   ),
                   _stat('Toplam', _fmt(ipo.toplamLot), Icons.bar_chart_rounded),
                   _stat(
