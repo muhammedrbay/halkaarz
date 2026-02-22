@@ -306,8 +306,22 @@ def fetch_historical_sparklines(ipos: list[dict]) -> list[dict]:
                     
             ipo["tavan_gun"] = tavan_count
             
-            # Sparkline olarak son 30 iş gününü al
-            ipo["sparkline"] = [float(x) for x in closes[-30:]] if len(closes) > 30 else [float(x) for x in closes]
+            # Son 6 ayda çıkanların tüm grafiğini kaydet, daha eskiler için son 30 günü al
+            include_full_chart = False
+            islem_tarihi_str = ipo.get("borsada_islem_tarihi", "")
+            if islem_tarihi_str:
+                try:
+                    islem_date = datetime.fromisoformat(islem_tarihi_str.replace("Z", ""))
+                    if datetime.now() - islem_date <= timedelta(days=180):
+                        include_full_chart = True
+                except:
+                    pass
+
+            if include_full_chart:
+                ipo["sparkline"] = [float(x) for x in closes]
+            else:
+                ipo["sparkline"] = [float(x) for x in closes[-30:]] if len(closes) > 30 else [float(x) for x in closes]
+                
             ipo["static_fetched"] = True
             ipo["static_fetched_at"] = datetime.now().isoformat()
             
