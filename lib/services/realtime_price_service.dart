@@ -54,7 +54,53 @@ class RealtimePriceService {
       }
     }
 
+    // Web ise Firebase kurulmamış olabilir, doğrudan REST API kullanalım
+    if (kIsWeb) {
+      debugPrint('[RTDB] Web platformunda REST API kullanılıyor.');
+      return await _fetchFromRestApi();
+    }
+
     return await _fetchFromRtdb();
+  }
+
+  static Future<Map<String, double>> _fetchFromRestApi() async {
+    try {
+      debugPrint('[RTDB] REST API get() çağrısı → /prices.json');
+      final url = Uri.parse(
+        'https://halkaarz-fb398-default-rtdb.europe-west1.firebasedatabase.app/prices.json',
+      );
+      final resp = await http.get(url).timeout(const Duration(seconds: 8));
+
+      if (resp.statusCode != 200) {
+        debugPrint('[RTDB REST] Hata: HTTP ${resp.statusCode}');
+        return Map.unmodifiable(_cache);
+      }
+
+      final raw = json.decode(resp.body) as Map?;
+      if (raw == null) {
+        debugPrint('[RTDB REST] /prices boş veya yok.');
+        return Map.unmodifiable(_cache);
+      }
+
+      final prices = <String, double>{};
+      for (final entry in raw.entries) {
+        try {
+          prices[entry.key.toString()] = (entry.value as num).toDouble();
+        } catch (_) {}
+      }
+
+      debugPrint('[RTDB REST ✓] ${prices.length} fiyat alındı.');
+      _cache = prices;
+      _lastFetch = DateTime.now();
+      await _saveToHive(prices);
+      return Map.unmodifiable(prices);
+    } on TimeoutException {
+      debugPrint('[RTDB REST] Timeout — cache kullanılıyor.');
+      return Map.unmodifiable(_cache);
+    } catch (e) {
+      debugPrint('[RTDB REST] Hata: $e — cache kullanılıyor.');
+      return Map.unmodifiable(_cache);
+    }
   }
 
   static Future<Map<String, double>> _fetchFromRtdb() async {
@@ -100,6 +146,23 @@ class RealtimePriceService {
 
   /// Sadece belirli tickerları çek (tüm listeyi indirmek yerine)
   static Future<double?> fetchSingle(String ticker) async {
+    if (kIsWeb) {
+      try {
+        final url = Uri.parse(
+          'https://halkaarz-fb398-default-rtdb.europe-west1.firebasedatabase.app/prices/$ticker.json',
+        );
+        final resp = await http.get(url).timeout(const Duration(seconds: 5));
+        if (resp.statusCode == 200 && resp.body != 'null') {
+          final price = (json.decode(resp.body) as num).toDouble();
+          _cache[ticker] = price;
+          return price;
+        }
+      } catch (e) {
+        debugPrint('[RTDB REST] $ticker tek fiyat hatası: $e');
+      }
+      return _cache[ticker];
+    }
+
     try {
       final ref = FirebaseDatabase.instance.ref('prices/$ticker');
       final snapshot = await ref.get().timeout(const Duration(seconds: 5));

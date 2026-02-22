@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import '../firebase_options.dart';
 
 /// Firebase ve bildirim servisi
 class FirebaseService {
@@ -13,21 +12,19 @@ class FirebaseService {
 
   /// Firebase'i başlat
   static Future<bool> init() async {
+    // Web platformunda Firebase yapılandırması farklı, şimdilik atla
+    if (kIsWeb) {
+      print('Web platformu — Firebase atlanıyor (bildirimler devre dışı)');
+      _initialized = false;
+      return false;
+    }
+
     try {
-      if (kIsWeb) {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
-        _initialized = true;
-        print('Web platformunda Firebase başlatıldı (bildirimler hariç)');
-        return true;
-      } else {
-        await Firebase.initializeApp();
-        _initialized = true;
-        await _setupFCM();
-        await _setupLocalNotifications();
-        return true;
-      }
+      await Firebase.initializeApp();
+      _initialized = true;
+      await _setupFCM();
+      await _setupLocalNotifications();
+      return true;
     } catch (e) {
       print('Firebase başlatılamadı: $e');
       _initialized = false;

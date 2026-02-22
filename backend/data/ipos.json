@@ -1208,30 +1208,5 @@
     ],
     "static_fetched": true,
     "static_fetched_at": "2026-02-22T16:20:02.817894"
-  },
-  {
-    "sirket_kodu": "ORNEK",
-    "sirket_adi": "Örnek Teknoloji A.Ş.",
-    "arz_fiyati": 32.5,
-    "toplam_lot": 75000,
-    "dagitim_sekli": "Eşit",
-    "konsorsiyum_lideri": "ABC Yatırım",
-    "iskonto_orani": 20.0,
-    "fon_kullanim_yeri": {
-      "yatirim": 55,
-      "borc_odeme": 30,
-      "isletme_sermayesi": 15
-    },
-    "katilim_endeksine_uygun": true,
-    "talep_baslangic": "2026-03-01T09:00:00",
-    "talep_bitis": "2026-03-03T17:00:00",
-    "borsada_islem_tarihi": "2026-03-10",
-    "durum": "taslak",
-    "son_katilimci_sayilari": [
-      125000,
-      98000,
-      145000
-    ],
-    "guncelleme_zamani": "2026-02-22T16:19:54.293129"
   }
 ]
