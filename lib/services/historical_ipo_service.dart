@@ -24,6 +24,7 @@ class HistoricalIpo {
   double? minFiyat;
   int? tavanGunSayisi;
   List<double> sparkline;
+  List<String> sparklineDates;
   bool? staticFetched;
   DateTime? staticFetchedAt;
 
@@ -46,6 +47,7 @@ class HistoricalIpo {
     this.minFiyat,
     this.tavanGunSayisi,
     this.sparkline = const [],
+    this.sparklineDates = const [],
     this.staticFetched,
     this.staticFetchedAt,
     this.guncelFiyat,
@@ -97,6 +99,11 @@ class HistoricalIpo {
               ?.map((e) => (e as num).toDouble())
               .toList() ??
           [],
+      sparklineDates:
+          (j['sparkline_dates'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
       staticFetched: j['static_fetched'] as bool?,
       staticFetchedAt: j['static_fetched_at'] != null
           ? DateTime.tryParse(j['static_fetched_at'])
@@ -123,6 +130,7 @@ class HistoricalIpo {
     'min_fiyat': minFiyat,
     'tavan_gun': tavanGunSayisi,
     'sparkline': sparkline,
+    'sparkline_dates': sparklineDates,
     'static_fetched': staticFetched,
     'static_fetched_at': staticFetchedAt?.toIso8601String(),
     'guncel_fiyat': guncelFiyat,

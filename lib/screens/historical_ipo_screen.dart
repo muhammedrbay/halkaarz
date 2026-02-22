@@ -537,7 +537,7 @@ class _IpoCard extends StatelessWidget {
                     ? _Sparkline(
                         prices: ipo.sparkline,
                         color: renk,
-                        islemTarihi: ipo.islemTarihi,
+                        sparklineDates: ipo.sparklineDates,
                       )
                     : Center(
                         child: ipo.staticFetched == true
@@ -644,12 +644,12 @@ class _IpoCard extends StatelessWidget {
 class _Sparkline extends StatelessWidget {
   final List<double> prices;
   final Color color;
-  final DateTime islemTarihi;
+  final List<String> sparklineDates;
 
   const _Sparkline({
     required this.prices,
     required this.color,
-    required this.islemTarihi,
+    required this.sparklineDates,
   });
 
   @override
@@ -707,10 +707,20 @@ class _Sparkline extends StatelessWidget {
             ),
             getTooltipItems: (touchedSpots) {
               return touchedSpots.map((spot) {
-                final dayIndex = spot.x.toInt();
-                final date = islemTarihi.add(Duration(days: dayIndex));
-                final dateStr =
-                    '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+                final idx = spot.x.toInt();
+                String dateStr;
+                if (idx < sparklineDates.length) {
+                  // Gerçek tarih mevcut
+                  try {
+                    final dt = DateTime.parse(sparklineDates[idx]);
+                    dateStr =
+                        '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year}';
+                  } catch (_) {
+                    dateStr = sparklineDates[idx];
+                  }
+                } else {
+                  dateStr = 'Gün ${idx + 1}';
+                }
                 return LineTooltipItem(
                   '₺${spot.y.toStringAsFixed(2)}\n$dateStr',
                   GoogleFonts.inter(

@@ -284,6 +284,7 @@ def fetch_historical_sparklines(ipos: list[dict]) -> list[dict]:
                 continue
                 
             closes = hist["Close"].dropna().tolist()
+            dates = [d.strftime("%Y-%m-%d") for d in hist.index]
             if not closes:
                 continue
                 
@@ -319,8 +320,10 @@ def fetch_historical_sparklines(ipos: list[dict]) -> list[dict]:
 
             if include_full_chart:
                 ipo["sparkline"] = [float(x) for x in closes]
+                ipo["sparkline_dates"] = dates
             else:
                 ipo["sparkline"] = [float(x) for x in closes[-30:]] if len(closes) > 30 else [float(x) for x in closes]
+                ipo["sparkline_dates"] = dates[-30:] if len(dates) > 30 else dates
                 
             ipo["static_fetched"] = True
             ipo["static_fetched_at"] = datetime.now().isoformat()
