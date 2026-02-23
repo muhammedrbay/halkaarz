@@ -21,8 +21,7 @@ class _AddPortfolioScreenState extends State<AddPortfolioScreen> {
   int get _lot => int.tryParse(_lotController.text) ?? 1;
   int get _hesap => int.tryParse(_hesapController.text) ?? 1;
   int get _toplamLot => _lot * _hesap;
-  int get _toplamHisse => _toplamLot * 100;
-  double get _toplamMaliyet => _toplamHisse * widget.ipo.arzFiyati;
+  double get _toplamMaliyet => _toplamLot * widget.ipo.arzFiyati;
 
   @override
   void dispose() {
@@ -209,10 +208,6 @@ class _AddPortfolioScreenState extends State<AddPortfolioScreen> {
                     'Toplam Lot',
                     '$_toplamLot lot',
                     highlight: true,
-                  ),
-                  _buildSummaryRow(
-                    'Toplam Hisse',
-                    '$_toplamHisse adet',
                   ),
                   _buildSummaryRow(
                     'Toplam Maliyet',
