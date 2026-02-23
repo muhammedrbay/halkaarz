@@ -5,6 +5,8 @@ import '../services/data_service.dart';
 import '../widgets/ipo_card.dart';
 import '../widgets/katilim_toggle.dart';
 import '../services/realtime_price_service.dart';
+import '../services/ad_service.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// Ana Ekran — 3 sekmeli halka arz listesi
 class HomeScreen extends StatefulWidget {
@@ -32,7 +34,8 @@ class _HomeScreenState extends State<HomeScreen>
     setState(() => _isLoading = true);
     try {
       final ipos = await DataService.fetchFromRemote();
-      await RealtimePriceService.fetchAll();
+      // Yenile butonuna/pull-to-refresh'e tıklandığında cache'i atla ve Firebase'den taze çek
+      await RealtimePriceService.fetchAll(forceRefresh: true);
       if (mounted) {
         setState(() {
           _allIpos = ipos;
@@ -41,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen>
       }
     } catch (e) {
       final ipos = await DataService.loadFromLocal();
-      await RealtimePriceService.fetchAll();
+      await RealtimePriceService.fetchAll(forceRefresh: true);
       if (mounted) {
         setState(() {
           _allIpos = ipos;
@@ -295,13 +298,23 @@ class _HomeScreenState extends State<HomeScreen>
       );
     }
 
+    final hasAd = AdService.isNativeAdLoaded('home');
+    final adIndex = ipos.length >= 3 ? 3 : ipos.length;
+
     return RefreshIndicator(
       onRefresh: _loadData,
       color: const Color(0xFF00D4AA),
       child: ListView.builder(
         padding: const EdgeInsets.only(top: 4, bottom: 80),
-        itemCount: ipos.length,
-        itemBuilder: (context, index) => IpoCard(ipo: ipos[index]),
+        itemCount: ipos.length + (hasAd ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (hasAd && index == adIndex) {
+            return AdService.buildNativeAdWidget('home');
+          }
+          final ipoIndex = hasAd && index > adIndex ? index - 1 : index;
+          if (ipoIndex >= ipos.length) return const SizedBox.shrink();
+          return IpoCard(ipo: ipos[ipoIndex]);
+        },
       ),
     );
   }
