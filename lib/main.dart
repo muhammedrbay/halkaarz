@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'services/firebase_service.dart';
@@ -15,8 +16,11 @@ import 'screens/historical_ipo_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Üstteki durum çubuğunu (saat, pil, wifi) gizle
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  // Üstteki durum çubuğunu (saat, pil, wifi) SADECE TEST MODUNDA gizle.
+  // Release (App Store) modunda normal kullanıcılar saat ve şarjı görebilecek.
+  if (!kReleaseMode) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  }
 
   // Hive başlat
   await Hive.initFlutter();
