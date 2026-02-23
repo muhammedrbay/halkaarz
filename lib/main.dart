@@ -1,31 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'services/firebase_service.dart';
 import 'services/data_service.dart';
 import 'services/portfolio_service.dart';
 import 'services/historical_ipo_service.dart';
 import 'services/realtime_price_service.dart';
+import 'services/ad_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/portfolio_screen.dart';
 import 'screens/historical_ipo_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Üstteki durum çubuğunu (saat, pil, wifi) gizle
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   // Hive başlat
   await Hive.initFlutter();
   await DataService.init();
-  await PortfolioService.init();
   await HistoricalIpoService.init();
-  await RealtimePriceService.init();
+  await PortfolioService.init();
 
-  // Firebase başlat (hata olursa uygulama yine çalışır)
+  // Firebase başlatılması ZORUNLU, çünkü RealtimePriceService kullanıyor
   try {
     await FirebaseService.init();
   } catch (e) {
-    debugPrint('Firebase başlatılamadı, bildirimler devre dışı: $e');
+    debugPrint('Firebase SDK başlatılamadı: $e');
   }
+
+  // RealtimePriceService Firebase'den veri çekiyor
+  await RealtimePriceService.init();
+
+  // AdMob SDK başlat
+  await AdService.init();
 
   runApp(const HalkaArzApp());
 }
@@ -39,7 +49,7 @@ class HalkaArzApp extends StatelessWidget {
       title: 'Halka Arz Takip',
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(),
-      home: const MainNavigationScreen(),
+      home: const SplashScreen(),
     );
   }
 
@@ -86,6 +96,55 @@ class HalkaArzApp extends StatelessWidget {
   }
 }
 
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _requestSystemPermissions();
+    });
+  }
+
+  Future<void> _requestSystemPermissions() async {
+    // Kısa gecikme — UI'nin tam çizmesini bekle
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+
+    // 1. Bildirim izni
+    await FirebaseService.requestNotificationPermission();
+
+    // İki sistem popup'ı arasında kısa bekleme
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (!mounted) return;
+
+    // 2. ATT (Takip) izni + App Open reklam
+    await AdService.requestTrackingAndShowAppOpenAd();
+
+    // İzin akışı tamamlandı → Ana ekrana geç
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(color: Color(0xFF00D4AA)),
+      ),
+    );
+  }
+}
+
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
@@ -101,6 +160,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     HistoricalIpoScreen(),
     PortfolioScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
