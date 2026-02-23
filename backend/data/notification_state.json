@@ -20,5 +20,11 @@
   "tavan_yapti_ATATR_2026-02-22": "2026-02-22T10:42:10.369814",
   "tavan_yapti_BESTE_2026-02-22": "2026-02-22T10:42:10.701754",
   "tavan_bozdu_NETCD_2026-02-22": "2026-02-22T10:42:11.052075",
-  "tavan_bozdu_MEYSU_2026-02-22": "2026-02-22T10:42:11.687435"
+  "tavan_bozdu_MEYSU_2026-02-22": "2026-02-22T10:42:11.687435",
+  "stock_state_ATATR": "tavan",
+  "stock_state_ts_ATATR": "2026-02-23T07:51:37.364603",
+  "stock_state_BESTE": "tavan",
+  "stock_state_ts_BESTE": "2026-02-23T07:51:37.962375",
+  "stock_state_DOFRB": "taban",
+  "stock_state_ts_DOFRB": "2026-02-23T09:37:57.019746"
 }
