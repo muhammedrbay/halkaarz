@@ -141,8 +141,8 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
               Text(
-                'Güncel halka arzları keşfet',
-                style: GoogleFonts.inter(color: Colors.white38, fontSize: 12),
+                'Güncel halka arzları keşfet • Fiyatlar 15dk gecikmeli',
+                style: GoogleFonts.inter(color: Colors.white38, fontSize: 11),
               ),
             ],
           ),

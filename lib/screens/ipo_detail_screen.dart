@@ -145,6 +145,20 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
                   // Portföye Ekle butonu
                   _buildAddToPortfolioButton(ipo),
 
+                  const SizedBox(height: 24),
+
+                  // Yasal Uyarı / Gecikme Notu
+                  Center(
+                    child: Text(
+                      'Piyasa kuralları gereği veriler 15-20 dakika gecikmeli sağlanmaktadır.',
+                      style: GoogleFonts.inter(
+                        color: Colors.white38,
+                        fontSize: 11,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
                   const SizedBox(height: 40),
                 ],
               ),
