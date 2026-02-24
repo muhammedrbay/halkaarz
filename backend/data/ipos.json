@@ -17,7 +17,7 @@
     "talep_baslangic": "2026-02-19T09:00:00",
     "talep_bitis": "2026-02-21T17:00:00",
     "borsada_islem_tarihi": "2026-02-24",
-    "durum": "islem_goruyor",
+    "durum": "talep_topluyor",
     "son_katilimci_sayilari": [],
     "guncelleme_zamani": "2026-02-22T10:00:00"
   },
@@ -53,7 +53,7 @@
       16.389999389648438
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:48.709794",
+    "static_fetched_at": "2026-02-25T01:42:58.536412",
     "sparkline_dates": [
       "2026-02-19",
       "2026-02-20",
@@ -99,7 +99,7 @@
       38.060001373291016
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:48.909536",
+    "static_fetched_at": "2026-02-25T01:42:58.679432",
     "sparkline_dates": [
       "2026-02-11",
       "2026-02-12",
@@ -155,7 +155,7 @@
       100.0
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:49.039743",
+    "static_fetched_at": "2026-02-25T01:42:58.814823",
     "sparkline_dates": [
       "2026-02-05",
       "2026-02-06",
@@ -225,7 +225,7 @@
       26.559999465942383
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:49.169224",
+    "static_fetched_at": "2026-02-25T01:42:58.961948",
     "sparkline_dates": [
       "2026-01-22",
       "2026-01-23",
@@ -309,7 +309,7 @@
       30.68000030517578
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:49.300953",
+    "static_fetched_at": "2026-02-25T01:42:59.085650",
     "sparkline_dates": [
       "2026-01-16",
       "2026-01-19",
@@ -398,7 +398,7 @@
       33.779998779296875
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:49.499283",
+    "static_fetched_at": "2026-02-25T01:42:59.264250",
     "sparkline_dates": [
       "2026-01-15",
       "2026-01-16",
@@ -490,7 +490,7 @@
       13.100000381469727
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:49.633194",
+    "static_fetched_at": "2026-02-25T01:42:59.388234",
     "sparkline_dates": [
       "2026-01-13",
       "2026-01-14",
@@ -590,7 +590,7 @@
       24.68000030517578
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:49.767897",
+    "static_fetched_at": "2026-02-25T01:42:59.528256",
     "sparkline_dates": [
       "2026-01-05",
       "2026-01-06",
@@ -726,7 +726,7 @@
       1.649999976158142
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:49.905006",
+    "static_fetched_at": "2026-02-25T01:42:59.705168",
     "sparkline_dates": [
       "2025-11-21",
       "2025-11-24",
@@ -893,7 +893,7 @@
       12.829999923706055
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:50.040522",
+    "static_fetched_at": "2026-02-25T01:42:59.857714",
     "sparkline_dates": [
       "2025-11-20",
       "2025-11-21",
@@ -1074,7 +1074,7 @@
       25.200000762939453
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:50.234752",
+    "static_fetched_at": "2026-02-25T01:43:00.017906",
     "sparkline_dates": [
       "2025-11-03",
       "2025-11-04",
@@ -1304,7 +1304,7 @@
       90.4000015258789
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:50.441788",
+    "static_fetched_at": "2026-02-25T01:43:00.183394",
     "sparkline_dates": [
       "2025-09-11",
       "2025-09-12",
@@ -1705,7 +1705,7 @@
       61.75
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:50.579386",
+    "static_fetched_at": "2026-02-25T01:43:00.350787",
     "sparkline_dates": [
       "2025-02-24",
       "2025-02-25",
@@ -2019,7 +2019,7 @@
       173.39999389648438
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-24T16:04:50.722900",
+    "static_fetched_at": "2026-02-25T01:43:00.543593",
     "sparkline_dates": [
       "2026-01-14",
       "2026-01-15",
@@ -2075,7 +2075,6 @@
       125000,
       98000,
       145000
-    ],
-    "guncelleme_zamani": "2026-02-24T16:04:47.521094"
+    ]
   }
 ]
