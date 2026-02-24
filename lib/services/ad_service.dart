@@ -14,33 +14,39 @@ class AdService {
   // ─── Production & Test Ad IDs ──────────────────────────────────────────────────
   static String get _appOpenAdUnitId {
     if (kReleaseMode) {
-      if (Platform.isAndroid) return 'ca-app-pub-9576499265117171/1668885711';
+      if (Platform.isAndroid) return 'ca-app-pub-9576499265117171/3364879256';
       if (Platform.isIOS) return 'ca-app-pub-9576499265117171/1668885711';
     } else {
-      if (Platform.isAndroid) return 'ca-app-pub-3940256099942544/9257395921'; // Test
-      if (Platform.isIOS) return 'ca-app-pub-3940256099942544/5662855259'; // Test
+      if (Platform.isAndroid)
+        return 'ca-app-pub-3940256099942544/9257395921'; // Test
+      if (Platform.isIOS)
+        return 'ca-app-pub-3940256099942544/5662855259'; // Test
     }
     return '';
   }
 
   static String get _interstitialAdUnitId {
     if (kReleaseMode) {
-      if (Platform.isAndroid) return 'ca-app-pub-9576499265117171/3860623149';
+      if (Platform.isAndroid) return 'ca-app-pub-9576499265117171/5113075190';
       if (Platform.isIOS) return 'ca-app-pub-9576499265117171/3860623149';
     } else {
-      if (Platform.isAndroid) return 'ca-app-pub-3940256099942544/1033173712'; // Test
-      if (Platform.isIOS) return 'ca-app-pub-3940256099942544/4411468910'; // Test
+      if (Platform.isAndroid)
+        return 'ca-app-pub-3940256099942544/1033173712'; // Test
+      if (Platform.isIOS)
+        return 'ca-app-pub-3940256099942544/4411468910'; // Test
     }
     return '';
   }
 
   static String get _nativeAdUnitId {
     if (kReleaseMode) {
-      if (Platform.isAndroid) return 'ca-app-pub-9576499265117171/9651317517';
+      if (Platform.isAndroid) return 'ca-app-pub-9576499265117171/8338692698';
       if (Platform.isIOS) return 'ca-app-pub-9576499265117171/9651317517';
     } else {
-      if (Platform.isAndroid) return 'ca-app-pub-3940256099942544/2247696110'; // Test
-      if (Platform.isIOS) return 'ca-app-pub-3940256099942544/3986624511'; // Test
+      if (Platform.isAndroid)
+        return 'ca-app-pub-3940256099942544/2247696110'; // Test
+      if (Platform.isIOS)
+        return 'ca-app-pub-3940256099942544/3986624511'; // Test
     }
     return '';
   }
@@ -293,16 +299,20 @@ class AdService {
     try {
       if (!kIsWeb && Platform.isIOS) {
         // Doğrudan app_tracking_transparency eklentisini kullan
-        final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+        final status =
+            await AppTrackingTransparency.trackingAuthorizationStatus;
         debugPrint('[ATT] Mevcut durum: $status');
 
         if (status == TrackingStatus.notDetermined) {
-          final result = await AppTrackingTransparency.requestTrackingAuthorization();
+          final result =
+              await AppTrackingTransparency.requestTrackingAuthorization();
           debugPrint('[ATT] İstek sonucu: $result');
         } else {
           // Zaten karar verilmişse (denied, authorized vb.) handler ile logla
           final handlerStatus = await Permission.appTrackingTransparency.status;
-          debugPrint('[ATT] permission_handler ile tekrar kontrol: $handlerStatus');
+          debugPrint(
+            '[ATT] permission_handler ile tekrar kontrol: $handlerStatus',
+          );
         }
       }
     } catch (e) {

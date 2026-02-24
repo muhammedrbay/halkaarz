@@ -1,7 +1,9 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 /// Firebase ve bildirim servisi
 class FirebaseService {
@@ -39,9 +41,6 @@ class FirebaseService {
   static Future<void> _setupFCM() async {
     final messaging = FirebaseMessaging.instance;
 
-    // İzin iste
-    await messaging.requestPermission(alert: true, badge: true, sound: true);
-
     // 'halka_arz' topic'ine abone ol
     await messaging.subscribeToTopic('halka_arz');
 
@@ -65,9 +64,9 @@ class FirebaseService {
       '@mipmap/ic_launcher',
     );
     const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
     const settings = InitializationSettings(
       android: androidSettings,
@@ -111,5 +110,27 @@ class FirebaseService {
   static void _handleMessageOpenedApp(RemoteMessage message) {
     print('Bildirime tıklandı: ${message.data}');
     // Gerekirse ilgili sayfaya yönlendir
+  }
+
+  /// Harici olarak çağırılır — UI yüklendikten sonra izinleri istemek için
+  static Future<void> requestNotificationPermission() async {
+    if (kIsWeb) return;
+
+    // İzin iste (permission_handler ile daha sağlam)
+    if (Platform.isIOS) {
+      final status = await Permission.notification.status;
+      debugPrint('[FCM] Mevcut bildirim izni: $status');
+      if (status.isDenied || status.isProvisional || status == PermissionStatus.restricted) {
+        final result = await Permission.notification.request();
+        debugPrint('[FCM] Bildirim izni istendi (yeni UI): $result');
+      }
+    }
+
+    // Firebase başlatılamadıysa (örn: simülatör) messaging objesini çağırma, atla
+    if (!_initialized) return;
+
+    // Firebase'in push token alması için Apple APNs onayı
+    final messaging = FirebaseMessaging.instance;
+    await messaging.requestPermission(alert: true, badge: true, sound: true);
   }
 }

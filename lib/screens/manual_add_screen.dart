@@ -25,8 +25,7 @@ class _ManualAddScreenState extends State<ManualAddScreen> {
   int get _hesap => int.tryParse(_hesapController.text) ?? 1;
   double get _fiyat => double.tryParse(_fiyatController.text) ?? 0;
   int get _toplamLot => _lot * _hesap;
-  int get _toplamHisse => _toplamLot * 100;
-  double get _toplamMaliyet => _toplamHisse * _fiyat;
+  double get _toplamMaliyet => _toplamLot * _fiyat;
 
   List<Map<String, dynamic>> _allIpoData = [];
 
@@ -348,7 +347,6 @@ class _ManualAddScreenState extends State<ManualAddScreen> {
                 child: Column(
                   children: [
                     _buildSummaryRow('Toplam Lot', '$_toplamLot lot'),
-                    _buildSummaryRow('Toplam Hisse', '$_toplamHisse adet'),
                     const Divider(color: Color(0xFF2A2F4A), height: 20),
                     _buildSummaryRow(
                       'Toplam Maliyet',

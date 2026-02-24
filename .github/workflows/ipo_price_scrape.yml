@@ -1,0 +1,37 @@
+name: IPO Fiyat Güncelleme
+
+on:
+  schedule:
+    # Günde 1 kez (UTC 06:00 = TR 09:00)
+    - cron: '0 6 * * 1-5'
+  workflow_dispatch: # Manuel tetikleme
+
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Run IPO price updater
+        run: python backend/ipo_price_scraper.py
+
+      - name: Commit and push data
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add backend/data/ipos.json
+          git diff --staged --quiet || git commit -m "chore: IPO fiyatları güncellendi [$(date +'%Y-%m-%d %H:%M')]"
+          git push || true

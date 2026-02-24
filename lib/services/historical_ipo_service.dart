@@ -166,6 +166,7 @@ class HistoricalIpoService {
       final list = json.decode(raw as String) as List;
       return list
           .map((e) => HistoricalIpo.fromJson(e as Map<String, dynamic>))
+          .where(_isNotDummy)
           .toList();
     } catch (e) {
       debugPrint('Cache okuma hatası: $e');
@@ -176,6 +177,13 @@ class HistoricalIpoService {
   static Future<void> saveToCache(List<HistoricalIpo> ipos) async {
     final box = Hive.box(_boxName);
     await box.put('data', json.encode(ipos.map((e) => e.toJson()).toList()));
+  }
+
+  /// Deneme / test amaçlı girişleri filtrele
+  static bool _isNotDummy(HistoricalIpo i) {
+    final kodOk = i.sirketKodu.toUpperCase() != 'ORNEK';
+    final adOk = !i.sirketAdi.toLowerCase().contains('örnek');
+    return kodOk && adOk;
   }
 
   static DateTime? _lastStaticFetch() {
@@ -217,6 +225,7 @@ class HistoricalIpoService {
       final ipos =
           list
               .map((e) => HistoricalIpo.fromJson(e as Map<String, dynamic>))
+              .where(_isNotDummy)
               .where((i) {
                 // Sadece son 1 yılın arzlarını göster
                 final cutoff = DateTime.now().subtract(

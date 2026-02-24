@@ -6,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../services/historical_ipo_service.dart';
 import '../services/realtime_price_service.dart';
+import '../services/ad_service.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'historical_ipo_detail_screen.dart';
 
 enum _Filter { hepsi, tavanlar, katilim }
@@ -293,21 +295,31 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
         ),
       );
     }
+    final hasAd = AdService.isNativeAdLoaded('historical');
+    final adIndex = filtered.length >= 3 ? 3 : filtered.length;
+
     return RefreshIndicator(
       onRefresh: _fullRefresh,
       color: const Color(0xFF7C3AED),
       child: ListView.builder(
         padding: const EdgeInsets.only(top: 4, bottom: 90),
-        itemCount: filtered.length,
-        itemBuilder: (ctx, i) => _IpoCard(
-          ipo: filtered[i],
-          onTap: () => Navigator.push(
-            ctx,
-            MaterialPageRoute(
-              builder: (_) => HistoricalIpoDetailScreen(ipo: filtered[i]),
+        itemCount: filtered.length + (hasAd ? 1 : 0),
+        itemBuilder: (ctx, i) {
+          if (hasAd && i == adIndex) {
+            return AdService.buildNativeAdWidget('historical');
+          }
+          final idx = hasAd && i > adIndex ? i - 1 : i;
+          if (idx >= filtered.length) return const SizedBox.shrink();
+          return _IpoCard(
+            ipo: filtered[idx],
+            onTap: () => Navigator.push(
+              ctx,
+              MaterialPageRoute(
+                builder: (_) => HistoricalIpoDetailScreen(ipo: filtered[idx]),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

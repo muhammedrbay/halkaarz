@@ -133,8 +133,9 @@ class RealtimePriceService {
       debugPrint('[RTDB] Timeout — cache kullanılıyor.');
       return Map.unmodifiable(_cache);
     } catch (e) {
-      debugPrint('[RTDB] Hata: $e — cache kullanılıyor.');
-      return Map.unmodifiable(_cache);
+      debugPrint('[RTDB] SDK hatası: $e — REST API ile deneniyor...');
+      // Firebase SDK başlatılamamışsa REST API'ye düş
+      return await _fetchFromRestApi();
     }
   }
 

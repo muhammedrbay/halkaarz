@@ -154,19 +154,18 @@ class IpoCard extends StatelessWidget {
               // Alt satır: Fiyat, Lot, Katılım
               Row(
                 children: [
+                  _buildInfoChip(
+                    Icons.monetization_on_outlined,
+                    '₺${ipo.arzFiyati.toStringAsFixed(2)}',
+                    'Arz Fiyatı',
+                  ),
+                  const SizedBox(width: 16),
                   if (ipo.durum == 'islem_goruyor' && RealtimePriceService.getPrice(ipo.sirketKodu) != null) ...[
                     _buildInfoChip(
                       Icons.show_chart_rounded,
                       '₺${RealtimePriceService.getPrice(ipo.sirketKodu)!.toStringAsFixed(2)}',
                       'Güncel Fiyat',
                       color: const Color(0xFF00D4AA),
-                    ),
-                    const SizedBox(width: 16),
-                  ] else ...[
-                    _buildInfoChip(
-                      Icons.monetization_on_outlined,
-                      '₺${ipo.arzFiyati.toStringAsFixed(2)}',
-                      'Arz Fiyatı',
                     ),
                     const SizedBox(width: 16),
                   ],

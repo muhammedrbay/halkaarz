@@ -28,7 +28,9 @@ class DataService {
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = json.decode(response.body);
-        final ipos = jsonList.map((j) => IpoModel.fromJson(j)).toList();
+        final ipos = _removeDummyEntries(
+          jsonList.map((j) => IpoModel.fromJson(j)).toList(),
+        );
 
         // Yerel Hive'a kaydet
         await _saveToLocal(ipos);
@@ -49,10 +51,21 @@ class DataService {
     if (data == null) return [];
     try {
       final List<dynamic> jsonList = json.decode(data);
-      return jsonList.map((j) => IpoModel.fromJson(j)).toList();
+      return _removeDummyEntries(
+        jsonList.map((j) => IpoModel.fromJson(j)).toList(),
+      );
     } catch (_) {
       return [];
     }
+  }
+
+  /// Deneme/test amaçlı girişleri filtrele
+  static List<IpoModel> _removeDummyEntries(List<IpoModel> ipos) {
+    return ipos.where((ipo) {
+      final kodOk = ipo.sirketKodu.toUpperCase() != 'ORNEK';
+      final adOk = !ipo.sirketAdi.toLowerCase().contains('örnek');
+      return kodOk && adOk;
+    }).toList();
   }
 
   /// Verileri Hive'a kaydet

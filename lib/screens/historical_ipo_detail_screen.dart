@@ -273,60 +273,113 @@ class HistoricalIpoDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFF2A2F4A), width: 0.5),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Son 30 Günlük Fiyat', style: GoogleFonts.inter(
-            color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600,
-          )),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 140,
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(
-                  show: true,
-                  getDrawingHorizontalLine: (_) => FlLine(
-                    color: Colors.white.withValues(alpha: 0.04), strokeWidth: 1,
-                  ),
-                  drawVerticalLine: false,
-                ),
-                titlesData: FlTitlesData(
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 50,
-                      getTitlesWidget: (v, _) => Text(
-                        '₺${v.toStringAsFixed(0)}',
-                        style: GoogleFonts.inter(color: Colors.white24, fontSize: 9),
+      child: SizedBox(
+        height: 160,
+        child: LineChart(
+          LineChartData(
+            lineTouchData: LineTouchData(
+              enabled: true,
+              handleBuiltInTouches: true,
+              touchTooltipData: LineTouchTooltipData(
+                getTooltipColor: (_) => const Color(0xFF2A2F4A),
+                tooltipRoundedRadius: 10,
+                tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                getTooltipItems: (touchedSpots) {
+                  return touchedSpots.map((spot) {
+                    final idx = spot.x.toInt();
+                    final price = '₺${spot.y.toStringAsFixed(2)}';
+                    String dateStr = '';
+                    if (idx >= 0 && idx < ipo.sparklineDates.length) {
+                      try {
+                        final dt = DateTime.parse(ipo.sparklineDates[idx]);
+                        dateStr = '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year}';
+                      } catch (_) {
+                        dateStr = ipo.sparklineDates[idx];
+                      }
+                    }
+                    return LineTooltipItem(
+                      '$price\n$dateStr',
+                      GoogleFonts.inter(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
                       ),
-                    ),
-                  ),
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                ),
-                borderData: FlBorderData(show: false),
-                minX: 0, maxX: (ipo.sparkline.length - 1).toDouble(),
-                minY: minY - pad, maxY: maxY + pad,
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: spots,
-                    isCurved: true,
-                    color: renk,
-                    barWidth: 2.5,
-                    isStrokeCapRound: true,
-                    dotData: const FlDotData(show: false),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: renk.withValues(alpha: 0.1),
-                    ),
-                  ),
-                ],
+                      children: dateStr.isNotEmpty
+                          ? [
+                              TextSpan(
+                                text: '',
+                                style: GoogleFonts.inter(
+                                  color: Colors.white54,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ]
+                          : null,
+                    );
+                  }).toList();
+                },
               ),
+              getTouchedSpotIndicator: (barData, spotIndexes) {
+                return spotIndexes.map((_) {
+                  return TouchedSpotIndicatorData(
+                    FlLine(color: renk.withValues(alpha: 0.5), strokeWidth: 1, dashArray: [4, 4]),
+                    FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 5,
+                          color: renk,
+                          strokeWidth: 2,
+                          strokeColor: Colors.white,
+                        );
+                      },
+                    ),
+                  );
+                }).toList();
+              },
             ),
+            gridData: FlGridData(
+              show: true,
+              getDrawingHorizontalLine: (_) => FlLine(
+                color: Colors.white.withValues(alpha: 0.04), strokeWidth: 1,
+              ),
+              drawVerticalLine: false,
+            ),
+            titlesData: FlTitlesData(
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 50,
+                  getTitlesWidget: (v, _) => Text(
+                    '₺${v.toStringAsFixed(0)}',
+                    style: GoogleFonts.inter(color: Colors.white24, fontSize: 9),
+                  ),
+                ),
+              ),
+              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            ),
+            borderData: FlBorderData(show: false),
+            minX: 0, maxX: (ipo.sparkline.length - 1).toDouble(),
+            minY: minY - pad, maxY: maxY + pad,
+            lineBarsData: [
+              LineChartBarData(
+                spots: spots,
+                isCurved: true,
+                color: renk,
+                barWidth: 2.5,
+                isStrokeCapRound: true,
+                dotData: const FlDotData(show: false),
+                belowBarData: BarAreaData(
+                  show: true,
+                  color: renk.withValues(alpha: 0.1),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
