@@ -27,8 +27,8 @@ class PortfolioItem {
   /// Toplam lot (hesap sayısı × lot)
   int get toplamLot => lotSayisi * hesapSayisi;
 
-  /// Toplam hisse adedi (1 lot = 100 hisse)
-  int get toplamHisse => toplamLot * 100;
+  /// Toplam hisse adedi (1 Lot = 1 pay kabul ediliyor)
+  int get toplamHisse => toplamLot;
 
   /// Toplam maliyet (TL)
   double get toplamMaliyet => toplamHisse * arzFiyati;

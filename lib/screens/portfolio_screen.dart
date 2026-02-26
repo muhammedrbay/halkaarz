@@ -276,7 +276,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
               children: [
                 const Icon(Icons.history_rounded, size: 16),
                 const SizedBox(width: 4),
-                Text('Geçmiş İşlemler',
+                Text('İşlem Geçmişi',
                     style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
               ],
             ),
@@ -511,7 +511,7 @@ class _PortfolioScreenState extends State<PortfolioScreen>
     if (items.isEmpty) {
       return _buildEmptyState(
         Icons.history_rounded,
-        'Geçmiş işlem yok',
+        'İşlem Geçmişi yok',
         'Sattığınız hisseler burada görünecek',
       );
     }
