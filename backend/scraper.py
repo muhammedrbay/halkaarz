@@ -145,45 +145,56 @@ def parse_kap_halka_arz() -> list[dict]:
 
 
 def parse_halkarz_drafts() -> list[dict]:
-    """halkarz.com 'Taslak Arzlar' sekmesinden verileri çeker."""
+    """halkarz.com 'Taslak Arzlar' ve 'İlk Halka Arzlar' sekmelerinden verileri çeker."""
     results = []
-    print("[BİLGİ] halkarz.com üzerinden taslaklar kontrol ediliyor...")
+    print("[BİLGİ] halkarz.com üzerinden liste kontrol ediliyor...")
     resp = safe_request("https://halkarz.com")
     if not resp:
         return results
         
     soup = BeautifulSoup(resp.text, "html.parser")
-    draft_list = soup.find("ul", class_="halka-arz-list taslak")
-    if not draft_list:
-        print("[UYARI] halkarz.com taslak listesi bulunamadı.")
+    # Tüm listeleri al (Taslaklar ve İlk Halka Arzlar)
+    draft_lists = soup.find_all("ul", class_="halka-arz-list")
+    if not draft_lists:
+        print("[UYARI] halkarz.com listeleri bulunamadı.")
         return results
         
-    for li in draft_list.find_all("li", recursive=False):
-        article = li.find("article")
-        if not article: continue
-            
-        h3 = article.find("h3", class_="il-halka-arz-sirket")
-        if not h3: continue
-            
-        name = h3.text.strip()
+    for draft_list in draft_lists:
+        for li in draft_list.find_all("li", recursive=False):
+            article = li.find("article")
+            if not article: continue
+                
+            h3 = article.find("h3", class_="il-halka-arz-sirket")
+            if not h3: continue
+                
+            name = h3.text.strip()
         
-        bist_kod_span = article.find("span", class_="il-bist-kod")
-        bist_kod = bist_kod_span.text.strip() if bist_kod_span else ""
-        
-        # Eğer henüz BIST kodu belli değilse geçici bir kod oluştur (anahtar olarak kullanmak için)
-        code = bist_kod.upper()
-        if not code:
-            import hashlib
-            name_hash = hashlib.md5(name.encode('utf-8')).hexdigest()[:4].upper()
-            code = f"TAS_{name_hash}"
+            bist_kod_span = article.find("span", class_="il-bist-kod")
+            bist_kod = bist_kod_span.text.strip() if bist_kod_span else ""
             
-        results.append(create_ipo_entry(
-            sirket_kodu=code,
-            sirket_adi=name,
-            durum="taslak"
-        ))
-        
-    print(f"[BİLGİ] halkarz.com'dan {len(results)} taslak bulundu.")
+            # Eğer henüz BIST kodu belli değilse geçici bir kod oluştur (anahtar olarak kullanmak için)
+            code = bist_kod.upper()
+            if not code:
+                import hashlib
+                name_hash = hashlib.md5(name.encode('utf-8')).hexdigest()[:4].upper()
+                code = f"TAS_{name_hash}"
+                
+            durum_span = li.find("span", class_="il-durum")
+            durum_text = durum_span.text.strip().lower() if durum_span else ""
+            
+            durum = "taslak"
+            if "toplanıyor" in durum_text:
+                durum = "talep_topluyor"
+            elif "işlem görüyor" in durum_text:
+                durum = "islem_goruyor"
+                
+            results.append(create_ipo_entry(
+                sirket_kodu=code,
+                sirket_adi=name,
+                durum=durum
+            ))
+            
+    print(f"[BİLGİ] halkarz.com'dan {len(results)} şirket tespit edildi.")
     return results
 
 
