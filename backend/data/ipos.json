@@ -6592,5 +6592,27 @@
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
     "guncelleme_zamani": "2026-02-26T21:53:53.505207"
+  },
+  {
+    "sirket_kodu": "MCARD",
+    "sirket_adi": "(MetropolCard) Metropal Kurumsal Hizmetler A.Ş.",
+    "arz_fiyati": 0,
+    "toplam_lot": 0,
+    "kisi_basi_lot": 1,
+    "dagitim_sekli": "Eşit",
+    "konsorsiyum_lideri": "",
+    "iskonto_orani": 0.0,
+    "fon_kullanim_yeri": {
+      "yatirim": 0,
+      "borc_odeme": 0,
+      "isletme_sermayesi": 0
+    },
+    "katilim_endeksine_uygun": false,
+    "talep_baslangic": "",
+    "talep_bitis": "",
+    "borsada_islem_tarihi": "",
+    "durum": "talep_topluyor",
+    "son_katilimci_sayilari": [],
+    "guncelleme_zamani": "2026-02-26T23:05:06.193924"
   }
 ]
