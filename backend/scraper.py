@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """
 Halka Arz Veri Çekme ve Güncelleme Motoru
-KAP duyurularından ve resmi kaynaklardan halka arz verisi çeker.
-Yeni halka arz bulunursa FCM bildirim gönderir.
-Günde 2 kez çalışır (GitHub Actions).
+- Ana kaynak: halkarz.com ana sayfası (İlk Halka Arzlar listesi)
+- Tarih ve durum badge'lerine göre: Taslak / Talep / İşlem otomatik ayrıştırılır
+- Yahoo Finance: İşlem görenlerin sparkline grafiklerini çeker
+- FCM: Yeni arz tespit edilince bildirim gönderir
+- Günde 1 kez çalışır (GitHub Actions - Sabah 10:00 TR)
 """
 
 import json
 import os
+import re
 import time
 from datetime import datetime, timedelta
 from typing import Optional
@@ -20,19 +23,27 @@ from bs4 import BeautifulSoup
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 OUTPUT_FILE = os.path.join(DATA_DIR, "ipos.json")
 MANUAL_FILE = os.path.join(DATA_DIR, "manual_ipos.json")
-STATE_FILE = os.path.join(DATA_DIR, "notification_state.json")
+STATE_FILE  = os.path.join(DATA_DIR, "notification_state.json")
 REQUEST_DELAY = 3
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (compatible; HalkaArzTakip/1.0)",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
 }
 
-# FCM v1 API (bildirimler price_checker.py tarafından da kullanılır)
-FIREBASE_PROJECT_ID = os.environ.get("FIREBASE_PROJECT_ID", "")
+FIREBASE_PROJECT_ID  = os.environ.get("FIREBASE_PROJECT_ID", "")
 FIREBASE_SA_KEY_JSON = os.environ.get("FIREBASE_SA_KEY_JSON", "")
 
+# Türkçe ay adları
+MONTHS_TR = {
+    "ocak": 1, "şubat": 2, "mart": 3, "nisan": 4, "mayıs": 5,
+    "haziran": 6, "temmuz": 7, "ağustos": 8, "eylül": 9,
+    "ekim": 10, "kasım": 11, "aralık": 12,
+}
+
+
+# ─── FCM BİLDİRİMLER ──────────────────────────────────────────────
 
 def get_fcm_access_token() -> Optional[str]:
     """Firebase Service Account ile OAuth2 access token alır."""
@@ -93,6 +104,8 @@ def send_notification(title: str, body: str, data: Optional[dict] = None) -> boo
     return False
 
 
+# ─── HTTP ─────────────────────────────────────────────────────────
+
 def safe_request(url: str, timeout: int = 15) -> Optional[requests.Response]:
     """Rate-limited HTTP GET."""
     try:
@@ -105,163 +118,142 @@ def safe_request(url: str, timeout: int = 15) -> Optional[requests.Response]:
         return None
 
 
-def parse_kap_halka_arz() -> list[dict]:
-    """KAP halka arz duyurularını çeker."""
-    results = []
+# ─── TARİH YARDIMCISI ─────────────────────────────────────────────
 
-    # KAP bildirim API
-    url = "https://www.kap.org.tr/tr/api/memberDisclosureQuery"
-    payload = {
-        "fromDate": (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d"),
-        "toDate": datetime.now().strftime("%Y-%m-%d"),
-        "subject": "halka arz",
-    }
-
+def _parse_halkarz_date(tarih_str: str) -> Optional[datetime]:
+    """
+    halkarz.com tarih stringini parse eder.
+    Örnekler:
+      '2-3-4 Mart 2026'           → son gün (Borsaya giriş) = 4 Mart 2026
+      '26-27 Şubat, 2 Mart 2026' → son gün = 2 Mart 2026
+      'Hazırlanıyor...'           → None
+    """
+    if not tarih_str or "hazırlanıyor" in tarih_str.lower():
+        return None
     try:
-        time.sleep(REQUEST_DELAY)
-        resp = requests.post(url, json=payload, headers=HEADERS, timeout=15)
-        if resp.status_code == 200:
-            data = resp.json()
-            if isinstance(data, list):
-                for item in data:
-                    try:
-                        code = item.get("stockCodes", "").split(",")[0].strip()
-                        if code:
-                            results.append({
-                                "sirket_kodu": code,
-                                "sirket_adi": item.get("companyName", code),
-                                "kaynak": "kap",
-                                "tarih": item.get("publishDate", ""),
-                            })
-                    except Exception:
-                        continue
-            print(f"[BİLGİ] KAP'tan {len(results)} duyuru bulundu.")
-        else:
-            print(f"[UYARI] KAP API ({resp.status_code})")
-    except Exception as e:
-        print(f"[HATA] KAP: {e}")
-
-    return results
+        # Birden fazla tarih aralığı virgülle ayrılmış olabilir → son parçayı al
+        parts = re.split(r",\s*", tarih_str.strip())
+        last_part = parts[-1].strip()
+        # "2-3-4 Mart 2026" tokenize et
+        tokens = last_part.split()
+        if len(tokens) >= 2:
+            yil    = int(tokens[-1])
+            ay_str = tokens[-2].lower().rstrip(",")
+            ay     = MONTHS_TR.get(ay_str)
+            if ay:
+                # "2-3-4" → son gün = 4
+                gun = int(tokens[0].split("-")[-1])
+                return datetime(yil, ay, gun)
+    except Exception:
+        pass
+    return None
 
 
-def parse_halkarz_drafts() -> list[dict]:
-    """halkarz.com 'Taslak Arzlar' ve 'İlk Halka Arzlar' sekmelerinden verileri çeker."""
+# ─── ANA KAYNAK: HALKARZ.COM ──────────────────────────────────────
+
+def parse_halkarz_com() -> list[dict]:
+    """
+    halkarz.com ana sayfasındaki "İlk Halka Arzlar" ve "Taslak Arzlar"
+    listelerindeki tüm şirketleri çeker ve durum belirleme yapar:
+
+    Durum Tespiti:
+      - div.il-tt  (Talep toplanıyor)  → talep_topluyor
+      - div.il-gonk (Gong! - bugün/dün borsaya girdi) → islem_goruyor
+      - Tarihi geçmiş ama badge yok    → islem_goruyor
+      - Tarihi gelmemiş                → taslak
+      - Tarih yok                      → taslak
+    """
     results = []
-    print("[BİLGİ] halkarz.com üzerinden liste kontrol ediliyor...")
+    print("[BİLGİ] halkarz.com ana sayfası taranıyor...")
     resp = safe_request("https://halkarz.com")
     if not resp:
         return results
-        
+
     soup = BeautifulSoup(resp.text, "html.parser")
-    # Tüm listeleri al (Taslaklar ve İlk Halka Arzlar)
-    draft_lists = soup.find_all("ul", class_="halka-arz-list")
-    if not draft_lists:
-        print("[UYARI] halkarz.com listeleri bulunamadı.")
-        return results
-        
-    for draft_list in draft_lists:
-        for li in draft_list.find_all("li", recursive=False):
+    now  = datetime.now()
+
+    all_lists = soup.find_all("ul", class_="halka-arz-list")
+    for ul in all_lists:
+        for li in ul.find_all("li", recursive=False):
             article = li.find("article")
-            if not article: continue
-                
+            if not article:
+                continue
+
+            # ── Şirket adı ve BIST kodu ──────────────────────────
             h3 = article.find("h3", class_="il-halka-arz-sirket")
-            if not h3: continue
-                
-            name = h3.text.strip()
-        
-            bist_kod_span = article.find("span", class_="il-bist-kod")
-            bist_kod = bist_kod_span.text.strip() if bist_kod_span else ""
-            
-            # Eğer henüz BIST kodu belli değilse geçici bir kod oluştur (anahtar olarak kullanmak için)
-            code = bist_kod.upper()
-            if not code:
+            if not h3:
+                continue
+            sirket_adi = h3.get_text(strip=True)
+
+            bist_span = article.find("span", class_="il-bist-kod")
+            sirket_kodu = bist_span.get_text(strip=True).upper() if bist_span else ""
+            if not sirket_kodu:
+                # Geçici benzersiz anahtar
                 import hashlib
-                name_hash = hashlib.md5(name.encode('utf-8')).hexdigest()[:4].upper()
-                code = f"TAS_{name_hash}"
-                
-            durum_span = li.find("span", class_="il-durum")
-            durum_text = durum_span.text.strip().lower() if durum_span else ""
-            
-            durum = "taslak"
-            if "toplanıyor" in durum_text:
+                sirket_kodu = "TAS_" + hashlib.md5(sirket_adi.encode()).hexdigest()[:4].upper()
+
+            # ── Tarih ────────────────────────────────────────────
+            tarih_span = article.find("span", class_="il-halka-arz-tarihi")
+            tarih_str  = tarih_span.get_text(strip=True) if tarih_span else ""
+            borsaya_giris = _parse_halkarz_date(tarih_str)
+
+            # ── Durum Tespiti (badge öncelikli) ──────────────────
+            badge = article.find("div", class_="il-badge")
+            badge_text = badge.get_text(strip=True).lower() if badge else ""
+
+            if "talep toplaniyor" in badge_text or "talep toplanıyor" in badge_text or article.find("div", class_="il-tt"):
                 durum = "talep_topluyor"
-            elif "işlem görüyor" in durum_text:
+            elif "gong" in badge_text or article.find("div", class_="il-gonk"):
                 durum = "islem_goruyor"
-                
-            results.append(create_ipo_entry(
-                sirket_kodu=code,
-                sirket_adi=name,
-                durum=durum
-            ))
-            
-    print(f"[BİLGİ] halkarz.com'dan {len(results)} şirket tespit edildi.")
+            elif borsaya_giris and borsaya_giris.date() <= now.date():
+                # Tarihi bugün veya geçmişte → borsaya girmiş/işlem görüyor
+                durum = "islem_goruyor"
+            elif borsaya_giris and borsaya_giris.date() > now.date():
+                # Tarihi gelecekte → taslak (yakında talep) 
+                # Eğer talep başlangıcı yaklaştıysa "taslak_onaylandi" da denilebilir
+                # ama tek durum olarak taslak tutuyoruz; uygulama tarih gösterir
+                durum = "taslak"
+            else:
+                # Tarih yok → taslak
+                durum = "taslak"
+
+            results.append({
+                "sirket_kodu": sirket_kodu,
+                "sirket_adi":  sirket_adi,
+                "durum":       durum,
+                "borsada_islem_tarihi": borsaya_giris.isoformat() if borsaya_giris else "",
+                "kaynak": "halkarz.com",
+            })
+
+    print(f"[BİLGİ] halkarz.com → {len(results)} şirket tespit edildi.")
     return results
 
 
-def create_ipo_entry(
-    sirket_kodu: str,
-    sirket_adi: str,
-    arz_fiyati: float = 0,
-    toplam_lot: int = 0,
-    dagitim_sekli: str = "Eşit",
-    konsorsiyum_lideri: str = "",
-    iskonto_orani: float = 0.0,
-    fon_kullanim_yeri: Optional[dict] = None,
-    katilim_endeksine_uygun: bool = False,
-    talep_baslangic: str = "",
-    talep_bitis: str = "",
-    borsada_islem_tarihi: str = "",
-    durum: str = "taslak",
-    son_katilimci_sayilari: Optional[list] = None,
-) -> dict:
-    """Standart IPO veri girişi oluşturur."""
-    return {
-        "sirket_kodu": sirket_kodu.upper(),
-        "sirket_adi": sirket_adi,
-        "arz_fiyati": arz_fiyati,
-        "toplam_lot": toplam_lot,
-        "dagitim_sekli": dagitim_sekli,
-        "konsorsiyum_lideri": konsorsiyum_lideri,
-        "iskonto_orani": iskonto_orani,
-        "fon_kullanim_yeri": fon_kullanim_yeri or {
-            "yatirim": 0, "borc_odeme": 0, "isletme_sermayesi": 0
-        },
-        "katilim_endeksine_uygun": katilim_endeksine_uygun,
-        "talep_baslangic": talep_baslangic,
-        "talep_bitis": talep_bitis,
-        "borsada_islem_tarihi": borsada_islem_tarihi,
-        "durum": durum,
-        "son_katilimci_sayilari": son_katilimci_sayilari or [],
-        "guncelleme_zamani": datetime.now().isoformat(),
-    }
-
-
-def load_manual_data() -> list[dict]:
-    """Manuel IPO verilerini yükler."""
-    if not os.path.exists(MANUAL_FILE):
-        return []
-    try:
-        with open(MANUAL_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, IOError) as e:
-        print(f"[HATA] Manuel veri: {e}")
-        return []
-
+# ─── YARDIMCI DOSYA OPERASYONLARİ ────────────────────────────────
 
 def load_existing_data() -> list[dict]:
-    """Mevcut IPO verilerini yükler."""
     if not os.path.exists(OUTPUT_FILE):
         return []
     try:
         with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
     except (json.JSONDecodeError, IOError) as e:
-        print(f"[HATA] Mevcut veri: {e}")
+        print(f"[HATA] Mevcut veri okunamadı: {e}")
+        return []
+
+
+def load_manual_data() -> list[dict]:
+    if not os.path.exists(MANUAL_FILE):
+        return []
+    try:
+        with open(MANUAL_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        print(f"[HATA] Manuel veri okunamadı: {e}")
         return []
 
 
 def load_notification_state() -> dict:
-    """Bildirim state yükler."""
     if not os.path.exists(STATE_FILE):
         return {}
     try:
@@ -272,127 +264,134 @@ def load_notification_state() -> dict:
 
 
 def save_notification_state(state: dict):
-    """Bildirim state kaydeder."""
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(STATE_FILE, "w", encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False, indent=2)
 
 
+def save_data(ipos: list[dict]):
+    os.makedirs(DATA_DIR, exist_ok=True)
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        json.dump(ipos, f, ensure_ascii=False, indent=2)
+    print(f"[BİLGİ] {len(ipos)} IPO kaydedildi → {OUTPUT_FILE}")
+
+
+# ─── BİRLEŞTİRME ─────────────────────────────────────────────────
+
 def merge_ipo_data(existing: list[dict], new_data: list[dict]) -> list[dict]:
-    """Mevcut ve yeni verileri birleştirir (şirket koduna göre)."""
+    """
+    Mevcut ve yeni verileri birleştirir.
+    Öncelik: Mevcut veri korunur, yeni veriden sadece eksik alanlar eklenir.
+    Özel durum: Eğer yeni veri 'islem_goruyor' diyorsa mutlaka güncelle.
+    """
     merged = {item["sirket_kodu"]: item for item in existing}
+
     for item in new_data:
         code = item["sirket_kodu"]
         if code in merged:
             existing_item = merged[code]
-            item["guncelleme_zamani"] = datetime.now().isoformat()
-            merged[code] = {**existing_item, **item}
+            # Durum güncelleme
+            new_durum = item.get("durum", "")
+            old_durum = existing_item.get("durum", "")
+
+            # İşlem görmeye başladıysa veya yeni borsa tarihi geldiyse güncelle
+            if new_durum == "islem_goruyor" or (new_durum and new_durum != old_durum):
+                existing_item["durum"] = new_durum
+
+            # Borsa tarihi yoksa veya geldi ise güncelle
+            if item.get("borsada_islem_tarihi") and not existing_item.get("borsada_islem_tarihi"):
+                existing_item["borsada_islem_tarihi"] = item["borsada_islem_tarihi"]
+
+            existing_item["guncelleme_zamani"] = datetime.now().isoformat()
+            merged[code] = existing_item
         else:
+            # Yeni şirket — temel yapı oluştur
+            item.setdefault("arz_fiyati", 0)
+            item.setdefault("toplam_lot", 0)
+            item.setdefault("dagitim_sekli", "Eşit")
+            item.setdefault("konsorsiyum_lideri", "")
+            item.setdefault("iskonto_orani", 0.0)
+            item.setdefault("fon_kullanim_yeri", {"yatirim": 0, "borc_odeme": 0, "isletme_sermayesi": 0})
+            item.setdefault("katilim_endeksine_uygun", False)
+            item.setdefault("talep_baslangic", "")
+            item.setdefault("talep_bitis", "")
+            item.setdefault("son_katilimci_sayilari", [])
+            item.setdefault("sparkline", [])
+            item.setdefault("sparkline_dates", [])
+            item["guncelleme_zamani"] = datetime.now().isoformat()
             merged[code] = item
+
     return list(merged.values())
 
 
-def update_ipo_statuses(ipos: list[dict]) -> list[dict]:
-    """IPO durumlarını tarihlere göre otomatik günceller."""
-    now = datetime.now()
-    for ipo in ipos:
-        try:
-            talep_bas = ipo.get("talep_baslangic", "")
-            talep_bit = ipo.get("talep_bitis", "")
-            islem_tar = ipo.get("borsada_islem_tarihi", "")
-
-            if islem_tar:
-                islem_date = datetime.fromisoformat(islem_tar.replace("Z", ""))
-                if now >= islem_date:
-                    ipo["durum"] = "islem_goruyor"
-                    continue
-
-            if talep_bas and talep_bit:
-                bas_date = datetime.fromisoformat(talep_bas.replace("Z", ""))
-                bit_date = datetime.fromisoformat(talep_bit.replace("Z", ""))
-                if bas_date <= now <= bit_date:
-                    ipo["durum"] = "talep_topluyor"
-                elif now > bit_date:
-                    ipo["durum"] = "talep_topluyor"  # Bitti ama henüz işlem görmüyor
-                else:
-                    ipo["durum"] = "taslak"
-        except (ValueError, TypeError):
-            pass
-    return ipos
-
+# ─── SPARKLINE (YAHOO FINANCE) ────────────────────────────────────
 
 def fetch_historical_sparklines(ipos: list[dict]) -> list[dict]:
-    """Yahoo Finance'den son 30 günlük kapanışları ve istatistikleri çeker."""
+    """Yahoo Finance'den işlem gören hisselerin fiyat geçmişini çeker."""
     for ipo in ipos:
-        # Sadece işlem görenlerin geçmiş grafiğini alalım
         if ipo.get("durum") != "islem_goruyor":
             continue
-            
+
         try:
             ticker = f"{ipo['sirket_kodu']}.IS"
-            # period="2y" ile ilk gününden itibaren tüm veriyi almak garanti olur 
-            # ancak biz sparkline için son 30 günü, tavan hesabı için tüm günleri kullanacağız.
             hist = yf.Ticker(ticker).history(period="1y", interval="1d")
-            
+
             if hist.empty:
                 continue
-                
+
             closes = hist["Close"].dropna().tolist()
-            dates = [d.strftime("%Y-%m-%d") for d in hist.index]
+            dates  = [d.strftime("%Y-%m-%d") for d in hist.index]
             if not closes:
                 continue
-                
+
             ipo["ilk_gun_kapanis"] = float(closes[0])
-            ipo["max_fiyat"] = float(max(closes))
-            ipo["min_fiyat"] = float(min(closes))
-            
-            # Tavan gün sayısı hesapla
+            ipo["max_fiyat"]       = float(max(closes))
+            ipo["min_fiyat"]       = float(min(closes))
+
+            # Tavan gün sayısı
             tavan_count = 0
-            arz_fiyati = float(ipo.get("arz_fiyati", 0))
-            
-            # İlk gün tavan kontrolü
+            arz_fiyati  = float(ipo.get("arz_fiyati", 0))
             if arz_fiyati > 0 and (closes[0] - arz_fiyati) / arz_fiyati >= 0.095:
                 tavan_count += 1
-                
-            # Diğer günler tavan kontrolü
             for i in range(1, len(closes)):
                 if closes[i-1] > 0 and (closes[i] - closes[i-1]) / closes[i-1] >= 0.095:
                     tavan_count += 1
-                    
             ipo["tavan_gun"] = tavan_count
-            
-            # Son 6 ayda çıkanların tüm grafiğini kaydet, daha eskiler için son 30 günü al
-            include_full_chart = False
-            islem_tarihi_str = ipo.get("borsada_islem_tarihi", "")
-            if islem_tarihi_str:
+
+            # Son 6 ayda çıkanların tüm grafiği, eskiler için son 30 gün
+            include_full = False
+            islem_str = ipo.get("borsada_islem_tarihi", "")
+            if islem_str:
                 try:
-                    islem_date = datetime.fromisoformat(islem_tarihi_str.replace("Z", ""))
+                    islem_date = datetime.fromisoformat(islem_str.replace("Z", ""))
                     if datetime.now() - islem_date <= timedelta(days=180):
-                        include_full_chart = True
-                except:
+                        include_full = True
+                except Exception:
                     pass
 
-            if include_full_chart:
-                ipo["sparkline"] = [float(x) for x in closes]
+            if include_full:
+                ipo["sparkline"]       = [float(x) for x in closes]
                 ipo["sparkline_dates"] = dates
             else:
-                ipo["sparkline"] = [float(x) for x in closes[-30:]] if len(closes) > 30 else [float(x) for x in closes]
+                ipo["sparkline"]       = [float(x) for x in closes[-30:]] if len(closes) > 30 else [float(x) for x in closes]
                 ipo["sparkline_dates"] = dates[-30:] if len(dates) > 30 else dates
-                
-            ipo["static_fetched"] = True
+
+            ipo["static_fetched"]    = True
             ipo["static_fetched_at"] = datetime.now().isoformat()
-            
-            print(f"[YAHOO] {ticker} verisi güncellendi: {tavan_count} tavan, fiyat {closes[-1]:.2f}")
+
+            print(f"[YAHOO] {ticker} → {tavan_count} tavan, fiyat {closes[-1]:.2f}")
         except Exception as e:
-            print(f"[HATA] Yahoo Finance iterasyonu {ipo['sirket_kodu']}: {e}")
-            
+            print(f"[HATA] Yahoo Finance {ipo['sirket_kodu']}: {e}")
+
     return ipos
 
+
+# ─── BİLDİRİM ────────────────────────────────────────────────────
 
 def notify_new_ipos(existing_codes: set, all_ipos: list[dict], state: dict) -> dict:
     """Yeni eklenen IPO'lar için bildirim gönderir."""
     for ipo in all_ipos:
-        code = ipo["sirket_kodu"]
+        code      = ipo["sirket_kodu"]
         state_key = f"yeni_arz_{code}"
         if code not in existing_codes and state_key not in state:
             send_notification(
@@ -404,54 +403,39 @@ def notify_new_ipos(existing_codes: set, all_ipos: list[dict], state: dict) -> d
     return state
 
 
-def save_data(ipos: list[dict]):
-    """IPO verilerini JSON'a kaydeder."""
-    os.makedirs(DATA_DIR, exist_ok=True)
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(ipos, f, ensure_ascii=False, indent=2)
-    print(f"[BİLGİ] {len(ipos)} IPO kaydedildi → {OUTPUT_FILE}")
-
+# ─── ANA FONKSİYON ───────────────────────────────────────────────
 
 def main():
-    """Ana fonksiyon."""
     print("=" * 60)
     print(f"Halka Arz Veri Motoru — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     print("=" * 60)
 
-    # 1. Mevcut veriler
-    existing_data = load_existing_data()
+    # 1. Mevcut veriyi yükle
+    existing_data  = load_existing_data()
     existing_codes = {item["sirket_kodu"] for item in existing_data}
     print(f"[BİLGİ] Mevcut: {len(existing_data)} IPO")
 
-    # 2. KAP'tan çek
-    kap_data = parse_kap_halka_arz()
-    print(f"[BİLGİ] KAP: {len(kap_data)} kayıt")
+    # 2. halkarz.com'dan tüm listeyi çek (ana kaynak)
+    halkarz_data = parse_halkarz_com()
 
-    # 3. halkarz.com Taslaklar
-    halkarz_drafts = parse_halkarz_drafts()
-
-    # 4. Manuel veriler
+    # 3. Manuel veriler
     manual_data = load_manual_data()
     print(f"[BİLGİ] Manuel: {len(manual_data)} kayıt")
 
-    # 5. Birleştir
-    all_new = kap_data + halkarz_drafts + manual_data
-    merged = merge_ipo_data(existing_data, all_new)
+    # 4. Birleştir
+    merged = merge_ipo_data(existing_data, halkarz_data + manual_data)
 
-    # 5. Durumları güncelle
-    updated = update_ipo_statuses(merged)
-
-    # 6. Yahoo Finance'den sparkline grafik verilerini çek
+    # 5. Yahoo Finance'den grafik verileri
     print("[BİLGİ] Grafik verileri güncelleniyor (YFinance)...")
-    updated_with_sparklines = fetch_historical_sparklines(updated)
+    merged = fetch_historical_sparklines(merged)
 
-    # 7. Yeni IPO'lar için bildirim
+    # 6. Bildirimler
     state = load_notification_state()
-    state = notify_new_ipos(existing_codes, updated_with_sparklines, state)
+    state = notify_new_ipos(existing_codes, merged, state)
     save_notification_state(state)
 
-    # 8. Kaydet
-    save_data(updated_with_sparklines)
+    # 7. Kaydet
+    save_data(merged)
 
     print("=" * 60)
     print("[BİLGİ] İşlem tamamlandı.")

@@ -2,8 +2,8 @@ name: Halka Arz Veri Çekme
 
 on:
   schedule:
-    # Günde 1 kez (UTC 06:00 = TR 09:00) Her gün çalışır
-    - cron: '0 6 * * *'
+    # Her gün saat 10:00'da (UTC 07:00) çalışır.
+    - cron: '0 7 * * *'
   workflow_dispatch: # Manuel tetikleme
 
 jobs:
