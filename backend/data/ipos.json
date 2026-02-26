@@ -14,12 +14,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-02-19T00:00:00",
+    "talep_bitis": "2026-02-20T00:00:00",
     "borsada_islem_tarihi": "2026-02-20T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790127",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324380",
     "ilk_gun_kapanis": 22.0,
     "max_fiyat": 24.200000762939453,
     "min_fiyat": 22.0,
@@ -35,7 +35,8 @@
       "2026-02-26"
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:22:42.735038"
+    "static_fetched_at": "2026-02-26T21:22:42.735038",
+    "tarih_raw": "19-20 Şubat 2026"
   },
   {
     "sirket_kodu": "ATATR",
@@ -52,12 +53,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-02-11T00:00:00",
+    "talep_bitis": "2026-02-13T00:00:00",
     "borsada_islem_tarihi": "2026-02-13T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790130",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324381",
     "ilk_gun_kapanis": 12.319999694824219,
     "max_fiyat": 18.020000457763672,
     "min_fiyat": 12.319999694824219,
@@ -79,7 +80,8 @@
       "2026-02-24",
       "2026-02-25",
       "2026-02-26"
-    ]
+    ],
+    "tarih_raw": "11-12-13 Şubat 2026"
   },
   {
     "sirket_kodu": "BESTE",
@@ -96,12 +98,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-02-05T00:00:00",
+    "talep_bitis": "2026-02-06T00:00:00",
     "borsada_islem_tarihi": "2026-02-06T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790131",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324383",
     "ilk_gun_kapanis": 16.170000076293945,
     "max_fiyat": 38.060001373291016,
     "min_fiyat": 16.170000076293945,
@@ -135,7 +137,8 @@
       "2026-02-24",
       "2026-02-25",
       "2026-02-26"
-    ]
+    ],
+    "tarih_raw": "5-6 Şubat 2026"
   },
   {
     "sirket_kodu": "NETCD",
@@ -152,12 +155,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-01-28T00:00:00",
+    "talep_bitis": "2026-01-30T00:00:00",
     "borsada_islem_tarihi": "2026-01-30T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790135",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324386",
     "ilk_gun_kapanis": 50.599998474121094,
     "max_fiyat": 108.5,
     "min_fiyat": 50.599998474121094,
@@ -199,7 +202,8 @@
       "2026-02-24",
       "2026-02-25",
       "2026-02-26"
-    ]
+    ],
+    "tarih_raw": "28-29-30 Ocak 2026"
   },
   {
     "sirket_kodu": "UCAYM",
@@ -216,12 +220,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-01-14T00:00:00",
+    "talep_bitis": "2026-01-16T00:00:00",
     "borsada_islem_tarihi": "2026-01-16T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790137",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324387",
     "ilk_gun_kapanis": 19.799999237060547,
     "max_fiyat": 38.5,
     "min_fiyat": 19.799999237060547,
@@ -283,7 +287,8 @@
       "2026-02-24",
       "2026-02-25",
       "2026-02-26"
-    ]
+    ],
+    "tarih_raw": "14-15-16 Ocak 2026"
   },
   {
     "sirket_kodu": "ZGYO",
@@ -300,12 +305,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-01-07T00:00:00",
+    "talep_bitis": "2026-01-09T00:00:00",
     "borsada_islem_tarihi": "2026-01-09T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790140",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324390",
     "ilk_gun_kapanis": 10.739999771118164,
     "max_fiyat": 35.400001525878906,
     "min_fiyat": 10.739999771118164,
@@ -375,7 +380,8 @@
       "2026-02-24",
       "2026-02-25",
       "2026-02-26"
-    ]
+    ],
+    "tarih_raw": "7-8-9 Ocak 2026"
   },
   {
     "sirket_kodu": "FRMPL",
@@ -392,12 +398,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-01-07T00:00:00",
+    "talep_bitis": "2026-01-09T00:00:00",
     "borsada_islem_tarihi": "2026-01-09T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790138",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324389",
     "ilk_gun_kapanis": 33.2599983215332,
     "max_fiyat": 53.20000076293945,
     "min_fiyat": 31.520000457763672,
@@ -469,7 +475,8 @@
       "2026-02-24",
       "2026-02-25",
       "2026-02-26"
-    ]
+    ],
+    "tarih_raw": "7-8-9 Ocak 2026"
   },
   {
     "sirket_kodu": "MEYSU",
@@ -486,12 +493,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-01-05T00:00:00",
+    "talep_bitis": "2026-01-07T00:00:00",
     "borsada_islem_tarihi": "2026-01-07T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790142",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324392",
     "ilk_gun_kapanis": 8.25,
     "max_fiyat": 16.65999984741211,
     "min_fiyat": 8.25,
@@ -567,7 +574,8 @@
       "2026-02-24",
       "2026-02-25",
       "2026-02-26"
-    ]
+    ],
+    "tarih_raw": "5-6-7 Ocak 2026"
   },
   {
     "sirket_kodu": "ARFYE",
@@ -584,12 +592,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2025-12-25T00:00:00",
+    "talep_bitis": "2025-12-26T00:00:00",
     "borsada_islem_tarihi": "2025-12-26T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790144",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324393",
     "ilk_gun_kapanis": 21.440000534057617,
     "max_fiyat": 37.900001525878906,
     "min_fiyat": 21.440000534057617,
@@ -677,7 +685,8 @@
       "2026-02-24",
       "2026-02-25",
       "2026-02-26"
-    ]
+    ],
+    "tarih_raw": "25-26 Aralık 2025"
   },
   {
     "sirket_kodu": "PAHOL",
@@ -694,12 +703,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2025-11-12T00:00:00",
+    "talep_bitis": "2025-11-14T00:00:00",
     "borsada_islem_tarihi": "2025-11-14T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790147",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324397",
     "ilk_gun_kapanis": 1.649999976158142,
     "max_fiyat": 1.809999942779541,
     "min_fiyat": 1.4900000095367432,
@@ -847,7 +856,8 @@
       "2026-02-24",
       "2026-02-25",
       "2026-02-26"
-    ]
+    ],
+    "tarih_raw": "12-13-14 Kasım 2025"
   },
   {
     "sirket_kodu": "VAKFA",
@@ -864,12 +874,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2025-11-12T00:00:00",
+    "talep_bitis": "2025-11-14T00:00:00",
     "borsada_islem_tarihi": "2025-11-14T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790149",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324398",
     "ilk_gun_kapanis": 15.619999885559082,
     "max_fiyat": 18.889999389648438,
     "min_fiyat": 11.199999809265137,
@@ -1019,7 +1029,8 @@
       "2026-02-24",
       "2026-02-25",
       "2026-02-26"
-    ]
+    ],
+    "tarih_raw": "12-13-14 Kasım 2025"
   },
   {
     "sirket_kodu": "ECOGR",
@@ -1036,12 +1047,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2025-10-22T00:00:00",
+    "talep_bitis": "2025-10-24T00:00:00",
     "borsada_islem_tarihi": "2025-10-24T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790154",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324399",
     "ilk_gun_kapanis": 11.4399995803833,
     "max_fiyat": 29.600000381469727,
     "min_fiyat": 11.4399995803833,
@@ -1217,7 +1228,8 @@
       "2026-02-24",
       "2026-02-25",
       "2026-02-26"
-    ]
+    ],
+    "tarih_raw": "22-23-24 Ekim 2025"
   },
   {
     "sirket_kodu": "DOFRB",
@@ -1234,12 +1246,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2025-09-03T00:00:00",
+    "talep_bitis": "2025-09-05T00:00:00",
     "borsada_islem_tarihi": "2025-09-05T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790159",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324403",
     "ilk_gun_kapanis": 49.5,
     "max_fiyat": 198.5,
     "min_fiyat": 49.5,
@@ -1487,7 +1499,8 @@
       "2026-02-24",
       "2026-02-25",
       "2026-02-26"
-    ]
+    ],
+    "tarih_raw": "3-4-5 Eylül 2025"
   },
   {
     "sirket_kodu": "KLYPV",
@@ -6331,12 +6344,13 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-03-02T00:00:00",
+    "talep_bitis": "2026-03-04T00:00:00",
     "borsada_islem_tarihi": "2026-03-04T00:00:00",
     "durum": "talep_topluyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:53:53.505191"
+    "guncelleme_zamani": "2026-02-26T23:15:15.324374",
+    "tarih_raw": "2-3-4 Mart 2026"
   },
   {
     "sirket_kodu": "GENKM",
@@ -6352,12 +6366,13 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-03-02T00:00:00",
+    "talep_bitis": "2026-03-03T00:00:00",
     "borsada_islem_tarihi": "2026-03-03T00:00:00",
     "durum": "talep_topluyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:53:53.505200"
+    "guncelleme_zamani": "2026-02-26T23:15:15.324377",
+    "tarih_raw": "2-3 Mart 2026"
   },
   {
     "sirket_kodu": "SVGYO",
@@ -6373,12 +6388,13 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-02-26T00:00:00",
+    "talep_bitis": "2026-03-02T00:00:00",
     "borsada_islem_tarihi": "2026-03-02T00:00:00",
     "durum": "talep_topluyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790125"
+    "guncelleme_zamani": "2026-02-26T23:15:15.324378",
+    "tarih_raw": "26-27 Şubat, 2 Mart 2026"
   },
   {
     "sirket_kodu": "AKHAN",
@@ -6394,12 +6410,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-01-28T00:00:00",
+    "talep_bitis": "2026-01-30T00:00:00",
     "borsada_islem_tarihi": "2026-01-30T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790133",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324384",
     "ilk_gun_kapanis": 23.639999389648438,
     "max_fiyat": 31.459999084472656,
     "min_fiyat": 23.639999389648438,
@@ -6439,7 +6455,8 @@
       "2026-02-26"
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:22:45.039319"
+    "static_fetched_at": "2026-02-26T21:22:45.039319",
+    "tarih_raw": "28-29-30 Ocak 2026"
   },
   {
     "sirket_kodu": "ZERGY",
@@ -6455,12 +6472,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2025-12-10T00:00:00",
+    "talep_bitis": "2025-12-12T00:00:00",
     "borsada_islem_tarihi": "2025-12-12T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790145",
+    "guncelleme_zamani": "2026-02-26T23:15:15.324395",
     "ilk_gun_kapanis": 14.300000190734863,
     "max_fiyat": 22.540000915527344,
     "min_fiyat": 9.3100004196167,
@@ -6570,7 +6587,8 @@
       "2026-02-26"
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:22:45.164589"
+    "static_fetched_at": "2026-02-26T21:22:45.164589",
+    "tarih_raw": "10-11-12 Aralık 2025"
   },
   {
     "sirket_kodu": "MARMR",
@@ -6586,12 +6604,13 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2025-09-16T00:00:00",
+    "talep_bitis": "2025-09-16T00:00:00",
     "borsada_islem_tarihi": "",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:53:53.505207"
+    "guncelleme_zamani": "2026-02-26T23:15:15.324401",
+    "tarih_raw": "16 Eylül 2025 (Kısmi Bölünme)"
   },
   {
     "sirket_kodu": "MCARD",
@@ -6608,11 +6627,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-03-02T00:00:00",
+    "talep_bitis": "2026-03-04T00:00:00",
     "borsada_islem_tarihi": "",
     "durum": "talep_topluyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T23:05:06.193924"
+    "guncelleme_zamani": "2026-02-26T23:15:15.324369",
+    "tarih_raw": "2-3-4 Mart 2026"
   }
 ]

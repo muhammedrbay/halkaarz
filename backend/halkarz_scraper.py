@@ -60,50 +60,46 @@ def safe_get(url: str, timeout: int = 15) -> Optional[requests.Response]:
         return None
 
 
-def parse_turkish_date(date_str: str) -> Optional[datetime]:
+def parse_turkish_date_range(date_str: str) -> tuple[Optional[str], Optional[str], Optional[datetime]]:
     """
-    Türkçe tarih stringini parse eder.
+    Türkçe tarih stringini parse edip (baslangic_iso, bitis_iso, bitis_datetime) döner.
     Örnekler:
-      "19-20 Şubat 2026" → son gün: 20 Şubat 2026
-      "2-3-4 Mart 2026" → son gün: 4 Mart 2026
-      "26-27 Şubat, 2 Mart 2026" → son gün: 2 Mart 2026
-      "5-6-7 Ocak 2026" → son gün: 7 Ocak 2026
-      "16 Eylül 2025 (Kısmi Bölünme)" → 16 Eylül 2025
+      "19-20 Şubat 2026" → "2026-02-19", "2026-02-20", dt
+      "2-3-4 Mart 2026"  → "2026-03-02", "2026-03-04", dt
+      "26-27 Şubat, 2 Mart 2026" → "2026-02-26", "2026-03-02", dt
+      "5-6-7 Ocak 2026"  → "2026-01-05", "2026-01-07", dt
     """
     if not date_str or "hazırlanıyor" in date_str.lower():
-        return None
+        return None, None, None
 
-    # Parantez içini temizle
     clean = re.sub(r"\(.*?\)", "", date_str).strip()
-
-    # Virgül varsa, en son parçayı al (örn: "26-27 Şubat, 2 Mart 2026")
-    if "," in clean:
-        parts = clean.split(",")
-        clean = parts[-1].strip()
-
-    # Tire varsa son günü al (örn: "2-3-4 Mart 2026" → "4 Mart 2026")
-    # Pattern: rakam-rakam-... ay yıl
-    match = re.match(r"([\d\-]+)\s+(\S+)\s+(\d{4})", clean)
-    if match:
-        days_part = match.group(1)
-        month_str = match.group(2).lower()
-        year = int(match.group(3))
-
-        # Son günü al
-        days = days_part.split("-")
-        last_day = int(days[-1])
-
-        month = AY_MAP.get(month_str)
-        if month:
-            try:
-                return datetime(year, month, last_day)
-            except (ValueError, OverflowError):
-                pass
-
-    return None
+    
+    match_year = re.search(r'(\d{4})$', clean)
+    year = int(match_year.group(1)) if match_year else datetime.now().year
+    
+    days = re.findall(r'\b(\d{1,2})\b', clean)
+    months = re.findall(r'([a-zA-ZğüşıöçĞÜŞİÖÇ]+)', clean.lower())
+    months = [m for m in months if m in AY_MAP]
+    
+    if not days or not months:
+        return None, None, None
+        
+    start_day = int(days[0])
+    end_day = int(days[-1])
+    
+    end_month = AY_MAP[months[-1]]
+    start_month = AY_MAP[months[0]] if len(months) > 1 else end_month
+    
+    try:
+        start_date = datetime(year, start_month, start_day).strftime('%Y-%m-%dT00:00:00')
+        end_date = datetime(year, end_month, end_day).strftime('%Y-%m-%dT00:00:00')
+        dt = datetime(year, end_month, end_day)
+        return start_date, end_date, dt
+    except ValueError:
+        return None, None, None
 
 
-def determine_durum(date_str: str, has_talep_badge: bool, has_gong_badge: bool) -> str:
+def determine_durum(parsed_date: Optional[datetime], has_talep_badge: bool, has_gong_badge: bool) -> str:
     """
     Halka arzın durumunu belirler:
       - "Hazırlanıyor..." → taslak
@@ -112,17 +108,11 @@ def determine_durum(date_str: str, has_talep_badge: bool, has_gong_badge: bool) 
       - Tarih gelecekte → talep_topluyor
       - Tarih geçmişte → islem_goruyor
     """
-    # Badge'ler en yüksek önceliğe sahip
     if has_gong_badge:
         return "islem_goruyor"
     if has_talep_badge:
         return "talep_topluyor"
 
-    # Tarih kontrolü
-    if not date_str or "hazırlanıyor" in date_str.lower():
-        return "taslak"
-
-    parsed_date = parse_turkish_date(date_str)
     if parsed_date is None:
         return "taslak"
 
@@ -148,13 +138,11 @@ def scrape_ilk_halka_arzlar() -> list[dict]:
 
     soup = BeautifulSoup(resp.text, "html.parser")
 
-    # İlk tab: ul.halka-arz-list (taslak olmayan)
     arz_lists = soup.find_all("ul", class_="halka-arz-list")
     if not arz_lists:
         print("  [HATA] Halka arz listesi bulunamadı!")
         return []
 
-    # İlk ul (taslak sınıfı olmayan) = İlk Halka Arzlar
     ilk_halka_arz_list = None
     for ul in arz_lists:
         classes = ul.get("class", [])
@@ -173,18 +161,15 @@ def scrape_ilk_halka_arzlar() -> list[dict]:
         if not article:
             continue
 
-        # Şirket adı
         h3 = article.find("h3", class_="il-halka-arz-sirket")
         if not h3:
             continue
         a_tag = h3.find("a")
         sirket_adi = a_tag.get_text(strip=True) if a_tag else h3.get_text(strip=True)
 
-        # BIST kodu
         bist_kod_span = article.find("span", class_="il-bist-kod")
         bist_kod = bist_kod_span.get_text(strip=True) if bist_kod_span else ""
 
-        # Tarih
         tarih_span = article.find("span", class_="il-halka-arz-tarihi")
         date_str = ""
         if tarih_span:
@@ -194,7 +179,6 @@ def scrape_ilk_halka_arzlar() -> list[dict]:
             else:
                 date_str = tarih_span.get_text(strip=True)
 
-        # Badge'ler
         badge_div = article.find("div", class_="il-badge")
         has_talep = False
         has_gong = False
@@ -202,10 +186,9 @@ def scrape_ilk_halka_arzlar() -> list[dict]:
             has_talep = badge_div.find("div", class_="il-tt") is not None
             has_gong = badge_div.find("div", class_="il-gonk") is not None
 
-        # Durum belirle
-        durum = determine_durum(date_str, has_talep, has_gong)
+        start_date, end_date, parsed_dt = parse_turkish_date_range(date_str)
+        durum = determine_durum(parsed_dt, has_talep, has_gong)
 
-        # Detay URL
         detail_url = ""
         if a_tag and a_tag.get("href"):
             href = a_tag["href"]
@@ -216,6 +199,8 @@ def scrape_ilk_halka_arzlar() -> list[dict]:
             "sirket_adi": sirket_adi,
             "durum": durum,
             "tarih_raw": date_str,
+            "talep_baslangic": start_date or "",
+            "talep_bitis": end_date or "",
             "detay_url": detail_url,
         }
 
@@ -312,15 +297,25 @@ def merge_scraped_data(existing: list[dict], scraped: list[dict]) -> list[dict]:
                 continue
 
         if code in existing_dict:
-            # Mevcut kayıt — sadece durumu güncelle
+            # Mevcut kayıt — durumu ve tarihleri güncelle
             old_durum = existing_dict[code].get("durum", "")
             new_durum = item["durum"]
-
+            
+            updated = False
             if old_durum != new_durum:
                 existing_dict[code]["durum"] = new_durum
+                updated = True
+                print(f"  [GÜNCELLE] {code}: {old_durum} → {new_durum}")
+            
+            # Tarihleri de tazele (eskiden boş kalmış olabilir)
+            for field in ["talep_baslangic", "talep_bitis", "tarih_raw"]:
+                if item.get(field) and not existing_dict[code].get(field):
+                    existing_dict[code][field] = item[field]
+                    updated = True
+
+            if updated:
                 existing_dict[code]["guncelleme_zamani"] = datetime.now().isoformat()
                 updated_count += 1
-                print(f"  [GÜNCELLE] {code}: {old_durum} → {new_durum}")
         else:
             # Yeni kayıt
             new_entry = create_new_ipo_entry(item)
