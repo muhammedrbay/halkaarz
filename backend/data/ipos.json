@@ -19,7 +19,7 @@
     "borsada_islem_tarihi": "2026-02-20T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965056",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790127",
     "ilk_gun_kapanis": 22.0,
     "max_fiyat": 24.200000762939453,
     "min_fiyat": 22.0,
@@ -35,7 +35,7 @@
       "2026-02-26"
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:09.755969"
+    "static_fetched_at": "2026-02-26T21:22:42.735038"
   },
   {
     "sirket_kodu": "ATATR",
@@ -57,7 +57,7 @@
     "borsada_islem_tarihi": "2026-02-13T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965058",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790130",
     "ilk_gun_kapanis": 12.319999694824219,
     "max_fiyat": 18.020000457763672,
     "min_fiyat": 12.319999694824219,
@@ -71,7 +71,7 @@
       16.219999313354492
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:09.881498",
+    "static_fetched_at": "2026-02-26T21:22:42.886731",
     "sparkline_dates": [
       "2026-02-19",
       "2026-02-20",
@@ -101,7 +101,7 @@
     "borsada_islem_tarihi": "2026-02-06T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965059",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790131",
     "ilk_gun_kapanis": 16.170000076293945,
     "max_fiyat": 38.060001373291016,
     "min_fiyat": 16.170000076293945,
@@ -121,7 +121,7 @@
       30.84000015258789
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:10.013256",
+    "static_fetched_at": "2026-02-26T21:22:43.092716",
     "sparkline_dates": [
       "2026-02-11",
       "2026-02-12",
@@ -157,7 +157,7 @@
     "borsada_islem_tarihi": "2026-01-30T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965062",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790135",
     "ilk_gun_kapanis": 50.599998474121094,
     "max_fiyat": 108.5,
     "min_fiyat": 50.599998474121094,
@@ -181,7 +181,7 @@
       90.9000015258789
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:10.133163",
+    "static_fetched_at": "2026-02-26T21:22:43.249767",
     "sparkline_dates": [
       "2026-02-05",
       "2026-02-06",
@@ -221,7 +221,7 @@
     "borsada_islem_tarihi": "2026-01-16T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965063",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790137",
     "ilk_gun_kapanis": 19.799999237060547,
     "max_fiyat": 38.5,
     "min_fiyat": 19.799999237060547,
@@ -255,7 +255,7 @@
       25.520000457763672
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:10.274752",
+    "static_fetched_at": "2026-02-26T21:22:43.383488",
     "sparkline_dates": [
       "2026-01-22",
       "2026-01-23",
@@ -305,7 +305,7 @@
     "borsada_islem_tarihi": "2026-01-09T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965066",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790140",
     "ilk_gun_kapanis": 10.739999771118164,
     "max_fiyat": 35.400001525878906,
     "min_fiyat": 10.739999771118164,
@@ -343,7 +343,7 @@
       24.860000610351562
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:10.464147",
+    "static_fetched_at": "2026-02-26T21:22:43.566846",
     "sparkline_dates": [
       "2026-01-16",
       "2026-01-19",
@@ -397,7 +397,7 @@
     "borsada_islem_tarihi": "2026-01-09T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965064",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790138",
     "ilk_gun_kapanis": 33.2599983215332,
     "max_fiyat": 53.20000076293945,
     "min_fiyat": 31.520000457763672,
@@ -436,7 +436,7 @@
       32.540000915527344
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:10.676756",
+    "static_fetched_at": "2026-02-26T21:22:43.711187",
     "sparkline_dates": [
       "2026-01-15",
       "2026-01-16",
@@ -491,7 +491,7 @@
     "borsada_islem_tarihi": "2026-01-07T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965067",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790142",
     "ilk_gun_kapanis": 8.25,
     "max_fiyat": 16.65999984741211,
     "min_fiyat": 8.25,
@@ -532,7 +532,7 @@
       12.829999923706055
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:10.818519",
+    "static_fetched_at": "2026-02-26T21:22:43.839787",
     "sparkline_dates": [
       "2026-01-13",
       "2026-01-14",
@@ -589,7 +589,7 @@
     "borsada_islem_tarihi": "2025-12-26T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965068",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790144",
     "ilk_gun_kapanis": 21.440000534057617,
     "max_fiyat": 37.900001525878906,
     "min_fiyat": 21.440000534057617,
@@ -636,7 +636,7 @@
       25.18000030517578
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:10.949714",
+    "static_fetched_at": "2026-02-26T21:22:43.983714",
     "sparkline_dates": [
       "2026-01-05",
       "2026-01-06",
@@ -699,7 +699,7 @@
     "borsada_islem_tarihi": "2025-11-14T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965070",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790147",
     "ilk_gun_kapanis": 1.649999976158142,
     "max_fiyat": 1.809999942779541,
     "min_fiyat": 1.4900000095367432,
@@ -776,7 +776,7 @@
       1.6100000143051147
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:11.082130",
+    "static_fetched_at": "2026-02-26T21:22:44.135634",
     "sparkline_dates": [
       "2025-11-21",
       "2025-11-24",
@@ -869,7 +869,7 @@
     "borsada_islem_tarihi": "2025-11-14T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965072",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790149",
     "ilk_gun_kapanis": 15.619999885559082,
     "max_fiyat": 18.889999389648438,
     "min_fiyat": 11.199999809265137,
@@ -947,7 +947,7 @@
       12.760000228881836
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:11.220492",
+    "static_fetched_at": "2026-02-26T21:22:44.268160",
     "sparkline_dates": [
       "2025-11-20",
       "2025-11-21",
@@ -1041,7 +1041,7 @@
     "borsada_islem_tarihi": "2025-10-24T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965073",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790154",
     "ilk_gun_kapanis": 11.4399995803833,
     "max_fiyat": 29.600000381469727,
     "min_fiyat": 11.4399995803833,
@@ -1132,7 +1132,7 @@
       25.100000381469727
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:11.344826",
+    "static_fetched_at": "2026-02-26T21:22:44.408382",
     "sparkline_dates": [
       "2025-11-03",
       "2025-11-04",
@@ -1239,7 +1239,7 @@
     "borsada_islem_tarihi": "2025-09-05T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965075",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790159",
     "ilk_gun_kapanis": 49.5,
     "max_fiyat": 198.5,
     "min_fiyat": 49.5,
@@ -1366,7 +1366,7 @@
       93.0999984741211
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:11.565191",
+    "static_fetched_at": "2026-02-26T21:22:44.616743",
     "sparkline_dates": [
       "2025-09-11",
       "2025-09-12",
@@ -1769,7 +1769,7 @@
       61.5
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:11.729572",
+    "static_fetched_at": "2026-02-26T21:22:44.764229",
     "sparkline_dates": [
       "2025-02-26",
       "2025-02-27",
@@ -2083,7 +2083,7 @@
       171.39999389648438
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:11.875047",
+    "static_fetched_at": "2026-02-26T21:22:44.913594",
     "sparkline_dates": [
       "2026-01-16",
       "2026-01-19",
@@ -2136,7 +2136,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965076"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790161"
   },
   {
     "sirket_kodu": "TAS_6E65",
@@ -2157,7 +2157,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965077"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790163"
   },
   {
     "sirket_kodu": "TAS_297C",
@@ -2178,7 +2178,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965078"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790167"
   },
   {
     "sirket_kodu": "TAS_7FD4",
@@ -2199,7 +2199,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965079"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790169"
   },
   {
     "sirket_kodu": "TAS_F46F",
@@ -2220,7 +2220,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965080"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790170"
   },
   {
     "sirket_kodu": "TAS_991E",
@@ -2241,7 +2241,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965081"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790172"
   },
   {
     "sirket_kodu": "TAS_C09C",
@@ -2262,7 +2262,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965082"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790174"
   },
   {
     "sirket_kodu": "TAS_43F9",
@@ -2283,7 +2283,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965083"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790175"
   },
   {
     "sirket_kodu": "TAS_80A8",
@@ -2304,7 +2304,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965084"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790177"
   },
   {
     "sirket_kodu": "TAS_2BDF",
@@ -2325,7 +2325,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965085"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790178"
   },
   {
     "sirket_kodu": "TAS_65AA",
@@ -2346,7 +2346,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965086"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790180"
   },
   {
     "sirket_kodu": "TAS_5B19",
@@ -2367,7 +2367,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965088"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790182"
   },
   {
     "sirket_kodu": "TAS_0CA5",
@@ -2388,7 +2388,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965089"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790183"
   },
   {
     "sirket_kodu": "TAS_069F",
@@ -2409,7 +2409,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965090"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790185"
   },
   {
     "sirket_kodu": "TAS_2D66",
@@ -2430,7 +2430,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965091"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790186"
   },
   {
     "sirket_kodu": "TAS_F528",
@@ -2451,7 +2451,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965092"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790188"
   },
   {
     "sirket_kodu": "TAS_06E4",
@@ -2472,7 +2472,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965093"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790189"
   },
   {
     "sirket_kodu": "TAS_D72C",
@@ -2493,7 +2493,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965094"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790191"
   },
   {
     "sirket_kodu": "TAS_A13B",
@@ -2514,7 +2514,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965095"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790193"
   },
   {
     "sirket_kodu": "TAS_CE1B",
@@ -2535,7 +2535,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965096"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790194"
   },
   {
     "sirket_kodu": "TAS_C3A4",
@@ -2556,7 +2556,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965097"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790196"
   },
   {
     "sirket_kodu": "OTOSR",
@@ -2577,7 +2577,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965098"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790197"
   },
   {
     "sirket_kodu": "TAS_C886",
@@ -2598,7 +2598,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965099"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790199"
   },
   {
     "sirket_kodu": "TAS_B780",
@@ -2619,7 +2619,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965173"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790301"
   },
   {
     "sirket_kodu": "TAS_73A0",
@@ -2640,7 +2640,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965101"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790202"
   },
   {
     "sirket_kodu": "TAS_A957",
@@ -2661,7 +2661,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965102"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790204"
   },
   {
     "sirket_kodu": "TAS_2665",
@@ -2682,7 +2682,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965103"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790205"
   },
   {
     "sirket_kodu": "TIMUR",
@@ -2703,7 +2703,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965104"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790207"
   },
   {
     "sirket_kodu": "TAS_A776",
@@ -2724,7 +2724,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965105"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790209"
   },
   {
     "sirket_kodu": "GLMND",
@@ -2745,7 +2745,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965106"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790210"
   },
   {
     "sirket_kodu": "TAS_C579",
@@ -2766,7 +2766,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965107"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790212"
   },
   {
     "sirket_kodu": "TAS_6108",
@@ -2787,7 +2787,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965108"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790214"
   },
   {
     "sirket_kodu": "TV8TV",
@@ -2808,7 +2808,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965109"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790215"
   },
   {
     "sirket_kodu": "TAS_A556",
@@ -2829,7 +2829,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965110"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790217"
   },
   {
     "sirket_kodu": "TAS_2326",
@@ -2850,7 +2850,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965111"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790221"
   },
   {
     "sirket_kodu": "TAS_3CD4",
@@ -2871,7 +2871,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965112"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790222"
   },
   {
     "sirket_kodu": "TAS_EB98",
@@ -2892,7 +2892,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965113"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790224"
   },
   {
     "sirket_kodu": "TAS_C6A8",
@@ -2913,7 +2913,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965114"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790227"
   },
   {
     "sirket_kodu": "TAS_3778",
@@ -2934,7 +2934,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965115"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790229"
   },
   {
     "sirket_kodu": "TAS_9CC0",
@@ -2955,7 +2955,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965116"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790230"
   },
   {
     "sirket_kodu": "TAS_206C",
@@ -2976,7 +2976,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965117"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790232"
   },
   {
     "sirket_kodu": "TAS_C6A7",
@@ -2997,7 +2997,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965118"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790234"
   },
   {
     "sirket_kodu": "TAS_E192",
@@ -3018,7 +3018,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965119"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790235"
   },
   {
     "sirket_kodu": "TAS_C915",
@@ -3039,7 +3039,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965120"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790237"
   },
   {
     "sirket_kodu": "TAS_A08B",
@@ -3060,7 +3060,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965121"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790238"
   },
   {
     "sirket_kodu": "TAS_2378",
@@ -3081,7 +3081,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965122"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790240"
   },
   {
     "sirket_kodu": "TAS_5514",
@@ -3102,7 +3102,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965123"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790241"
   },
   {
     "sirket_kodu": "TAS_8A6F",
@@ -3123,7 +3123,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965124"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790243"
   },
   {
     "sirket_kodu": "TAS_4326",
@@ -3144,7 +3144,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965125"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790244"
   },
   {
     "sirket_kodu": "TAS_EA4B",
@@ -3165,7 +3165,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965126"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790246"
   },
   {
     "sirket_kodu": "TAS_35A3",
@@ -3186,7 +3186,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965127"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790248"
   },
   {
     "sirket_kodu": "TAS_B44F",
@@ -3207,7 +3207,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965128"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790249"
   },
   {
     "sirket_kodu": "TAS_7967",
@@ -3228,7 +3228,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965129"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790251"
   },
   {
     "sirket_kodu": "QYHOL",
@@ -3249,7 +3249,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965130"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790252"
   },
   {
     "sirket_kodu": "TAS_636F",
@@ -3270,7 +3270,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965131"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790254"
   },
   {
     "sirket_kodu": "TAS_808A",
@@ -3291,7 +3291,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965132"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790255"
   },
   {
     "sirket_kodu": "TAS_8950",
@@ -3312,7 +3312,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965133"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790257"
   },
   {
     "sirket_kodu": "TAS_418E",
@@ -3333,7 +3333,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965134"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790259"
   },
   {
     "sirket_kodu": "TAS_3DE4",
@@ -3354,7 +3354,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965135"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790260"
   },
   {
     "sirket_kodu": "TAS_4A8A",
@@ -3375,7 +3375,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965136"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790262"
   },
   {
     "sirket_kodu": "TAS_0790",
@@ -3396,7 +3396,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965137"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790263"
   },
   {
     "sirket_kodu": "TAS_1923",
@@ -3417,7 +3417,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965138"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790265"
   },
   {
     "sirket_kodu": "TAS_71AE",
@@ -3438,7 +3438,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965139"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790267"
   },
   {
     "sirket_kodu": "TAS_DFB9",
@@ -3459,7 +3459,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965140"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790268"
   },
   {
     "sirket_kodu": "TAS_1768",
@@ -3480,7 +3480,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965141"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790270"
   },
   {
     "sirket_kodu": "TAS_89D1",
@@ -3501,7 +3501,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965142"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790271"
   },
   {
     "sirket_kodu": "TAS_25BA",
@@ -3522,7 +3522,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965143"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790273"
   },
   {
     "sirket_kodu": "TAS_DA61",
@@ -3543,7 +3543,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965144"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790274"
   },
   {
     "sirket_kodu": "TAS_2A1C",
@@ -3564,7 +3564,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965145"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790276"
   },
   {
     "sirket_kodu": "TAS_35D1",
@@ -3585,7 +3585,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965146"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790277"
   },
   {
     "sirket_kodu": "TAS_64BF",
@@ -3606,7 +3606,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965147"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790279"
   },
   {
     "sirket_kodu": "TAS_CDBA",
@@ -3627,7 +3627,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965148"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790281"
   },
   {
     "sirket_kodu": "TAS_0696",
@@ -3648,7 +3648,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965149"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790282"
   },
   {
     "sirket_kodu": "TAS_89DA",
@@ -3669,7 +3669,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965150"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790284"
   },
   {
     "sirket_kodu": "TAS_59B3",
@@ -3690,7 +3690,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965151"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790287"
   },
   {
     "sirket_kodu": "TAS_533E",
@@ -3711,7 +3711,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965152"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790289"
   },
   {
     "sirket_kodu": "TAS_5B49",
@@ -3732,7 +3732,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965153"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790290"
   },
   {
     "sirket_kodu": "TAS_DFFF",
@@ -3753,7 +3753,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965166"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790292"
   },
   {
     "sirket_kodu": "TAS_BED9",
@@ -3774,7 +3774,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965168"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790293"
   },
   {
     "sirket_kodu": "TAS_06DD",
@@ -3795,7 +3795,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965169"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790295"
   },
   {
     "sirket_kodu": "TAS_1591",
@@ -3816,7 +3816,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965170"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790296"
   },
   {
     "sirket_kodu": "TAS_304D",
@@ -3837,7 +3837,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965171"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790298"
   },
   {
     "sirket_kodu": "TAS_DEF9",
@@ -3858,7 +3858,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965172"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790300"
   },
   {
     "sirket_kodu": "TAS_19F6",
@@ -3879,7 +3879,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965174"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790303"
   },
   {
     "sirket_kodu": "TAS_4584",
@@ -3900,7 +3900,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965175"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790304"
   },
   {
     "sirket_kodu": "TAS_34AA",
@@ -3921,7 +3921,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965176"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790306"
   },
   {
     "sirket_kodu": "TAS_5296",
@@ -3942,7 +3942,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965177"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790308"
   },
   {
     "sirket_kodu": "TAS_DB8C",
@@ -3963,7 +3963,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965178"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790309"
   },
   {
     "sirket_kodu": "TAS_3F66",
@@ -3984,7 +3984,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965179"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790311"
   },
   {
     "sirket_kodu": "TAS_AE15",
@@ -4005,7 +4005,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965180"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790313"
   },
   {
     "sirket_kodu": "TAS_FEB7",
@@ -4026,7 +4026,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965181"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790314"
   },
   {
     "sirket_kodu": "TAS_7339",
@@ -4047,7 +4047,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965182"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790316"
   },
   {
     "sirket_kodu": "TAS_F7DF",
@@ -4068,7 +4068,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965183"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790317"
   },
   {
     "sirket_kodu": "TAS_51BE",
@@ -4089,7 +4089,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965184"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790319"
   },
   {
     "sirket_kodu": "TAS_6837",
@@ -4110,7 +4110,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965185"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790320"
   },
   {
     "sirket_kodu": "DNYVA",
@@ -4131,7 +4131,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965186"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790322"
   },
   {
     "sirket_kodu": "TAS_04B6",
@@ -4152,7 +4152,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965187"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790323"
   },
   {
     "sirket_kodu": "TAS_07BD",
@@ -4173,7 +4173,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965188"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790325"
   },
   {
     "sirket_kodu": "TAS_3445",
@@ -4194,7 +4194,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965189"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790327"
   },
   {
     "sirket_kodu": "TAS_96F0",
@@ -4215,7 +4215,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965190"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790328"
   },
   {
     "sirket_kodu": "TAS_9A05",
@@ -4236,7 +4236,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965191"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790330"
   },
   {
     "sirket_kodu": "TAS_442F",
@@ -4257,7 +4257,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965192"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790331"
   },
   {
     "sirket_kodu": "TAS_E5D9",
@@ -4278,7 +4278,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965193"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790333"
   },
   {
     "sirket_kodu": "TAS_816C",
@@ -4299,7 +4299,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965194"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790334"
   },
   {
     "sirket_kodu": "TAS_640A",
@@ -4320,7 +4320,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965195"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790336"
   },
   {
     "sirket_kodu": "TAS_CFCB",
@@ -4341,7 +4341,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965196"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790338"
   },
   {
     "sirket_kodu": "TAS_5CBB",
@@ -4362,7 +4362,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965197"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790339"
   },
   {
     "sirket_kodu": "TAS_8AB8",
@@ -4383,7 +4383,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965198"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790341"
   },
   {
     "sirket_kodu": "TAS_C411",
@@ -4404,7 +4404,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965199"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790342"
   },
   {
     "sirket_kodu": "TAS_03EA",
@@ -4425,7 +4425,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965200"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790344"
   },
   {
     "sirket_kodu": "TAS_0839",
@@ -4446,7 +4446,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965201"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790345"
   },
   {
     "sirket_kodu": "TAS_43AD",
@@ -4467,7 +4467,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965202"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790347"
   },
   {
     "sirket_kodu": "TAS_9AAB",
@@ -4488,7 +4488,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965203"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790349"
   },
   {
     "sirket_kodu": "TAS_62EE",
@@ -4509,7 +4509,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965204"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790350"
   },
   {
     "sirket_kodu": "TAS_E325",
@@ -4530,7 +4530,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965205"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790353"
   },
   {
     "sirket_kodu": "TAS_375C",
@@ -4551,7 +4551,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965206"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790355"
   },
   {
     "sirket_kodu": "TAS_461C",
@@ -4572,7 +4572,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965207"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790357"
   },
   {
     "sirket_kodu": "TAS_A178",
@@ -4593,7 +4593,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965208"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790358"
   },
   {
     "sirket_kodu": "TAS_A99D",
@@ -4614,7 +4614,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965209"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790360"
   },
   {
     "sirket_kodu": "TAS_7B8B",
@@ -4635,7 +4635,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965210"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790362"
   },
   {
     "sirket_kodu": "TAS_FDEC",
@@ -4656,7 +4656,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965211"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790363"
   },
   {
     "sirket_kodu": "TAS_49E6",
@@ -4677,7 +4677,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965212"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790365"
   },
   {
     "sirket_kodu": "TAS_477E",
@@ -4698,7 +4698,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965213"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790366"
   },
   {
     "sirket_kodu": "TAS_3D7A",
@@ -4719,7 +4719,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965214"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790368"
   },
   {
     "sirket_kodu": "TAS_675C",
@@ -4740,7 +4740,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965215"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790370"
   },
   {
     "sirket_kodu": "TAS_8B72",
@@ -4761,7 +4761,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965216"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790371"
   },
   {
     "sirket_kodu": "TAS_AD77",
@@ -4782,7 +4782,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965218"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790373"
   },
   {
     "sirket_kodu": "TAS_7662",
@@ -4803,7 +4803,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965219"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790374"
   },
   {
     "sirket_kodu": "TAS_81BA",
@@ -4824,7 +4824,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965220"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790376"
   },
   {
     "sirket_kodu": "TAS_5D49",
@@ -4845,7 +4845,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965221"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790378"
   },
   {
     "sirket_kodu": "TAS_FC37",
@@ -4866,7 +4866,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965222"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790379"
   },
   {
     "sirket_kodu": "TAS_A47F",
@@ -4887,7 +4887,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965223"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790381"
   },
   {
     "sirket_kodu": "TAS_2CE5",
@@ -4908,7 +4908,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965224"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790382"
   },
   {
     "sirket_kodu": "TAS_AF91",
@@ -4929,7 +4929,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965225"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790384"
   },
   {
     "sirket_kodu": "TAS_B205",
@@ -4950,7 +4950,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965226"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790385"
   },
   {
     "sirket_kodu": "TAS_33F2",
@@ -4971,7 +4971,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965227"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790387"
   },
   {
     "sirket_kodu": "TAS_E4D5",
@@ -4992,7 +4992,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965228"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790389"
   },
   {
     "sirket_kodu": "TAS_7DBB",
@@ -5013,7 +5013,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965229"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790390"
   },
   {
     "sirket_kodu": "TAS_5258",
@@ -5034,7 +5034,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965230"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790392"
   },
   {
     "sirket_kodu": "TAS_7DC3",
@@ -5055,7 +5055,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965231"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790394"
   },
   {
     "sirket_kodu": "TAS_DEB8",
@@ -5076,7 +5076,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965232"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790395"
   },
   {
     "sirket_kodu": "TAS_5052",
@@ -5097,7 +5097,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965233"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790397"
   },
   {
     "sirket_kodu": "TAS_D1F4",
@@ -5118,7 +5118,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965234"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790399"
   },
   {
     "sirket_kodu": "TAS_B0CB",
@@ -5139,7 +5139,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965235"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790400"
   },
   {
     "sirket_kodu": "TAS_7BD1",
@@ -5160,7 +5160,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965236"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790402"
   },
   {
     "sirket_kodu": "FIBAF",
@@ -5181,7 +5181,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965237"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790403"
   },
   {
     "sirket_kodu": "TAS_F2D6",
@@ -5202,7 +5202,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965238"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790405"
   },
   {
     "sirket_kodu": "TAS_62FF",
@@ -5223,7 +5223,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965239"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790407"
   },
   {
     "sirket_kodu": "TAS_147D",
@@ -5244,7 +5244,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965240"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790408"
   },
   {
     "sirket_kodu": "TAS_DC9D",
@@ -5265,7 +5265,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965241"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790410"
   },
   {
     "sirket_kodu": "TAS_4AF1",
@@ -5286,7 +5286,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965242"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790411"
   },
   {
     "sirket_kodu": "TAS_05EF",
@@ -5307,7 +5307,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965243"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790413"
   },
   {
     "sirket_kodu": "TAS_9334",
@@ -5328,7 +5328,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965244"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790414"
   },
   {
     "sirket_kodu": "TAS_C2C9",
@@ -5349,7 +5349,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965245"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790416"
   },
   {
     "sirket_kodu": "TAS_5024",
@@ -5370,7 +5370,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965246"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790418"
   },
   {
     "sirket_kodu": "TAS_1931",
@@ -5391,7 +5391,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965247"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790419"
   },
   {
     "sirket_kodu": "TAS_C2FF",
@@ -5412,7 +5412,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965248"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790421"
   },
   {
     "sirket_kodu": "TAS_DECD",
@@ -5433,7 +5433,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965250"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790422"
   },
   {
     "sirket_kodu": "TAS_045B",
@@ -5454,7 +5454,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965251"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790424"
   },
   {
     "sirket_kodu": "TAS_7CE4",
@@ -5475,7 +5475,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965252"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790425"
   },
   {
     "sirket_kodu": "TAS_F5AB",
@@ -5496,7 +5496,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965253"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790427"
   },
   {
     "sirket_kodu": "TEKYP",
@@ -5517,7 +5517,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965254"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790429"
   },
   {
     "sirket_kodu": "TAS_DA7E",
@@ -5538,7 +5538,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965255"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790430"
   },
   {
     "sirket_kodu": "ALNUS",
@@ -5559,7 +5559,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965256"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790432"
   },
   {
     "sirket_kodu": "TAS_C6F5",
@@ -5580,7 +5580,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965257"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790433"
   },
   {
     "sirket_kodu": "TAS_E432",
@@ -5601,7 +5601,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965258"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790435"
   },
   {
     "sirket_kodu": "EKIM",
@@ -5622,7 +5622,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965259"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790437"
   },
   {
     "sirket_kodu": "TAS_7642",
@@ -5643,7 +5643,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965260"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790438"
   },
   {
     "sirket_kodu": "TAS_DC67",
@@ -5664,7 +5664,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965261"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790440"
   },
   {
     "sirket_kodu": "NARFE",
@@ -5685,7 +5685,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965262"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790441"
   },
   {
     "sirket_kodu": "YESOT",
@@ -5706,7 +5706,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965263"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790443"
   },
   {
     "sirket_kodu": "TAS_D116",
@@ -5727,7 +5727,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965264"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790445"
   },
   {
     "sirket_kodu": "TAS_E401",
@@ -5748,7 +5748,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965265"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790446"
   },
   {
     "sirket_kodu": "TAS_04A5",
@@ -5769,7 +5769,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965266"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790448"
   },
   {
     "sirket_kodu": "TAS_E305",
@@ -5790,7 +5790,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965267"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790449"
   },
   {
     "sirket_kodu": "TAS_3CBF",
@@ -5811,7 +5811,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965268"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790451"
   },
   {
     "sirket_kodu": "TAS_BE27",
@@ -5832,7 +5832,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965269"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790453"
   },
   {
     "sirket_kodu": "AKCEL",
@@ -5853,7 +5853,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965270"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790454"
   },
   {
     "sirket_kodu": "TMGSY",
@@ -5874,7 +5874,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965271"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790456"
   },
   {
     "sirket_kodu": "TVKDN",
@@ -5895,7 +5895,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965272"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790458"
   },
   {
     "sirket_kodu": "KZLYI",
@@ -5916,7 +5916,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965273"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790459"
   },
   {
     "sirket_kodu": "KULE",
@@ -5937,7 +5937,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965274"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790461"
   },
   {
     "sirket_kodu": "TAS_F9BD",
@@ -5958,7 +5958,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965275"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790463"
   },
   {
     "sirket_kodu": "SMMAS",
@@ -5979,7 +5979,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965277"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790464"
   },
   {
     "sirket_kodu": "HDMCB",
@@ -6000,7 +6000,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965278"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790466"
   },
   {
     "sirket_kodu": "CAVDC",
@@ -6021,7 +6021,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965279"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790468"
   },
   {
     "sirket_kodu": "TEZKM",
@@ -6042,7 +6042,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965280"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790469"
   },
   {
     "sirket_kodu": "KAYMT",
@@ -6063,7 +6063,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965281"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790471"
   },
   {
     "sirket_kodu": "TAS_9158",
@@ -6084,7 +6084,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965282"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790472"
   },
   {
     "sirket_kodu": "TAS_D563",
@@ -6105,7 +6105,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965283"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790474"
   },
   {
     "sirket_kodu": "TAS_982B",
@@ -6126,7 +6126,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965284"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790476"
   },
   {
     "sirket_kodu": "TAS_7467",
@@ -6147,7 +6147,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965285"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790477"
   },
   {
     "sirket_kodu": "TAS_2CA5",
@@ -6168,7 +6168,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965286"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790479"
   },
   {
     "sirket_kodu": "TAS_3A2A",
@@ -6189,7 +6189,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965287"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790480"
   },
   {
     "sirket_kodu": "TAS_8A41",
@@ -6210,7 +6210,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965288"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790482"
   },
   {
     "sirket_kodu": "TAS_3FA1",
@@ -6231,7 +6231,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965289"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790484"
   },
   {
     "sirket_kodu": "TAS_11A4",
@@ -6252,7 +6252,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965290"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790485"
   },
   {
     "sirket_kodu": "TAS_92E1",
@@ -6273,7 +6273,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965291"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790487"
   },
   {
     "sirket_kodu": "TAS_BB4E",
@@ -6294,7 +6294,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965292"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790488"
   },
   {
     "sirket_kodu": "TAS_28D8",
@@ -6315,7 +6315,7 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965044"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790109"
   },
   {
     "sirket_kodu": "LXGYO",
@@ -6336,7 +6336,7 @@
     "borsada_islem_tarihi": "2026-03-04T00:00:00",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965051"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790119"
   },
   {
     "sirket_kodu": "GENKM",
@@ -6357,7 +6357,7 @@
     "borsada_islem_tarihi": "2026-03-03T00:00:00",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965053"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790123"
   },
   {
     "sirket_kodu": "SVGYO",
@@ -6378,7 +6378,7 @@
     "borsada_islem_tarihi": "2026-03-02T00:00:00",
     "durum": "talep_topluyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965055"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790125"
   },
   {
     "sirket_kodu": "AKHAN",
@@ -6399,7 +6399,7 @@
     "borsada_islem_tarihi": "2026-01-30T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965060",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790133",
     "ilk_gun_kapanis": 23.639999389648438,
     "max_fiyat": 31.459999084472656,
     "min_fiyat": 23.639999389648438,
@@ -6439,7 +6439,7 @@
       "2026-02-26"
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:12.004663"
+    "static_fetched_at": "2026-02-26T21:22:45.039319"
   },
   {
     "sirket_kodu": "ZERGY",
@@ -6460,7 +6460,7 @@
     "borsada_islem_tarihi": "2025-12-12T00:00:00",
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965069",
+    "guncelleme_zamani": "2026-02-26T21:22:41.790145",
     "ilk_gun_kapanis": 14.300000190734863,
     "max_fiyat": 22.540000915527344,
     "min_fiyat": 9.3100004196167,
@@ -6570,7 +6570,7 @@
       "2026-02-26"
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-26T21:19:12.130982"
+    "static_fetched_at": "2026-02-26T21:22:45.164589"
   },
   {
     "sirket_kodu": "MARMR",
@@ -6591,6 +6591,6 @@
     "borsada_islem_tarihi": "",
     "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:19:08.965074"
+    "guncelleme_zamani": "2026-02-26T21:22:41.790156"
   }
 ]
