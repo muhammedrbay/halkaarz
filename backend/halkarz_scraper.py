@@ -126,30 +126,66 @@ def determine_durum(parsed_date: Optional[datetime], has_talep_badge: bool, has_
 
 # ─── Kazıma ──────────────────────────────────────────────────────
 
+def clean_money(text: str) -> float:
+    text = text.replace('TL', '').replace('₺', '').strip()
+    text = text.split('/')[0].strip()
+    text = text.replace('.', '').replace(',', '.')
+    try:
+        return float(text)
+    except Exception:
+        return 0.0
+
+def clean_lot(text: str) -> int:
+    text = text.lower().replace('lot', '').replace('.', '').strip()
+    try:
+        return int(text)
+    except Exception:
+        return 0
+
+def fetch_details(url: str) -> tuple[float, int, str]:
+    if not url: return 0.0, 0, "Eşit"
+    resp = safe_get(url)
+    if not resp: return 0.0, 0, "Eşit"
+
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    arz_fiyati = 0.0
+    toplam_lot = 0
+    dagitim_sekli = "Eşit"
+    
+    tables = soup.find_all('table')
+    for tbl in tables:
+        for tr in tbl.find_all('tr'):
+            text = tr.text.strip().replace('\n', ' ')
+            if 'Halka Arz Fiyatı' in text:
+                val = text.split(':')[-1].strip()
+                arz_fiyati = clean_money(val)
+            elif 'Dağıtım Yöntemi' in text:
+                val = text.split(':')[-1].strip()
+                if 'Oransal' in val: dagitim_sekli = "Oransal"
+            elif 'Pay' in text and 'Lot' in text:
+                val = text.split(':')[-1].strip()
+                toplam_lot = clean_lot(val)
+
+    return arz_fiyati, toplam_lot, dagitim_sekli
+
+
 def scrape_ilk_halka_arzlar() -> list[dict]:
     """
-    halkarz.com ana sayfasından İlk Halka Arzlar sekmesindeki tüm verileri çeker.
+    halkarz.com 'İlk Halka Arzlar' (taslak/talep) kazıması
     """
-    print("[1/3] halkarz.com ana sayfası çekiliyor...")
+    print("[1/3] halkarz.com ana sayfası çekiliyor (İlk Halka Arzlar)...")
     resp = safe_get(BASE_URL)
-    if not resp:
-        print("  [HATA] Ana sayfa yüklenemedi!")
-        return []
+    if not resp: return []
 
     soup = BeautifulSoup(resp.text, "html.parser")
-
     arz_lists = soup.find_all("ul", class_="halka-arz-list")
-    if not arz_lists:
-        print("  [HATA] Halka arz listesi bulunamadı!")
-        return []
+    if not arz_lists: return []
 
     ilk_halka_arz_list = None
     for ul in arz_lists:
-        classes = ul.get("class", [])
-        if "taslak" not in classes:
+        if "taslak" not in ul.get("class", []):
             ilk_halka_arz_list = ul
             break
-
     if not ilk_halka_arz_list:
         ilk_halka_arz_list = arz_lists[0]
 
@@ -158,12 +194,10 @@ def scrape_ilk_halka_arzlar() -> list[dict]:
 
     for li in items:
         article = li.find("article", class_="index-list")
-        if not article:
-            continue
+        if not article: continue
 
         h3 = article.find("h3", class_="il-halka-arz-sirket")
-        if not h3:
-            continue
+        if not h3: continue
         a_tag = h3.find("a")
         sirket_adi = a_tag.get_text(strip=True) if a_tag else h3.get_text(strip=True)
 
@@ -174,25 +208,22 @@ def scrape_ilk_halka_arzlar() -> list[dict]:
         date_str = ""
         if tarih_span:
             time_tag = tarih_span.find("time")
-            if time_tag:
-                date_str = time_tag.get("datetime", time_tag.get_text(strip=True))
-            else:
-                date_str = tarih_span.get_text(strip=True)
+            date_str = time_tag.get("datetime", time_tag.get_text(strip=True)) if time_tag else tarih_span.get_text(strip=True)
 
         badge_div = article.find("div", class_="il-badge")
-        has_talep = False
-        has_gong = False
-        if badge_div:
-            has_talep = badge_div.find("div", class_="il-tt") is not None
-            has_gong = badge_div.find("div", class_="il-gonk") is not None
+        has_talep = badge_div and badge_div.find("div", class_="il-tt") is not None
+        has_gong = badge_div and badge_div.find("div", class_="il-gonk") is not None
 
         start_date, end_date, parsed_dt = parse_turkish_date_range(date_str)
         durum = determine_durum(parsed_dt, has_talep, has_gong)
 
+        # We process 'islem_goruyor' normally here to fetch their exact detail metrics (lot, fiyat)
         detail_url = ""
         if a_tag and a_tag.get("href"):
             href = a_tag["href"]
             detail_url = href if href.startswith("http") else BASE_URL + href
+
+        arz_fiyati, toplam_lot, dagitim_sekli = fetch_details(detail_url)
 
         entry = {
             "sirket_kodu": bist_kod.upper(),
@@ -202,13 +233,16 @@ def scrape_ilk_halka_arzlar() -> list[dict]:
             "talep_baslangic": start_date or "",
             "talep_bitis": end_date or "",
             "detay_url": detail_url,
+            "arz_fiyati": arz_fiyati,
+            "toplam_lot": toplam_lot,
+            "dagitim_sekli": dagitim_sekli,
         }
-
         results.append(entry)
-        print(f"  {sirket_adi[:40]:40s} | Kod: {bist_kod:8s} | {durum:16s} | {date_str}")
+        print(f"  {sirket_adi[:40]:40s} | Kod: {bist_kod:8s} | {durum:16s} | {date_str} (Lot: {toplam_lot})")
 
     print(f"\n[✓] {len(results)} halka arz bulundu.")
     return results
+
 
 
 # ─── Merge ──────────────────────────────────────────────────────
@@ -312,6 +346,16 @@ def merge_scraped_data(existing: list[dict], scraped: list[dict]) -> list[dict]:
                 if item.get(field) and not existing_dict[code].get(field):
                     existing_dict[code][field] = item[field]
                     updated = True
+
+            # Performans ve detay bilgileri tazele
+            for field in ["arz_fiyati", "toplam_lot"]:
+                if item.get(field) and (existing_dict[code].get(field, 0) == 0):
+                    existing_dict[code][field] = item[field]
+                    updated = True
+            
+            if item.get("dagitim_sekli") and existing_dict[code].get("dagitim_sekli") != item["dagitim_sekli"]:
+                existing_dict[code]["dagitim_sekli"] = item["dagitim_sekli"]
+                updated = True
 
             if updated:
                 existing_dict[code]["guncelleme_zamani"] = datetime.now().isoformat()
