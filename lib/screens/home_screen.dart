@@ -262,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Yeni taslaklar yakında sisteme eklenecektir.',
+                    'SPK tarafından yeni halka arz taslağı yayınlandığında burada listelenecektir.',
                     style: GoogleFonts.inter(
                       color: Colors.white38,
                       fontSize: 13,

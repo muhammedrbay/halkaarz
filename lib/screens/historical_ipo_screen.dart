@@ -453,32 +453,63 @@ class _IpoCard extends StatelessWidget {
                       if (ipo.guncelFiyat != null)
                         Row(
                           children: [
+                            // 1. Arzdan Getiri (Total Return)
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
+                                horizontal: 6,
+                                vertical: 2,
                               ),
                               decoration: BoxDecoration(
                                 color: renk.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 '${isPos ? '+' : ''}%${getiri.toStringAsFixed(2)}',
                                 style: GoogleFonts.inter(
                                   color: renk,
-                                  fontSize: 12,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 4),
                             Text(
-                              'arzdan getiri',
+                              'toplam',
                               style: GoogleFonts.inter(
                                 color: Colors.white38,
-                                fontSize: 11,
+                                fontSize: 9,
                               ),
                             ),
+                            const SizedBox(width: 8),
+                            // 2. Günlük Getiri (Daily Return)
+                            if (ipo.sparkline.length >= 2) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: (ipo.gunlukGetiriYuzde >= 0 ? const Color(0xFF00D4AA) : const Color(0xFFFF4757)).withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '${ipo.gunlukGetiriYuzde >= 0 ? '+' : ''}%${ipo.gunlukGetiriYuzde.toStringAsFixed(2)}',
+                                  style: GoogleFonts.inter(
+                                    color: ipo.gunlukGetiriYuzde >= 0 ? const Color(0xFF00D4AA) : const Color(0xFFFF4757),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'bugün',
+                                style: GoogleFonts.inter(
+                                  color: Colors.white38,
+                                  fontSize: 9,
+                                ),
+                              ),
+                            ]
                           ],
                         )
                       else

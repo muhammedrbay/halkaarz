@@ -66,6 +66,24 @@ class HistoricalIpo {
     return ((ilkGunKapanis! - arzFiyati) / arzFiyati) * 100;
   }
 
+  double get gunlukGetiriYuzde {
+    if (guncelFiyat == null || sparkline.length < 2) return 0;
+    
+    // Grafiğin sonuna anlık fiyatı eklediğimiz/güncellediğimiz için,
+    // dünkü kapanış bir önceki indisteki fiyattır.
+    final dunuAralik = sparklineDates.isNotEmpty && sparklineDates.last.startsWith(
+          '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}',
+        );
+
+    final prevIndex = dunuAralik ? sparkline.length - 2 : sparkline.length - 1;
+    
+    if (prevIndex < 0) return 0;
+    
+    final dunKapanis = sparkline[prevIndex];
+    if (dunKapanis <= 0) return 0;
+    return ((guncelFiyat! - dunKapanis) / dunKapanis) * 100;
+  }
+
   bool get tavanMi {
     if (sparkline.length < 2 || guncelFiyat == null) return false;
     final prev = sparkline[sparkline.length - 2];
@@ -296,7 +314,6 @@ class HistoricalIpoService {
     return fresh;
   }
 
-  /// RTDB'den gelen fiyatları IPO listesine uygula
   static void applyRtdbPrices(
     List<HistoricalIpo> ipos,
     Map<String, double> prices,
@@ -306,6 +323,20 @@ class HistoricalIpoService {
       if (price != null) {
         ipo.guncelFiyat = price;
         ipo.priceUpdatedAt = DateTime.now();
+        
+        // Grafiğin de güncel fiyatla beslenmesi için son noktayı güncelle veya ekle
+        if (ipo.sparkline.isNotEmpty) {
+          final todayStr = '${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}';
+          
+          if (ipo.sparklineDates.isNotEmpty && ipo.sparklineDates.last.startsWith(todayStr)) {
+            // Son nokta zaten bugünün verisi ise, üstüne yaz
+            ipo.sparkline[ipo.sparkline.length - 1] = price;
+          } else {
+            // Bugünün verisi değilse, grafiğin sonuna bugünün anlık fiyatı olarak ekle
+            ipo.sparkline.add(price);
+            ipo.sparklineDates.add(DateTime.now().toIso8601String());
+          }
+        }
       }
     }
   }
