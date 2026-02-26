@@ -78,15 +78,16 @@ class PortfolioService {
 
   /// Tüm zamanların toplam kazancı
   static double getTotalEarnings() {
-    final box = Hive.box(_boxName);
-    return box.get(_totalEarningsKey, defaultValue: 0.0);
+    double total = 0.0;
+    for (var item in getSoldPositions()) {
+      total += item.satisNetKar;
+    }
+    return total;
   }
 
-  /// Toplam kazanca ekle
+  /// Toplam kazanca ekle (Dinamik hesaplandığı için kullanılmıyor)
   static Future<void> addToTotalEarnings(double amount) async {
-    final box = Hive.box(_boxName);
-    final current = getTotalEarnings();
-    await box.put(_totalEarningsKey, current + amount);
+    // Toplam kazanç artık anlık olarak getSoldPositions() üzerinden hesaplanıyor.
   }
 
   // === Private helpers ===
