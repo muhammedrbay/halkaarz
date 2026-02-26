@@ -9,7 +9,7 @@ class DataService {
 
   // GitHub raw URL — Kendi repo adresinizi buraya yazın
   static const String _rawUrl =
-      'https://raw.githubusercontent.com/muhammedrbay/halkaarz/main/backend/data/ipos.json';
+      'https://raw.githubusercontent.com/muhammedrbay/halkaarz_mobil/main/backend/data/ipos.json';
 
   // Fallback: Yerel asset (uygulama ilk açılış)
   static const String _fallbackAsset = 'assets/ipos.json';
