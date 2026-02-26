@@ -54,7 +54,7 @@
       18.020000457763672
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:04.711846",
+    "static_fetched_at": "2026-02-26T07:07:11.671299",
     "sparkline_dates": [
       "2026-02-19",
       "2026-02-20",
@@ -102,7 +102,7 @@
       34.2599983215332
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:04.996259",
+    "static_fetched_at": "2026-02-26T07:07:11.777045",
     "sparkline_dates": [
       "2026-02-11",
       "2026-02-12",
@@ -160,7 +160,7 @@
       92.0
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:05.311368",
+    "static_fetched_at": "2026-02-26T07:07:11.878423",
     "sparkline_dates": [
       "2026-02-05",
       "2026-02-06",
@@ -232,7 +232,7 @@
       24.739999771118164
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:05.523711",
+    "static_fetched_at": "2026-02-26T07:07:11.979958",
     "sparkline_dates": [
       "2026-01-22",
       "2026-01-23",
@@ -318,7 +318,7 @@
       27.6200008392334
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:05.822229",
+    "static_fetched_at": "2026-02-26T07:07:12.081344",
     "sparkline_dates": [
       "2026-01-16",
       "2026-01-19",
@@ -409,7 +409,7 @@
       31.520000457763672
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:06.055646",
+    "static_fetched_at": "2026-02-26T07:07:12.181869",
     "sparkline_dates": [
       "2026-01-15",
       "2026-01-16",
@@ -503,7 +503,7 @@
       12.4399995803833
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:06.359519",
+    "static_fetched_at": "2026-02-26T07:07:12.281574",
     "sparkline_dates": [
       "2026-01-13",
       "2026-01-14",
@@ -605,7 +605,7 @@
       22.899999618530273
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:06.649412",
+    "static_fetched_at": "2026-02-26T07:07:12.386760",
     "sparkline_dates": [
       "2026-01-05",
       "2026-01-06",
@@ -743,7 +743,7 @@
       1.6100000143051147
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:06.960699",
+    "static_fetched_at": "2026-02-26T07:07:12.541552",
     "sparkline_dates": [
       "2025-11-21",
       "2025-11-24",
@@ -912,7 +912,7 @@
       12.579999923706055
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:07.263112",
+    "static_fetched_at": "2026-02-26T07:07:12.659949",
     "sparkline_dates": [
       "2025-11-20",
       "2025-11-21",
@@ -1095,7 +1095,7 @@
       25.3799991607666
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:07.575827",
+    "static_fetched_at": "2026-02-26T07:07:12.801690",
     "sparkline_dates": [
       "2025-11-03",
       "2025-11-04",
@@ -1327,7 +1327,7 @@
       94.0
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:07.850560",
+    "static_fetched_at": "2026-02-26T07:07:12.983169",
     "sparkline_dates": [
       "2025-09-11",
       "2025-09-12",
@@ -1470,12 +1470,11 @@
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
     "guncelleme_zamani": "2026-02-22T10:00:00",
-    "ilk_gun_kapanis": 70.30000305175781,
+    "ilk_gun_kapanis": 70.6500015258789,
     "max_fiyat": 72.9000015258789,
     "min_fiyat": 52.900001525878906,
     "tavan_gun": 1,
     "sparkline": [
-      70.30000305175781,
       70.6500015258789,
       70.5,
       70.4000015258789,
@@ -1729,9 +1728,8 @@
       60.0
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:08.136795",
+    "static_fetched_at": "2026-02-26T07:07:13.145153",
     "sparkline_dates": [
-      "2025-02-25",
       "2025-02-26",
       "2025-02-27",
       "2025-02-28",
@@ -2006,7 +2004,7 @@
     "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
     "guncelleme_zamani": "2026-02-22T10:00:00",
-    "ilk_gun_kapanis": 127.30000305175781,
+    "ilk_gun_kapanis": 125.0,
     "max_fiyat": 203.3000030517578,
     "min_fiyat": 125.0,
     "tavan_gun": 1,
@@ -2043,7 +2041,7 @@
       170.0
     ],
     "static_fetched": true,
-    "static_fetched_at": "2026-02-25T16:10:08.424324",
+    "static_fetched_at": "2026-02-26T07:07:13.287915",
     "sparkline_dates": [
       "2026-01-15",
       "2026-01-16",
