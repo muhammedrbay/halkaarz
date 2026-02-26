@@ -60,17 +60,14 @@ def safe_get(url: str, timeout: int = 15) -> Optional[requests.Response]:
         return None
 
 
-def parse_turkish_date_range(date_str: str) -> tuple[Optional[str], Optional[str], Optional[datetime]]:
+def parse_turkish_date_range(date_str: str) -> tuple[Optional[str], Optional[str], Optional[datetime], Optional[datetime]]:
     """
-    Türkçe tarih stringini parse edip (baslangic_iso, bitis_iso, bitis_datetime) döner.
+    Türkçe tarih stringini parse edip (baslangic_iso, bitis_iso, baslangic_dt, bitis_dt) döner.
     Örnekler:
-      "19-20 Şubat 2026" → "2026-02-19", "2026-02-20", dt
-      "2-3-4 Mart 2026"  → "2026-03-02", "2026-03-04", dt
-      "26-27 Şubat, 2 Mart 2026" → "2026-02-26", "2026-03-02", dt
-      "5-6-7 Ocak 2026"  → "2026-01-05", "2026-01-07", dt
+      "19-20 Şubat 2026" → "2026-02-19", "2026-02-20", start_dt, end_dt
     """
     if not date_str or "hazırlanıyor" in date_str.lower():
-        return None, None, None
+        return None, None, None, None
 
     clean = re.sub(r"\(.*?\)", "", date_str).strip()
     
@@ -82,7 +79,7 @@ def parse_turkish_date_range(date_str: str) -> tuple[Optional[str], Optional[str
     months = [m for m in months if m in AY_MAP]
     
     if not days or not months:
-        return None, None, None
+        return None, None, None, None
         
     start_day = int(days[0])
     end_day = int(days[-1])
@@ -91,37 +88,34 @@ def parse_turkish_date_range(date_str: str) -> tuple[Optional[str], Optional[str
     start_month = AY_MAP[months[0]] if len(months) > 1 else end_month
     
     try:
-        start_date = datetime(year, start_month, start_day).strftime('%Y-%m-%dT00:00:00')
-        end_date = datetime(year, end_month, end_day).strftime('%Y-%m-%dT00:00:00')
-        dt = datetime(year, end_month, end_day)
-        return start_date, end_date, dt
+        start_dt = datetime(year, start_month, start_day)
+        end_dt = datetime(year, end_month, end_day)
+        start_date = start_dt.strftime('%Y-%m-%dT00:00:00')
+        end_date = end_dt.strftime('%Y-%m-%dT00:00:00')
+        return start_date, end_date, start_dt, end_dt
     except ValueError:
-        return None, None, None
+        return None, None, None, None
 
 
-def determine_durum(parsed_date: Optional[datetime], has_talep_badge: bool, has_gong_badge: bool) -> str:
+def determine_durum(start_dt: Optional[datetime], end_dt: Optional[datetime]) -> str:
     """
-    Halka arzın durumunu belirler:
-      - "Hazırlanıyor..." → taslak
-      - Badge: "Talep toplanıyor" → talep_topluyor
-      - Badge: "Gong!" → islem_goruyor
-      - Tarih gelecekte → talep_topluyor
-      - Tarih geçmişte → islem_goruyor
+    Halka arzın durumunu salt tarihe göre belirler:
+      - Tarih belirsiz/yok → taslak (Hazırlanıyor)
+      - Bugün tarih aralığının içindeyse → talep_topluyor
+      - Başlangıç tarihi bugünden sonraysa → taslak
+      - Bitiş tarihi bugünden önceyse → gecmis (kaydedilmeyecek)
     """
-    if has_gong_badge:
-        return "islem_goruyor"
-    if has_talep_badge:
-        return "talep_topluyor"
-
-    if parsed_date is None:
+    if start_dt is None or end_dt is None:
         return "taslak"
 
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
-    if parsed_date >= today:
+    if start_dt <= today <= end_dt:
         return "talep_topluyor"
+    elif start_dt > today:
+        return "taslak"
     else:
-        return "islem_goruyor"
+        return "gecmis"
 
 
 # ─── Kazıma ──────────────────────────────────────────────────────
@@ -211,13 +205,13 @@ def scrape_ilk_halka_arzlar() -> list[dict]:
             date_str = time_tag.get("datetime", time_tag.get_text(strip=True)) if time_tag else tarih_span.get_text(strip=True)
 
         badge_div = article.find("div", class_="il-badge")
-        has_talep = badge_div and badge_div.find("div", class_="il-tt") is not None
-        has_gong = badge_div and badge_div.find("div", class_="il-gonk") is not None
 
-        start_date, end_date, parsed_dt = parse_turkish_date_range(date_str)
-        durum = determine_durum(parsed_dt, has_talep, has_gong)
+        start_date, end_date, start_dt, end_dt = parse_turkish_date_range(date_str)
+        durum = determine_durum(start_dt, end_dt)
 
-        # We process 'islem_goruyor' normally here to fetch their exact detail metrics (lot, fiyat)
+        if durum == "gecmis":
+            continue
+
         detail_url = ""
         if a_tag and a_tag.get("href"):
             href = a_tag["href"]

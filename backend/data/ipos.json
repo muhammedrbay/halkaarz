@@ -2349,8 +2349,8 @@
   {
     "sirket_kodu": "MCARD",
     "sirket_adi": "(MetropolCard) Metropal Kurumsal Hizmetler A.Ş.",
-    "arz_fiyati": 0,
-    "toplam_lot": 0,
+    "arz_fiyati": 80.0,
+    "toplam_lot": 18900000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
     "konsorsiyum_lideri": "",
@@ -2361,18 +2361,19 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-03-02T00:00:00",
+    "talep_bitis": "2026-03-04T00:00:00",
     "borsada_islem_tarihi": "",
-    "durum": "talep_topluyor",
+    "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-27T00:07:30.556141"
+    "guncelleme_zamani": "2026-02-27T00:17:38.795164",
+    "tarih_raw": "2-3-4 Mart 2026"
   },
   {
     "sirket_kodu": "LXGYO",
     "sirket_adi": "Luxera Gayrimenkul Yatırım Ortaklığı A.Ş.",
-    "arz_fiyati": 0,
-    "toplam_lot": 0,
+    "arz_fiyati": 12.05,
+    "toplam_lot": 120000000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
     "konsorsiyum_lideri": "",
@@ -2383,18 +2384,19 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-03-02T00:00:00",
+    "talep_bitis": "2026-03-04T00:00:00",
     "borsada_islem_tarihi": "",
-    "durum": "talep_topluyor",
+    "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-27T00:07:30.556181"
+    "guncelleme_zamani": "2026-02-27T00:17:38.795180",
+    "tarih_raw": "2-3-4 Mart 2026"
   },
   {
     "sirket_kodu": "GENKM",
     "sirket_adi": "Gentaş Kimya San. ve Tic. Pazarlama A.Ş.",
-    "arz_fiyati": 0,
-    "toplam_lot": 0,
+    "arz_fiyati": 11.0,
+    "toplam_lot": 124845000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
     "konsorsiyum_lideri": "",
@@ -2405,18 +2407,19 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-03-02T00:00:00",
+    "talep_bitis": "2026-03-03T00:00:00",
     "borsada_islem_tarihi": "",
-    "durum": "talep_topluyor",
+    "durum": "taslak",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-27T00:07:30.556200"
+    "guncelleme_zamani": "2026-02-27T00:17:38.795188",
+    "tarih_raw": "2-3 Mart 2026"
   },
   {
     "sirket_kodu": "SVGYO",
     "sirket_adi": "Savur Gayrimenkul Yatırım Ortaklığı A.Ş.",
-    "arz_fiyati": 0,
-    "toplam_lot": 0,
+    "arz_fiyati": 3.64,
+    "toplam_lot": 295400000,
     "kisi_basi_lot": 1,
     "dagitim_sekli": "Eşit",
     "konsorsiyum_lideri": "",
@@ -2427,11 +2430,12 @@
       "isletme_sermayesi": 0
     },
     "katilim_endeksine_uygun": false,
-    "talep_baslangic": "",
-    "talep_bitis": "",
+    "talep_baslangic": "2026-02-26T00:00:00",
+    "talep_bitis": "2026-03-02T00:00:00",
     "borsada_islem_tarihi": "",
     "durum": "talep_topluyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-27T00:07:30.556218"
+    "guncelleme_zamani": "2026-02-27T00:17:38.795191",
+    "tarih_raw": "26-27 Şubat, 2 Mart 2026"
   }
 ]
