@@ -6334,9 +6334,9 @@
     "talep_baslangic": "",
     "talep_bitis": "",
     "borsada_islem_tarihi": "2026-03-04T00:00:00",
-    "durum": "taslak",
+    "durum": "talep_topluyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790119"
+    "guncelleme_zamani": "2026-02-26T21:53:53.505191"
   },
   {
     "sirket_kodu": "GENKM",
@@ -6355,9 +6355,9 @@
     "talep_baslangic": "",
     "talep_bitis": "",
     "borsada_islem_tarihi": "2026-03-03T00:00:00",
-    "durum": "taslak",
+    "durum": "talep_topluyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790123"
+    "guncelleme_zamani": "2026-02-26T21:53:53.505200"
   },
   {
     "sirket_kodu": "SVGYO",
@@ -6589,8 +6589,8 @@
     "talep_baslangic": "",
     "talep_bitis": "",
     "borsada_islem_tarihi": "",
-    "durum": "taslak",
+    "durum": "islem_goruyor",
     "son_katilimci_sayilari": [],
-    "guncelleme_zamani": "2026-02-26T21:22:41.790156"
+    "guncelleme_zamani": "2026-02-26T21:53:53.505207"
   }
 ]
