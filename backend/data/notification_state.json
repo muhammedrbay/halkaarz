@@ -21,12 +21,12 @@
   "tavan_yapti_BESTE_2026-02-22": "2026-02-22T10:42:10.701754",
   "tavan_bozdu_NETCD_2026-02-22": "2026-02-22T10:42:11.052075",
   "tavan_bozdu_MEYSU_2026-02-22": "2026-02-22T10:42:11.687435",
-  "stock_state_ATATR": "tavan",
-  "stock_state_ts_ATATR": "2026-02-25T15:38:53.223050",
-  "stock_state_BESTE": "taban",
-  "stock_state_ts_BESTE": "2026-02-25T09:35:51.754733",
+  "stock_state_ATATR": "normal",
+  "stock_state_ts_ATATR": "2026-02-26T07:51:23.451391",
+  "stock_state_BESTE": "normal",
+  "stock_state_ts_BESTE": "2026-02-26T07:51:24.079285",
   "stock_state_DOFRB": "normal",
   "stock_state_ts_DOFRB": "2026-02-24T07:51:04.194452",
-  "stock_state_ZGYO": "taban",
-  "stock_state_ts_ZGYO": "2026-02-25T14:36:20.315803"
+  "stock_state_ZGYO": "normal",
+  "stock_state_ts_ZGYO": "2026-02-26T07:51:24.875005"
 }
