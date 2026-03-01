@@ -210,7 +210,8 @@ def scrape_ilk_halka_arzlar() -> list[dict]:
         durum = determine_durum(start_dt, end_dt)
 
         if durum == "gecmis":
-            continue
+            print(f"  [BİLGİ] {sirket_adi} ({date_str}) geçmişte kaldı. Liste kronolojik olduğu için döngüden çıkılıyor.")
+            break
 
         detail_url = ""
         if a_tag and a_tag.get("href"):
