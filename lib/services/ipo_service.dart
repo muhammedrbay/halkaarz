@@ -48,6 +48,25 @@ class IpoService {
 
       final snapshot = await _db.collection('ipos').get(options);
       
+      // ── KRİTİK: Eğer cache'ten boş sonuç geldiyse, server'a git ──
+      // (İlk kurulumda scraper henüz çalışmamışsa veya cache temiz değilse olur)
+      if (!shouldFetchFromServer && snapshot.docs.isEmpty) {
+        debugPrint('[IpoService] Cache boş geldi, server\'dan taze veri çekiliyor...');
+        final freshSnapshot = await _db
+            .collection('ipos')
+            .get(const GetOptions(source: Source.serverAndCache));
+        if (freshSnapshot.docs.isNotEmpty) {
+          await box.put('last_firestore_fetch', DateTime.now().toIso8601String());
+          final results = <IpoModel>[];
+          for (var doc in freshSnapshot.docs) {
+            final data = doc.data();
+            data['sirket_kodu'] = doc.id;
+            try { results.add(IpoModel.fromJson(data)); } catch (_) {}
+          }
+          return results.where((ipo) => ipo.durum == 'taslak' || ipo.durum == 'talep_topluyor').toList();
+        }
+      }
+      
       // Eğer sunucudan taze çekim başarılıysa o anki zamanı meta verisi olarak kaydet
       if (shouldFetchFromServer && snapshot.docs.isNotEmpty) {
          await box.put('last_firestore_fetch', DateTime.now().toIso8601String());
