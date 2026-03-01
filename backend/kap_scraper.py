@@ -128,6 +128,31 @@ def clean_lot(text: str) -> int:
         return 0
 
 
+def parse_fon_percentages(text: str) -> dict:
+    if not text: return {}
+    res = {}
+    lines = text.split('\n')
+    for line in lines:
+        m = re.search(r'%(\d+(?:-\d+)?)\s*(.*)', line)
+        if m:
+            pct_str = m.group(1)
+            desc = m.group(2).strip()
+            if len(desc) > 30:
+                desc = desc[:27] + "..."
+            if '-' in pct_str:
+                p1, p2 = pct_str.split('-')
+                pct = (int(p1) + int(p2)) / 2
+            else:
+                pct = float(pct_str)
+            res[desc] = pct
+    # Normalize if exceeding 100
+    total = sum(res.values())
+    if total > 0 and total > 100:
+        factor = 100 / total
+        res = {k: round(v * factor, 1) for k, v in res.items()}
+    return res
+
+
 # ─────────────────────────────────────────────────────────────────
 # 4) Detay Sayfası — TÜM bilgileri çeker
 # ─────────────────────────────────────────────────────────────────
@@ -157,6 +182,7 @@ def fetch_all_details(url: str) -> dict:
         "kisi_basi_lot": "",
         "halka_arz_sekli": "",
         "fonun_kullanim_yeri": "",
+        "fon_kullanim_yuzde": {},
         "satis_yontemi": "",
         "tahsisat_gruplari": "",
         "bireysel_lot": 0,
@@ -217,6 +243,7 @@ def fetch_all_details(url: str) -> dict:
     sec = _extract_section(full_text, "Fonun Kullanım Yeri", section_headers)
     if sec:
         d["fonun_kullanim_yeri"] = sec
+        d["fon_kullanim_yuzde"] = parse_fon_percentages(sec)
 
     # Satış Yöntemi
     sec = _extract_section(full_text, "Halka Arz Satış Yöntemi", section_headers)
@@ -363,6 +390,7 @@ def scrape() -> list[dict]:
             # Detaylı bilgiler
             "halka_arz_sekli":          det["halka_arz_sekli"],
             "fonun_kullanim_yeri":      det["fonun_kullanim_yeri"],
+            "fon_kullanim_yeri":        det["fon_kullanim_yuzde"], # Map for chart
             "satis_yontemi":            det["satis_yontemi"],
             "tahsisat_gruplari":        det["tahsisat_gruplari"],
             "bireysel_lot":             det["bireysel_lot"],

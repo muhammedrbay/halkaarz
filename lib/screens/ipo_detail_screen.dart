@@ -121,9 +121,17 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
 
                   const SizedBox(height: 20),
 
-                  // Fon Kullanım Yeri
+                  // Fon Kullanım Yeri (Pie Chart benzeri gösterim)
+                  if (ipo.fonKullanimYeri.isNotEmpty) ...[
+                    _buildSectionTitle('Fon Kullanım Yeri (Grafik)'),
+                    const SizedBox(height: 12),
+                    _buildFonKullanimCard(ipo),
+                    const SizedBox(height: 20),
+                  ],
+
+                  // Fon Kullanım Yeri Metin Detayı
                   if (ipo.fonunKullanimYeriMetin.isNotEmpty) ...[
-                    _buildSectionTitle('Fon Kullanım Yeri'),
+                    _buildSectionTitle('Fon Kullanım Yeri (Detay)'),
                     const SizedBox(height: 12),
                     _buildTextSection(ipo.fonunKullanimYeriMetin),
                     const SizedBox(height: 20),
@@ -246,6 +254,91 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
               textAlign: TextAlign.end,
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFonKullanimCard(IpoModel ipo) {
+    if (ipo.fonKullanimYeri.isEmpty) return const SizedBox();
+
+    final dynamicEntries = ipo.fonKullanimYeri.entries.toList();
+    // Sort descending by percentage
+    dynamicEntries.sort((a, b) => (b.value as num).compareTo(a.value as num));
+
+    final entries = dynamicEntries.map((e) {
+      return MapEntry(e.key.toString(), (e.value as num).toDouble());
+    }).toList();
+
+    final colors = [
+      const Color(0xFF00D4AA),
+      const Color(0xFF00B4D8),
+      const Color(0xFFFFBE0B),
+      const Color(0xFFFF5252),
+      const Color(0xFFE040FB),
+      const Color(0xFF00E676),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1F38),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFF2A2F4A), width: 0.5),
+      ),
+      child: Column(
+        children: [
+          // Bar chart gösterimi
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: SizedBox(
+              height: 20,
+              child: Row(
+                children: entries.asMap().entries.map((e) {
+                  final pct = e.value.value;
+                  return Expanded(
+                    flex: pct.toInt().clamp(1, 100),
+                    child: Container(color: colors[e.key % colors.length]),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...entries.asMap().entries.map((e) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: colors[e.key % colors.length],
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    e.value.key,
+                    style: GoogleFonts.inter(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '%${e.value.value.toStringAsFixed(0)}',
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );
