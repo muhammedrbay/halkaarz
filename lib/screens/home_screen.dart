@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _loadData();
   }
 
@@ -99,7 +99,6 @@ class _HomeScreenState extends State<HomeScreen>
                       children: [
                         _buildIpoList('taslak'),
                         _buildIpoList('talep_topluyor'),
-                        _buildIpoList('islem_goruyor'),
                       ],
                     ),
             ),
@@ -199,16 +198,6 @@ class _HomeScreenState extends State<HomeScreen>
                 const Icon(Icons.how_to_vote_rounded, size: 16),
                 const SizedBox(width: 4),
                 Text('Talep', style: GoogleFonts.inter(fontSize: 12)),
-              ],
-            ),
-          ),
-          Tab(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.show_chart_rounded, size: 16),
-                const SizedBox(width: 4),
-                Text('İşlem', style: GoogleFonts.inter(fontSize: 12)),
               ],
             ),
           ),

@@ -121,12 +121,45 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
 
                   const SizedBox(height: 20),
 
-                  // Fon Kullanım Yeri (Pie Chart benzeri gösterim)
-                  _buildSectionTitle('Fon Kullanım Yeri'),
-                  const SizedBox(height: 12),
-                  _buildFonKullanimCard(ipo),
+                  // Fon Kullanım Yeri
+                  if (ipo.fonunKullanimYeriMetin.isNotEmpty) ...[
+                    _buildSectionTitle('Fon Kullanım Yeri'),
+                    const SizedBox(height: 12),
+                    _buildTextSection(ipo.fonunKullanimYeriMetin),
+                    const SizedBox(height: 20),
+                  ],
 
-                  const SizedBox(height: 24),
+                  // Halka Arz Şekli
+                  if (ipo.halkaArzSekli.isNotEmpty) ...[
+                    _buildSectionTitle('Halka Arz Şekli'),
+                    const SizedBox(height: 12),
+                    _buildTextSection(ipo.halkaArzSekli),
+                    const SizedBox(height: 20),
+                  ],
+
+                  // Satış Yöntemi
+                  if (ipo.satisYontemi.isNotEmpty) ...[
+                    _buildSectionTitle('Satış Yöntemi'),
+                    const SizedBox(height: 12),
+                    _buildTextSection(ipo.satisYontemi),
+                    const SizedBox(height: 20),
+                  ],
+
+                  // Tahsisat Grupları
+                  if (ipo.tahsisatGruplari.isNotEmpty) ...[
+                    _buildSectionTitle('Tahsisat Grupları'),
+                    const SizedBox(height: 12),
+                    _buildTextSection(ipo.tahsisatGruplari),
+                    const SizedBox(height: 20),
+                  ],
+
+                  // Şirket Açıklaması
+                  if (ipo.sirketAciklama.isNotEmpty) ...[
+                    _buildSectionTitle('Şirket Hakkında'),
+                    const SizedBox(height: 12),
+                    _buildTextSection(ipo.sirketAciklama),
+                    const SizedBox(height: 24),
+                  ],
 
                   // ---- Kişi Başı Lot Kartı (sadece sonuçlanmış arzlarda) ----
                   if (ipo.durum == 'islem_goruyor' &&
@@ -218,21 +251,10 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
     );
   }
 
-  Widget _buildFonKullanimCard(IpoModel ipo) {
-    final fon = ipo.fonKullanimYeri;
-    final entries = [
-      MapEntry('Yatırım', (fon['yatirim'] ?? 0).toDouble()),
-      MapEntry('Borç Ödeme', (fon['borc_odeme'] ?? 0).toDouble()),
-      MapEntry('İşletme Sermayesi', (fon['isletme_sermayesi'] ?? 0).toDouble()),
-    ];
-
-    final colors = [
-      const Color(0xFF00D4AA),
-      const Color(0xFF00B4D8),
-      const Color(0xFFFFBE0B),
-    ];
-
+  Widget _buildTextSection(String text) {
+    final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF1A1F38),
@@ -240,59 +262,35 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
         border: Border.all(color: const Color(0xFF2A2F4A), width: 0.5),
       ),
       child: Column(
-        children: [
-          // Bar chart gösterimi
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: SizedBox(
-              height: 20,
-              child: Row(
-                children: entries.asMap().entries.map((e) {
-                  final pct = e.value.value;
-                  return Expanded(
-                    flex: pct.toInt().clamp(1, 100),
-                    child: Container(color: colors[e.key]),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          ...entries.asMap().entries.map((e) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: colors[e.key],
-                      borderRadius: BorderRadius.circular(3),
-                    ),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: lines.map((line) {
+          final isBullet = line.trim().startsWith('-');
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isBullet) ...[
+                  const Padding(
+                    padding: EdgeInsets.only(top: 6),
+                    child: Icon(Icons.circle, size: 6, color: Color(0xFF00D4AA)),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    e.value.key,
+                ],
+                Expanded(
+                  child: Text(
+                    isBullet ? line.trim().substring(1).trim() : line.trim(),
                     style: GoogleFonts.inter(
                       color: Colors.white70,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    '%${e.value.value.toStringAsFixed(0)}',
-                    style: GoogleFonts.inter(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
                       fontSize: 13,
+                      height: 1.5,
                     ),
                   ),
-                ],
-              ),
-            );
-          }),
-        ],
+                ),
+              ],
+            ),
+          );
+        }).toList(),
       ),
     );
   }

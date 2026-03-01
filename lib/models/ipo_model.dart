@@ -15,6 +15,14 @@ class IpoModel {
   final String durum; // taslak | talep_topluyor | islem_goruyor
   final List<int> sonKatilimciSayilari;
   final String guncellemeZamani;
+  // Yeni detay alanları
+  final String halkaArzSekli;
+  final String fonunKullanimYeriMetin;
+  final String satisYontemi;
+  final String tahsisatGruplari;
+  final int bireyselLot;
+  final int bireyselYuzde;
+  final String sirketAciklama;
 
   IpoModel({
     required this.sirketKodu,
@@ -32,6 +40,13 @@ class IpoModel {
     required this.durum,
     required this.sonKatilimciSayilari,
     required this.guncellemeZamani,
+    this.halkaArzSekli = '',
+    this.fonunKullanimYeriMetin = '',
+    this.satisYontemi = '',
+    this.tahsisatGruplari = '',
+    this.bireyselLot = 0,
+    this.bireyselYuzde = 0,
+    this.sirketAciklama = '',
   });
 
   factory IpoModel.fromJson(Map<String, dynamic> json) {
@@ -55,6 +70,13 @@ class IpoModel {
         json['son_katilimci_sayilari'] ?? [],
       ),
       guncellemeZamani: json['guncelleme_zamani'] ?? '',
+      halkaArzSekli: json['halka_arz_sekli'] ?? '',
+      fonunKullanimYeriMetin: json['fonun_kullanim_yeri'] ?? '',
+      satisYontemi: json['satis_yontemi'] ?? '',
+      tahsisatGruplari: json['tahsisat_gruplari'] ?? '',
+      bireyselLot: json['bireysel_lot'] ?? 0,
+      bireyselYuzde: json['bireysel_yuzde'] ?? 0,
+      sirketAciklama: json['sirket_aciklama'] ?? '',
     );
   }
 
@@ -75,6 +97,13 @@ class IpoModel {
       'durum': durum,
       'son_katilimci_sayilari': sonKatilimciSayilari,
       'guncelleme_zamani': guncellemeZamani,
+      'halka_arz_sekli': halkaArzSekli,
+      'fonun_kullanim_yeri': fonunKullanimYeriMetin,
+      'satis_yontemi': satisYontemi,
+      'tahsisat_gruplari': tahsisatGruplari,
+      'bireysel_lot': bireyselLot,
+      'bireysel_yuzde': bireyselYuzde,
+      'sirket_aciklama': sirketAciklama,
     };
   }
 

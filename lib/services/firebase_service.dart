@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../firebase_options.dart';
 
 /// Firebase ve bildirim servisi
 class FirebaseService {
@@ -23,9 +22,7 @@ class FirebaseService {
     }
 
     try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+      await Firebase.initializeApp();
       _initialized = true;
       await _setupFCM();
       await _setupLocalNotifications();
