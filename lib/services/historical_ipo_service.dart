@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:http/http.dart' as http;
 
 // ─── Model ───────────────────────────────────────────────────────────────────
 
@@ -162,11 +162,7 @@ class HistoricalIpoService {
   static const String _boxName = 'historical_ipos_v3';
   static const String _metaBoxName = 'historical_ipos_meta';
 
-  // GitHub raw URL — scraper.py'nin ürettiği dosya
-  static const String _githubJsonUrl =
-      'https://raw.githubusercontent.com/muhammedrbay/halkaarz/main/backend/data/ipos.json';
-
-  // Statik JSON ne kadar süre cache'te kalır (24 saat)
+  // Firestore'dan kaç saatte bir taze veri çekilir
   static const Duration _staticCacheTtl = Duration(hours: 24);
 
   static Future<void> init() async {
@@ -221,46 +217,30 @@ class HistoricalIpoService {
     return DateTime.now().difference(last) > _staticCacheTtl;
   }
 
-  // ─── GitHub JSON İndirme ───────────────────────────────────────────────────
+  // ─── Firestore Okuma ──────────────────────────────────────────────────────
 
-  /// GitHub'daki ipos.json'u indirir (24 saatte bir)
-  static Future<List<HistoricalIpo>?> _fetchFromGitHub() async {
+  /// Firestore'daki 'ipos' koleksiyonundan islem_goruyor belgelerini çeker (24h cache)
+  static Future<List<HistoricalIpo>?> _fetchFromFirestore() async {
     try {
-      debugPrint('[GitHub] ipos.json indiriliyor...');
-      final resp = await http
-          .get(
-            Uri.parse(_githubJsonUrl),
-            headers: {'Accept': 'application/json'},
-          )
-          .timeout(const Duration(seconds: 15));
+      debugPrint('[Firestore] islem_goruyor belgeler çekiliyor...');
+      final snapshot = await FirebaseFirestore.instance
+          .collection('ipos')
+          .where('durum', isEqualTo: 'islem_goruyor')
+          .get(GetOptions(source: Source.serverAndCache));
 
-      if (resp.statusCode != 200) {
-        debugPrint('[GitHub] HTTP ${resp.statusCode}');
-        return null;
-      }
+      final cutoff = DateTime.now().subtract(const Duration(days: 365));
+      final ipos = snapshot.docs
+          .map((doc) => HistoricalIpo.fromJson(doc.data()))
+          .where(_isNotDummy)
+          .where((i) => i.islemTarihi.isAfter(cutoff))
+          .toList()
+        ..sort((a, b) => b.islemTarihi.compareTo(a.islemTarihi));
 
-      final list = json.decode(resp.body) as List;
-      final ipos =
-          list
-              .map((e) => HistoricalIpo.fromJson(e as Map<String, dynamic>))
-              .where(_isNotDummy)
-              .where((i) {
-                // Sadece son 1 yılın arzlarını göster
-                final cutoff = DateTime.now().subtract(
-                  const Duration(days: 365),
-                );
-                return i.islemTarihi.isAfter(cutoff);
-              })
-              .toList()
-            ..sort(
-              (a, b) => b.islemTarihi.compareTo(a.islemTarihi),
-            ); // Yeniden eskiye
-
-      debugPrint('[GitHub ✓] ${ipos.length} IPO indirildi.');
+      debugPrint('[Firestore ✓] ${ipos.length} islem_goruyor IPO çekildi.');
       await _markStaticFetched();
       return ipos;
     } catch (e) {
-      debugPrint('[GitHub] İndirme hatası: $e');
+      debugPrint('[Firestore] Okuma hatası: $e');
       return null;
     }
   }
@@ -277,8 +257,8 @@ class HistoricalIpoService {
       return cached;
     }
 
-    // GitHub'dan taze veri çek
-    final fresh = await _fetchFromGitHub();
+    // Firestore'dan taze veri çek
+    final fresh = await _fetchFromFirestore();
     if (fresh == null || fresh.isEmpty) {
       // İndirme başarısız — cache'i kullan
       return cached;

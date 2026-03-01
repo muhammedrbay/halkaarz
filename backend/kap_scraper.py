@@ -2,20 +2,12 @@
 """
 Halka Arz Bot — halkarz.com → Firebase Firestore
 ==================================================
-NOT: KAP'ın API'si (memberDisclosureQuery) Cloudflare / WAF tarafında
-     bot-seviyesinde engelleniyor; oturum cookie'siyle bile timeout alınıyor.
-     Aynı verileri sunan halkarz.com çalışmaya devam ettiğinden veri
-     kaynağı olarak burası kullanılmakta; çıktı ipos.json yerine doğrudan
-     Firebase Firestore'a yazılmaktadır.
+Hem "İlk Halka Arzlar" hem de "Halka Arz Performansı" sayfasını kazır.
 
-Durum Mantığı:
-  • Talep toplama aralığı bugünü (hafta sonu dahil) kapsıyorsa → talep_topluyor
-  • Başlangıç bugünden sonraysa                                → taslak
-  • Bitiş tarihi geçmişte kaldıysa                           → (atlanır)
-
-Firestore:
-  Koleksiyon : ipos
-  Belge ID   : BIST Kodu (tekrar eden kayıt sorununu önler)
+Firestore Koleksiyonu: ipos
+  durum='taslak'          → Taslak sekmesi
+  durum='talep_topluyor'  → Talep sekmesi
+  durum='islem_goruyor'   → İşlem / Performans sekmesi
 """
 
 import json
@@ -56,7 +48,8 @@ except Exception as e:
 # ─────────────────────────────────────────────────────────────────
 # 2) Sabitler
 # ─────────────────────────────────────────────────────────────────
-BASE_URL = "https://halkarz.com"
+BASE_URL     = "https://halkarz.com"
+PERF_PAGE    = "https://halkarz.com/page/{}/"   # Sayfalı geçmiş liste
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -64,7 +57,6 @@ HEADERS = {
     ),
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "tr-TR,tr;q=0.9",
-    "Connection": "keep-alive",
 }
 AY_MAP = {
     "ocak": 1, "şubat": 2, "mart": 3, "nisan": 4,
@@ -74,11 +66,10 @@ AY_MAP = {
 
 
 # ─────────────────────────────────────────────────────────────────
-# 3) Yardımcı Fonksiyonlar
+# 3) Ortak Yardımcılar
 # ─────────────────────────────────────────────────────────────────
 def safe_get(url: str, timeout: int = 15) -> Optional[requests.Response]:
-    """Rate-limited HTTP GET."""
-    time.sleep(random.uniform(1.0, 2.5))
+    time.sleep(random.uniform(0.8, 2.0))
     try:
         resp = requests.get(url, headers=HEADERS, timeout=timeout)
         resp.raise_for_status()
@@ -89,30 +80,19 @@ def safe_get(url: str, timeout: int = 15) -> Optional[requests.Response]:
 
 
 def parse_date_range(date_str: str):
-    """
-    'DD-DD Ay YYYY' veya 'DD Ay YYYY - DD Ay YYYY' formatlarını parse eder.
-    Döndürür: (start_iso, end_iso, start_dt, end_dt) ya da (None,None,None,None)
-    """
+    """'DD-DD Ay YYYY' veya 'DD Ay YYYY - DD Ay YYYY' → (start_iso, end_iso, start_dt, end_dt)"""
     if not date_str or "hazırlanıyor" in date_str.lower():
         return None, None, None, None
-
     clean = re.sub(r"\(.*?\)", "", date_str).strip()
     year_m = re.search(r"(\d{4})", clean)
     year = int(year_m.group(1)) if year_m else datetime.now().year
-
     days = re.findall(r"\b(\d{1,2})\b", clean)
     months = [m for m in re.findall(r"([a-zA-ZğüşıöçĞÜŞİÖÇ]+)", clean.lower()) if m in AY_MAP]
-
     if not days or not months:
         return None, None, None, None
-
     try:
-        start_day = int(days[0])
-        end_day   = int(days[-1])
-        start_month = AY_MAP[months[0]]
-        end_month   = AY_MAP[months[-1]]
-        start_dt = datetime(year, start_month, start_day)
-        end_dt   = datetime(year, end_month,   end_day)
+        start_dt = datetime(year, AY_MAP[months[0]],  int(days[0]))
+        end_dt   = datetime(year, AY_MAP[months[-1]], int(days[-1]))
         return (
             start_dt.strftime("%Y-%m-%dT00:00:00"),
             end_dt.strftime("%Y-%m-%dT00:00:00"),
@@ -124,14 +104,12 @@ def parse_date_range(date_str: str):
 
 
 def determine_durum(start_dt, end_dt) -> str:
-    if start_dt is None:
+    if not start_dt:
         return "taslak"
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     if start_dt <= today <= end_dt:
         return "talep_topluyor"
-    elif start_dt > today:
-        return "taslak"
-    return "gecmis"
+    return "taslak" if start_dt > today else "gecmis"
 
 
 def clean_money(text: str) -> float:
@@ -144,7 +122,7 @@ def clean_money(text: str) -> float:
 
 
 def clean_lot(text: str) -> int:
-    text = text.lower().replace("lot", "").replace(".", "").strip()
+    text = text.lower().replace("lot", "").replace(".", "").replace(",", "").strip()
     try:
         return int(text)
     except Exception:
@@ -152,65 +130,57 @@ def clean_lot(text: str) -> int:
 
 
 # ─────────────────────────────────────────────────────────────────
-# 4) Detay Sayfasından Ek Bilgi Çekme
+# 4) İlk Halka Arzlar — Detay Sayfası
 # ─────────────────────────────────────────────────────────────────
-def fetch_details(url: str) -> tuple[float, int, str, str, bool, str]:
-    """
-    halkarz.com detay sayfasından fiyat, lot, dağıtım, aracı kurum,
-    katılım endeksi ve kişi başı lot bilgilerini çeker.
-    """
+def fetch_detail(url: str) -> dict:
+    """halkarz.com detay sayfasından Arz Fiyatı, Lot, Dağıtım vd. çeker."""
+    defaults = {
+        "arz_fiyati": 0.0, "toplam_lot": 0,
+        "dagitim_sekli": "Eşit", "konsorsiyum_lideri": "",
+        "katilim_endeksine_uygun": False, "kisi_basi_lot": "",
+    }
     if not url:
-        return 0.0, 0, "Eşit", "", False, ""
-
+        return defaults
     resp = safe_get(url)
     if not resp:
-        return 0.0, 0, "Eşit", "", False, ""
+        return defaults
 
     soup = BeautifulSoup(resp.text, "html.parser")
-    arz_fiyati     = 0.0
-    toplam_lot     = 0
-    dagitim_sekli  = "Eşit"
-    aracı_kurum    = ""
-    katilim_endeks = False
-    kisi_basi_lot  = ""
+    d = dict(defaults)
 
     for tbl in soup.find_all("table"):
         for tr in tbl.find_all("tr"):
-            text = tr.get_text(" ", strip=True)
-            lt   = text.lower()
-            val  = text.split(":")[-1].strip() if ":" in text else ""
-
+            txt = tr.get_text(" ", strip=True)
+            lt  = txt.lower()
+            val = txt.split(":")[-1].strip() if ":" in txt else ""
             if "halka arz fiyatı" in lt and val:
-                arz_fiyati = clean_money(val)
-            elif ("toplam" in lt and "lot" in lt) and val:
-                toplam_lot = clean_lot(val)
+                d["arz_fiyati"] = clean_money(val)
+            elif "toplam" in lt and "lot" in lt and val:
+                d["toplam_lot"] = clean_lot(val)
             elif "dağıtım" in lt and val:
                 if "oransal" in val.lower():
-                    dagitim_sekli = "Oransal"
+                    d["dagitim_sekli"] = "Oransal"
             elif "aracı kurum" in lt and val:
-                aracı_kurum = val
+                d["konsorsiyum_lideri"] = val
             elif "katılım endeksi" in lt:
-                katilim_endeks = "uygun" in lt
+                d["katilim_endeksine_uygun"] = "uygun" in lt
             elif "kişi başı" in lt and val:
-                kisi_basi_lot = val
-
-    return arz_fiyati, toplam_lot, dagitim_sekli, aracı_kurum, katilim_endeks, kisi_basi_lot
+                d["kisi_basi_lot"] = val
+    return d
 
 
 # ─────────────────────────────────────────────────────────────────
-# 5) Ana Kazıma: halkarz.com → İlk Halka Arzlar
+# 5) İlk Halka Arzlar Bölümü (Taslak + Talep)
 # ─────────────────────────────────────────────────────────────────
-def scrape() -> list[dict]:
-    print(f"\n[1/2] halkarz.com ana sayfa çekiliyor...")
+def scrape_ilk_halka_arzlar() -> list[dict]:
+    print("\n[■] İlk Halka Arzlar kazınıyor...")
     resp = safe_get(BASE_URL)
     if not resp:
-        print("[✗] halkarz.com'a ulaşılamadı.")
+        print("  halkarz.com'a ulaşılamadı.")
         return []
 
     soup = BeautifulSoup(resp.text, "html.parser")
     arz_lists = soup.find_all("ul", class_="halka-arz-list")
-
-    # "Taslak Arzlar" listesi ayrı class alır; ilk non-taslak listeyi bul
     ilk_list = None
     for ul in arz_lists:
         if "taslak" not in ul.get("class", []):
@@ -219,14 +189,10 @@ def scrape() -> list[dict]:
     if not ilk_list and arz_lists:
         ilk_list = arz_lists[0]
     if not ilk_list:
-        print("[✗] halka-arz-list bulunamadı.")
         return []
 
     results = []
-    items = ilk_list.find_all("li", recursive=False)
-    print(f"    Listede {len(items)} öğe mevcut. Kronolojik tarama başlıyor...\n")
-
-    for li in items:
+    for li in ilk_list.find_all("li", recursive=False):
         article = li.find("article", class_="index-list")
         if not article:
             continue
@@ -234,14 +200,14 @@ def scrape() -> list[dict]:
         h3 = article.find("h3", class_="il-halka-arz-sirket")
         if not h3:
             continue
-        a_tag     = h3.find("a")
+        a_tag = h3.find("a")
         sirket_adi = a_tag.get_text(strip=True) if a_tag else h3.get_text(strip=True)
 
         bist_span = article.find("span", class_="il-bist-kod")
         bist_kod  = bist_span.get_text(strip=True).upper() if bist_span else ""
 
         tarih_span = article.find("span", class_="il-halka-arz-tarihi")
-        date_str   = ""
+        date_str = ""
         if tarih_span:
             time_tag = tarih_span.find("time")
             date_str = (
@@ -252,9 +218,8 @@ def scrape() -> list[dict]:
         start_iso, end_iso, start_dt, end_dt = parse_date_range(date_str)
         durum = determine_durum(start_dt, end_dt)
 
-        # Liste kronolojik → geçmiş arz bulunca altındakiler de geçmiş → break
         if durum == "gecmis":
-            print(f"  [SON] {sirket_adi} geçmişte kaldı → tarama durduruluyor.")
+            print(f"  [SON] {sirket_adi} geçmişte → tarama durduruluyor.")
             break
 
         detail_url = ""
@@ -262,8 +227,8 @@ def scrape() -> list[dict]:
             href = a_tag["href"]
             detail_url = href if href.startswith("http") else BASE_URL + href
 
-        print(f"  ↳ {sirket_adi} ({bist_kod}) | {durum} | {date_str}")
-        arz_fiyati, toplam_lot, dagitim_sekli, aracı_kurum, katilim_endeks, kisi_basi_lot = fetch_details(detail_url)
+        print(f"  ↳ {sirket_adi} ({bist_kod}) | {durum}")
+        det = fetch_detail(detail_url)
 
         results.append({
             "sirket_kodu":              bist_kod,
@@ -272,22 +237,140 @@ def scrape() -> list[dict]:
             "tarih_raw":                date_str,
             "talep_baslangic":          start_iso or "",
             "talep_bitis":              end_iso   or "",
+            "borsada_islem_tarihi":     "",
             "detay_url":                detail_url,
-            "arz_fiyati":               arz_fiyati,
-            "toplam_lot":               toplam_lot,
-            "dagitim_sekli":            dagitim_sekli,
-            "konsorsiyum_lideri":       aracı_kurum,
-            "katilim_endeksine_uygun":  katilim_endeks,
-            "kisi_basi_lot":            kisi_basi_lot,
+            "arz_fiyati":               det["arz_fiyati"],
+            "toplam_lot":               det["toplam_lot"],
+            "kisi_basi_lot":            det["kisi_basi_lot"],
+            "dagitim_sekli":            det["dagitim_sekli"],
+            "konsorsiyum_lideri":       det["konsorsiyum_lideri"],
+            "katilim_endeksine_uygun":  det["katilim_endeksine_uygun"],
+            "iskonto_orani":            0.0,
             "guncelleme_zamani":        datetime.now().isoformat(),
         })
 
-    print(f"\n[✓] {len(results)} aktif halka arz bulundu.")
+    print(f"  → {len(results)} Taslak/Talep halka arz bulundu.")
     return results
 
 
 # ─────────────────────────────────────────────────────────────────
-# 6) Firestore'a Yazma
+# 6) Halka Arz Performansı Bölümü (İşlem Görüyor)
+# ─────────────────────────────────────────────────────────────────
+def scrape_performans(max_pages: int = 5) -> list[dict]:
+    """
+    halkarz.com sayfalı listesi üzerinden geçmiş tarihli halka arzları çeker.
+    Bu IPO'lar bitiş tarihi geçmiş olduğu için 'islem_goruyor' olarak işaretlenir.
+    max_pages: Kaç sayfa taranacak (her sayfa ~10 kayıt içerir)
+    """
+    print("\n[■] Halka Arz Performansı (geçmiş arzlar) kazınıyor...")
+    results = []
+    seen_codes = set()  # Sayfa tekrarı tespit için
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+
+    for page_num in range(2, max_pages + 2):  # page 2'den başla (page 1 = aktif)
+        url = PERF_PAGE.format(page_num)
+        resp = safe_get(url)
+        if not resp:
+            print(f"  [Sayfa {page_num}] Erişilemedi, durduruluyor.")
+            break
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+        arz_lists = soup.find_all("ul", class_="halka-arz-list")
+        items = []
+        for ul in arz_lists:
+            if "taslak" not in ul.get("class", []):
+                items.extend(ul.find_all("li", recursive=False))
+
+        if not items:
+            print(f"  [Sayfa {page_num}] Liste bulunamadı, durduruluyor.")
+            break
+
+        print(f"  [Sayfa {page_num}] {len(items)} öğe bulundu.")
+        geçmiş_count = 0
+        new_this_page = 0  # Bu sayfada kaç yeni BIST kodu eklendi
+
+        for li in items:
+            article = li.find("article", class_="index-list")
+            if not article:
+                continue
+
+            h3 = article.find("h3", class_="il-halka-arz-sirket")
+            if not h3:
+                continue
+            a_tag = h3.find("a")
+            sirket_adi = a_tag.get_text(strip=True) if a_tag else h3.get_text(strip=True)
+
+            bist_span = article.find("span", class_="il-bist-kod")
+            bist_kod  = bist_span.get_text(strip=True).upper() if bist_span else ""
+
+            tarih_span = article.find("span", class_="il-halka-arz-tarihi")
+            date_str = ""
+            if tarih_span:
+                time_tag = tarih_span.find("time")
+                date_str = (
+                    time_tag.get("datetime", time_tag.get_text(strip=True))
+                    if time_tag else tarih_span.get_text(strip=True)
+                )
+
+            start_iso, end_iso, start_dt, end_dt = parse_date_range(date_str)
+            if not end_dt:
+                continue  # Tarihi olmayan → atla
+
+            # Bitiş tarihi geçmişse → islem_goruyor
+            if end_dt >= today:
+                continue  # Hâlâ aktif → İlk Halka Arzlar bölümü zaten yazdı
+
+            # Daha önce işlendiyse atla (sayfa tekrarı tespiti)
+            if bist_kod and bist_kod in seen_codes:
+                continue
+            if bist_kod:
+                seen_codes.add(bist_kod)
+
+            geçmiş_count += 1
+            new_this_page += 1
+            detail_url = ""
+            if a_tag and a_tag.get("href"):
+                href = a_tag["href"]
+                detail_url = href if href.startswith("http") else BASE_URL + href
+
+            print(f"    ↳ {sirket_adi[:40]:40s} ({bist_kod})")
+            det = fetch_detail(detail_url) if detail_url else {}
+
+            results.append({
+                "sirket_kodu":              bist_kod,
+                "sirket_adi":               sirket_adi,
+                "durum":                    "islem_goruyor",
+                "tarih_raw":                date_str,
+                "talep_baslangic":          start_iso or "",
+                "talep_bitis":              end_iso   or "",
+                "borsada_islem_tarihi":     (end_dt + __import__('datetime').timedelta(days=1)).strftime("%Y-%m-%dT00:00:00"),
+                "detay_url":                detail_url,
+                "arz_fiyati":               det.get("arz_fiyati", 0.0),
+                "toplam_lot":               det.get("toplam_lot", 0),
+                "kisi_basi_lot":            det.get("kisi_basi_lot", ""),
+                "dagitim_sekli":            det.get("dagitim_sekli", "Eşit"),
+                "konsorsiyum_lideri":       det.get("konsorsiyum_lideri", ""),
+                "katilim_endeksine_uygun":  det.get("katilim_endeksine_uygun", False),
+                "iskonto_orani":            0.0,
+                "son_katilimci_sayilari":   [],
+                "guncelleme_zamani":        datetime.now().isoformat(),
+            })
+
+        if new_this_page == 0:
+            print(f"  [Sayfa {page_num}] Tüm öğeler daha önce işlendi (tekrar sayfa). Durduruluyor.")
+            break
+
+        if geçmiş_count == 0:
+            print(f"  [Sayfa {page_num}] Bu sayfada geçmiş arz yok, durduruluyor.")
+            break
+
+    print(f"  → {len(results)} İşlem Gören halka arz bulundu.")
+    return results
+
+
+
+# ─────────────────────────────────────────────────────────────────
+# 7) Firestore'a Yaz (BIST Kodu = Belge ID → tekrar yok)
 # ─────────────────────────────────────────────────────────────────
 def upsert_to_firestore(ipos: list[dict]):
     if not ipos:
@@ -297,28 +380,38 @@ def upsert_to_firestore(ipos: list[dict]):
     saved = 0
     for ipo in ipos:
         bist = ipo.get("sirket_kodu", "").strip()
+
+        # BIST kodu boşsa şirket adından kısa bir anahtar üret
         if not bist:
-            print(f"  [ATLANDI] Borsa kodu boş: {ipo.get('sirket_adi')}")
-            continue
+            raw = ipo.get("sirket_adi", "NONAME")
+            bist = re.sub(r"[^A-Z0-9]", "", raw.upper())[:10] or "NOCODE"
+            ipo["sirket_kodu"] = bist
 
         if db:
             db.collection("ipos").document(bist).set(ipo, merge=True)
-            print(f"  [YAZILDI ✓] {bist} → durum={ipo['durum']}")
+            print(f"  [✓] {bist:<8} {ipo['sirket_adi'][:40]:40s} → {ipo['durum']}")
         else:
-            print(f"  [DRY-RUN] {bist} → {ipo['durum']}")
-            print(f"    {json.dumps(ipo, ensure_ascii=False, indent=6)}")
+            print(f"  [DRY] {bist:<8} → {ipo['durum']}")
         saved += 1
 
-    print(f"\n── Sonuç: {saved}/{len(ipos)} kayıt Firestore'a yazıldı. ──")
+    print(f"\n── {saved} kayıt Firestore'a yazıldı. ──")
 
 
 # ─────────────────────────────────────────────────────────────────
-# 7) Giriş Noktası
+# 8) Giriş Noktası
 # ─────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    print("=" * 55)
+    print("=" * 58)
     print(f"  Halka Arz Bot  —  {datetime.now():%Y-%m-%d %H:%M:%S}")
-    print("=" * 55)
+    print("=" * 58)
 
-    ipos = scrape()
-    upsert_to_firestore(ipos)
+    taslak_talep = scrape_ilk_halka_arzlar()
+    performans   = scrape_performans()
+
+    all_ipos = taslak_talep + performans
+    upsert_to_firestore(all_ipos)
+
+    t = sum(1 for i in all_ipos if i["durum"] == "taslak")
+    ta = sum(1 for i in all_ipos if i["durum"] == "talep_topluyor")
+    is_ = sum(1 for i in all_ipos if i["durum"] == "islem_goruyor")
+    print(f"\n[İSTATİSTİK] Taslak:{t} | Talep:{ta} | İşlem:{is_}")
