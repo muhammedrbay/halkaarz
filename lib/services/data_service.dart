@@ -19,9 +19,30 @@ class DataService {
     await Hive.openBox(_boxName);
   }
 
-  /// GitHub'dan IPO verilerini çek
+  /// GitHub'dan IPO verilerini çek (Günde 1 kez)
   static Future<List<IpoModel>> fetchFromRemote() async {
+    final box = Hive.box(_boxName);
+    final lastFetch = box.get('last_fetch_time') as String?;
+
+    // Aynı gün içinde tekrar açıldıysa GitHub'a gitmeden lokalden oku
+    if (lastFetch != null) {
+      final lastDate = DateTime.tryParse(lastFetch);
+      if (lastDate != null) {
+        final now = DateTime.now();
+        if (lastDate.year == now.year &&
+            lastDate.month == now.month &&
+            lastDate.day == now.day) {
+          final localData = await loadFromLocal();
+          if (localData.isNotEmpty) {
+            print('[DataService] Bugün zaten çekilmiş, lokal cache kullanılıyor.');
+            return localData;
+          }
+        }
+      }
+    }
+
     try {
+      print('[DataService] İnternetten yeni veri çekiliyor...');
       final response = await http
           .get(Uri.parse(_rawUrl))
           .timeout(const Duration(seconds: 10));
@@ -32,14 +53,15 @@ class DataService {
           jsonList.map((j) => IpoModel.fromJson(j)).toList(),
         );
 
-        // Yerel Hive'a kaydet
+        // Yerel Hive'a kaydet ve son çekilme zamanını güncelle
         await _saveToLocal(ipos);
+        await box.put('last_fetch_time', DateTime.now().toIso8601String());
 
         return ipos;
       }
     } catch (e) {
       // Hata durumunda yerel veriden oku
-      print('Remote veri çekilemedi: $e');
+      print('[DataService] Remote veri çekilemedi: $e');
     }
     return loadFromLocal();
   }
