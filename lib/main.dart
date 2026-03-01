@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'services/firebase_service.dart';
-import 'services/data_service.dart';
+import 'services/ipo_service.dart';
 import 'services/portfolio_service.dart';
 import 'services/historical_ipo_service.dart';
 import 'services/realtime_price_service.dart';
@@ -24,7 +24,7 @@ void main() async {
 
   // Hive başlat
   await Hive.initFlutter();
-  await DataService.init();
+  await IpoService.init();
   await HistoricalIpoService.init();
   await PortfolioService.init();
 

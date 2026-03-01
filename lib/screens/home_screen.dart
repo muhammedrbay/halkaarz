@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/ipo_model.dart';
-import '../services/data_service.dart';
+import '../services/ipo_service.dart';
 import '../widgets/ipo_card.dart';
 import '../widgets/katilim_toggle.dart';
 import '../services/realtime_price_service.dart';
@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     try {
-      final ipos = await DataService.fetchFromRemote();
+      final ipos = await IpoService.getIpos();
       // Yenile butonuna/pull-to-refresh'e tıklandığında cache'i atla ve Firebase'den taze çek
       await RealtimePriceService.fetchAll(forceRefresh: true);
       if (mounted) {
@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen>
         });
       }
     } catch (e) {
-      final ipos = await DataService.loadFromLocal();
+      final ipos = await IpoService.getIpos();
       await RealtimePriceService.fetchAll(forceRefresh: true);
       if (mounted) {
         setState(() {
@@ -55,9 +55,9 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   List<IpoModel> _getFilteredIpos(String durum) {
-    var filtered = DataService.filterByDurum(_allIpos, durum);
+    var filtered = IpoService.filterByDurum(_allIpos, durum);
     if (_katilimFilter) {
-      filtered = DataService.filterKatilimEndeksi(filtered);
+      filtered = IpoService.filterKatilimEndeksi(filtered);
     }
     return filtered;
   }

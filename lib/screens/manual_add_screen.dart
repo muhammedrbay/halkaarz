@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/portfolio_item.dart';
 import '../services/portfolio_service.dart';
-import '../services/data_service.dart';
+import '../services/ipo_service.dart';
 import '../services/historical_ipo_service.dart';
 
 /// Manuel portföy ekleme — Kullanıcı şirket kodu, adı, fiyat girer
@@ -36,7 +36,7 @@ class _ManualAddScreenState extends State<ManualAddScreen> {
   }
 
   Future<void> _loadIpos() async {
-    final current = await DataService.loadFromLocal();
+    final current = await IpoService.getIpos();
     final historical = HistoricalIpoService.loadFromCache();
 
     final Map<String, Map<String, dynamic>> map = {};
