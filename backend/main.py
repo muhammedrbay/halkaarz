@@ -95,8 +95,13 @@ def get_rtdb_access_token() -> Optional[str]:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def _collect_headers() -> dict:
+    # Kullanıcı secret içine 'apikey ' kısmını dahil etmiş olabilir
+    auth_val = COLLECT_API_KEY
+    if not auth_val.lower().startswith("apikey "):
+        auth_val = f"apikey {COLLECT_API_KEY}"
+        
     return {
-        "Authorization": f"apikey {COLLECT_API_KEY}",
+        "Authorization": auth_val,
         "Content-Type": "application/json",
     }
 
