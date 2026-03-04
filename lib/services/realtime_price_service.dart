@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 
 class RealtimePriceService {
   static const String _boxName = 'rtdb_prices';
-  static const Duration _cacheTtl = Duration(minutes: 15);
+  static const Duration _cacheTtl = Duration(minutes: 3);
 
   static String? _rtdbUrl; // Sadece web için (mobilde otomatik)
   static DateTime? _lastFetch;
@@ -41,10 +41,18 @@ class RealtimePriceService {
     await box.put('last_fetch', DateTime.now().toIso8601String());
   }
 
-  /// Tüm fiyatları döner. Her zaman internetten taze veri çeker.
+  /// Tüm fiyatları döner. 3 dk cache — veritabanına yük düşürür.
   static Future<Map<String, double>> fetchAll({
     bool forceRefresh = false,
   }) async {
+    // 3 dk cache
+    if (!forceRefresh && _lastFetch != null) {
+      final age = DateTime.now().difference(_lastFetch!);
+      if (age < _cacheTtl && _cache.isNotEmpty) {
+        debugPrint('[RTDB] Cache geçerli (${age.inMinutes} dk önce çekildi)');
+        return Map.unmodifiable(_cache);
+      }
+    }
 
     // Web ise Firebase kurulmamış olabilir, doğrudan REST API kullanalım
     if (kIsWeb) {
