@@ -41,18 +41,10 @@ class RealtimePriceService {
     await box.put('last_fetch', DateTime.now().toIso8601String());
   }
 
-  /// Tüm fiyatları döner. Cache geçerliyse internete çıkmaz.
+  /// Tüm fiyatları döner. Her zaman internetten taze veri çeker.
   static Future<Map<String, double>> fetchAll({
     bool forceRefresh = false,
   }) async {
-    // Cache geçerliyse hemen dön
-    if (!forceRefresh && _lastFetch != null) {
-      final age = DateTime.now().difference(_lastFetch!);
-      if (age < _cacheTtl && _cache.isNotEmpty) {
-        debugPrint('[RTDB] Cache geçerli (${age.inMinutes} dk önce çekildi)');
-        return Map.unmodifiable(_cache);
-      }
-    }
 
     // Web ise Firebase kurulmamış olabilir, doğrudan REST API kullanalım
     if (kIsWeb) {
