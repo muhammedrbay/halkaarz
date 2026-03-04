@@ -22,7 +22,7 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
     final katilimci = int.tryParse(_katilimciController.text) ?? 0;
     setState(() {
       _tahminiLot = widget.ipo.tahminiLot(katilimci);
-      _tahminiTutar = _tahminiLot * widget.ipo.arzFiyati * 100;
+      _tahminiTutar = _tahminiLot * widget.ipo.arzFiyati * 1000;
     });
   }
 

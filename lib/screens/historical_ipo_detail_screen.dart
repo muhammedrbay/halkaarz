@@ -118,7 +118,6 @@ class HistoricalIpoDetailScreen extends StatelessWidget {
                 const SizedBox(height: 10),
                 _buildInfoGrid([
                   _InfoItem('Arz Fiyatı', '₺${ipo.arzFiyati.toStringAsFixed(2)}', Icons.price_change_rounded),
-                  _InfoItem('Kişi Başı Lot', '${ipo.kisiBasiLot} lot', Icons.person_rounded),
                   _InfoItem('Toplam Lot', _formatNumber(ipo.toplamLot), Icons.bar_chart_rounded),
                   _InfoItem('İşlem Tarihi', _formatDate(ipo.islemTarihi), Icons.calendar_month_rounded),
                 ]),
@@ -172,15 +171,6 @@ class HistoricalIpoDetailScreen extends StatelessWidget {
                         ? '₺${(ipo.guncelFiyat! - ipo.arzFiyati).toStringAsFixed(2)}/hisse'
                         : '—',
                     Icons.account_balance_wallet_rounded,
-                    subtitleColor: renk,
-                  ),
-                  _InfoItem(
-                    '1 Lot Getiri',
-                    ipo.guncelFiyat != null
-                        ? '₺${((ipo.guncelFiyat! - ipo.arzFiyati) * 100).toStringAsFixed(0)}'
-                        : '—',
-                    Icons.payments_rounded,
-                    subtitle: '100 hisse × fark',
                     subtitleColor: renk,
                   ),
                   _InfoItem(
