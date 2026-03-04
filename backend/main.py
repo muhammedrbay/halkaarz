@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Halka Arz Takip Botu — CollectAPI + Firestore + FCM + RTDB
-=============================================================
+Halka Arz Takip Botu — Hibrit Mimari (halkarz.com Kazıma + CollectAPI Fiyat)
+=============================================================================
 GitHub Actions üzerinde günde 1 kez (saat 20:00 TR) çalışır.
 
 Veri Kaynakları:
-  - CollectAPI /economy/halkaArz → Halka arz listesi
-  - CollectAPI /economy/hisseSenedi → Borsa fiyatları
+  - halkarz.com (BeautifulSoup) → Halka arz listesi ve şirket detayları
+  - CollectAPI /economy/hisseSenedi → Canlı Borsa fiyatları
 
 Veritabanı:
   - Firestore "halka_arzlar" koleksiyonu → IPO bilgileri + fiyat geçmişi
@@ -14,15 +14,19 @@ Veritabanı:
   - Firebase Realtime Database /prices → Canlı fiyatlar (mevcut mantık)
 
 Bildirimler:
-  - FCM v1 API → Yeni arz, tavan/taban, süre bitiyor bildirimleri
+  - FCM v1 API → Yeni arz, tavan/taban bildirimleri
 """
 
 import json
 import os
+import re
+import random
+import time
 from datetime import datetime, timedelta
 from typing import Optional
 
 import requests
+from bs4 import BeautifulSoup
 from google.oauth2 import service_account
 from google.auth.transport.requests import Request
 
@@ -45,20 +49,24 @@ TABAN_ESIGI = 1.001
 
 FCM_V1_URL = "https://fcm.googleapis.com/v1/projects/{project_id}/messages:send"
 
-# Türkçe ay adları (CollectAPI tarih parse etmek için)
-MONTHS_TR = {
-    "ocak": 1, "şubat": 2, "mart": 3, "nisan": 4, "mayıs": 5,
-    "haziran": 6, "temmuz": 7, "ağustos": 8, "eylül": 9,
-    "ekim": 10, "kasım": 11, "aralık": 12,
+SCRAPE_BASE_URL = "https://halkarz.com"
+SCRAPE_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "tr-TR,tr;q=0.9",
 }
 
+AY_MAP = {
+    "ocak": 1, "şubat": 2, "mart": 3, "nisan": 4,
+    "mayıs": 5, "haziran": 6, "temmuz": 7, "ağustos": 8,
+    "eylül": 9, "ekim": 10, "kasım": 11, "aralık": 12,
+}
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # FIREBASE AUTH — Ortak token alma (FCM, RTDB, Firestore)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def _get_credentials(scopes: list[str]):
-    """Firebase Service Account ile belirtilen scope'lar için credentials alır."""
     if not FIREBASE_SA_KEY_JSON:
         print("[UYARI] FIREBASE_SA_KEY_JSON ayarlanmadı.")
         return None
@@ -71,16 +79,13 @@ def _get_credentials(scopes: list[str]):
         print(f"[HATA] Firebase credentials alınamadı: {e}")
         return None
 
-
 def get_fcm_access_token() -> Optional[str]:
     creds = _get_credentials(["https://www.googleapis.com/auth/firebase.messaging"])
     return creds.token if creds else None
 
-
 def get_firestore_access_token() -> Optional[str]:
     creds = _get_credentials(["https://www.googleapis.com/auth/datastore"])
     return creds.token if creds else None
-
 
 def get_rtdb_access_token() -> Optional[str]:
     creds = _get_credentials([
@@ -91,59 +96,255 @@ def get_rtdb_access_token() -> Optional[str]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# COLLECTAPI — Veri Çekme
+# WEB SCRAPING — halkarz.com Kazıma İşlemleri
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def safe_get(url: str, timeout: int = 15) -> Optional[requests.Response]:
+    time.sleep(random.uniform(0.8, 1.5))
+    try:
+        resp = requests.get(url, headers=SCRAPE_HEADERS, timeout=timeout)
+        resp.raise_for_status()
+        return resp
+    except requests.RequestException as e:
+        print(f"  [HATA] {url}: {e}")
+        return None
+
+def parse_date_range(date_str: str):
+    if not date_str or "hazırlanıyor" in date_str.lower():
+        return None, None
+    clean = re.sub(r"\(.*?\)", "", date_str).strip()
+    year_m = re.search(r"(\d{4})", clean)
+    year = int(year_m.group(1)) if year_m else datetime.now().year
+    days = re.findall(r"\b(\d{1,2})\b", clean)
+    months = [m for m in re.findall(r"([a-zA-ZğüşıöçĞÜŞİÖÇ]+)", clean.lower()) if m in AY_MAP]
+    if not days or not months:
+        return None, None
+    try:
+        start_dt = datetime(year, AY_MAP[months[0]], int(days[0]))
+        end_dt = datetime(year, AY_MAP[months[-1]], int(days[-1]))
+        return start_dt, end_dt
+    except ValueError:
+        return None, None
+
+def clean_money(text: str) -> float:
+    text = text.replace("TL", "").replace("₺", "").strip().split("/")[0].strip()
+    text = text.replace(".", "").replace(",", ".")
+    try:
+        return float(text)
+    except Exception:
+        return 0.0
+
+def clean_lot(text: str) -> int:
+    text = text.lower().replace("lot", "").replace(".", "").replace(",", "").strip()
+    try:
+        return int(text)
+    except Exception:
+        return 0
+
+def _extract_section(full_text: str, header: str, next_headers: list[str]) -> str:
+    lt = full_text.lower()
+    start = lt.find(header.lower())
+    if start < 0:
+        return ""
+    start += len(header)
+    end = len(full_text)
+    for nh in next_headers:
+        pos = lt.find(nh.lower(), start)
+        if 0 < pos < end:
+            end = pos
+    return full_text[start:end].strip()
+
+def fetch_all_details(url: str) -> dict:
+    defaults = {
+        "arz_fiyati": 0.0,
+        "toplam_lot": 0,
+        "dagitim_sekli": "Eşit",
+        "konsorsiyum_lideri": "",
+        "katilim_endeksine_uygun": False,
+        "kisi_basi_lot": "",
+        "halka_arz_sekli": "",
+        "fonun_kullanim_yeri": "",
+        "satis_yontemi": "",
+        "tahsisat_gruplari": "",
+        "bireysel_lot": 0,
+        "bireysel_yuzde": 0,
+        "sirket_aciklama": "",
+    }
+    if not url:
+        return defaults
+
+    resp = safe_get(url)
+    if not resp:
+        return defaults
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    d = dict(defaults)
+
+    for tbl in soup.find_all("table"):
+        for tr in tbl.find_all("tr"):
+            txt = tr.get_text(" ", strip=True)
+            lt = txt.lower()
+            val = txt.split(":")[-1].strip() if ":" in txt else ""
+
+            if "halka arz fiyatı" in lt and val:
+                d["arz_fiyati"] = clean_money(val)
+            elif ("pay" in lt and "lot" in lt) and val:
+                d["toplam_lot"] = clean_lot(val)
+            elif "dağıtım" in lt and val:
+                d["dagitim_sekli"] = "Oransal" if "oransal" in val.lower() else "Eşit"
+            elif "aracı kurum" in lt and val:
+                d["konsorsiyum_lideri"] = val
+            elif "kişi başı" in lt and val:
+                d["kisi_basi_lot"] = val
+        break
+
+    body = soup.find("body")
+    if not body:
+        return d
+    full_text = body.get_text("\n", strip=True)
+
+    section_headers = [
+        "Halka Arz Şekli", "Fonun Kullanım Yeri",
+        "Halka Arz Satış Yöntemi", "Tahsisat Grupları",
+        "Dağıtılacak Pay Miktarı", "Katılım Endeksi",
+        "Özet Bilgiler", "Forum", "Başvuru Yerleri",
+        "Halka Arz Bilgileri", "Grafiği",
+    ]
+
+    sec = _extract_section(full_text, "Halka Arz Şekli", section_headers)
+    if sec: d["halka_arz_sekli"] = sec
+
+    sec = _extract_section(full_text, "Fonun Kullanım Yeri", section_headers)
+    if sec: d["fonun_kullanim_yeri"] = sec
+
+    sec = _extract_section(full_text, "Halka Arz Satış Yöntemi", section_headers)
+    if sec: d["satis_yontemi"] = sec
+
+    sec = _extract_section(full_text, "Tahsisat Grupları", section_headers)
+    if sec:
+        d["tahsisat_gruplari"] = sec
+        bireysel = re.search(r"([\d.]+)\s*Lot\s*\(%?(\d+)\)\s*.*?Bireysel", sec)
+        if bireysel:
+            d["bireysel_lot"] = clean_lot(bireysel.group(1))
+            try: d["bireysel_yuzde"] = int(bireysel.group(2))
+            except ValueError: pass
+
+    katilim_text = full_text.lower()
+    if "katılım endeksi" in katilim_text:
+        if "uygun" in katilim_text[katilim_text.find("katılım endeksi"):katilim_text.find("katılım endeksi")+100]:
+            d["katilim_endeksine_uygun"] = True
+
+    sirket_h2 = None
+    for h2 in soup.find_all("h2"):
+        if h2.get_text(strip=True).startswith("(") or "A.Ş." in h2.get_text(strip=True):
+            sirket_h2 = h2
+            break
+    if sirket_h2:
+        sib = sirket_h2.find_next_sibling("p")
+        if sib:
+            d["sirket_aciklama"] = sib.get_text(strip=True)[:500]
+
+    return d
+
+
+def scrape_halkarz_com() -> list[dict]:
+    """halkarz.com'u tarar ve detaylı listeyi döndürür."""
+    print(f"\n[1/6] halkarz.com ana sayfa kazınıyor...")
+    resp = safe_get(SCRAPE_BASE_URL)
+    if not resp:
+        print("  halkarz.com'a ulaşılamadı.")
+        return []
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+    arz_lists = soup.find_all("ul", class_="halka-arz-list")
+    
+    # Sadece ilk listeyi (Sıradaki ve yeni arzlar) ve varsa Taslakları tara
+    results = []
+    
+    for ul in arz_lists[:2]:
+        items = ul.find_all("li", recursive=False)
+        for li in items:
+            article = li.find("article", class_="index-list")
+            if not article:
+                continue
+
+            h3 = article.find("h3", class_="il-halka-arz-sirket")
+            if not h3: continue
+            a_tag = h3.find("a")
+            sirket_adi = a_tag.get_text(strip=True) if a_tag else h3.get_text(strip=True)
+
+            bist_span = article.find("span", class_="il-bist-kod")
+            bist_kod = bist_span.get_text(strip=True).upper() if bist_span else ""
+            if not bist_kod:
+                bist_kod = re.sub(r"[^A-Z0-9]", "", sirket_adi.upper())[:10]
+
+            tarih_span = article.find("span", class_="il-halka-arz-tarihi")
+            tarih_str = ""
+            if tarih_span:
+                time_tag = tarih_span.find("time")
+                tarih_str = (time_tag.get("datetime", time_tag.get_text(strip=True)) if time_tag else tarih_span.get_text(strip=True))
+
+            start_dt, end_dt = parse_date_range(tarih_str)
+
+            detail_url = ""
+            if a_tag and a_tag.get("href"):
+                href = a_tag["href"]
+                detail_url = href if href.startswith("http") else SCRAPE_BASE_URL + href
+
+            print(f"  ↳ {sirket_adi} ({bist_kod}) detayları çekiliyor...")
+            det = fetch_all_details(detail_url)
+
+            entry = {
+                "sirket_kodu": bist_kod,
+                "sirket_adi": sirket_adi,
+                "tarih_str": tarih_str,
+                "start_dt": start_dt,
+                "end_dt": end_dt,
+                **det
+            }
+            results.append(entry)
+
+    print(f"[✓] {len(results)} halka arz web'den kazındı.")
+    return results
+
+
+def kategorize_et(start_dt: Optional[datetime], end_dt: Optional[datetime], bugun: datetime) -> Optional[str]:
+    """Tarih aralığına göre halka arzın Firebase kategorisini (durum) belirler."""
+    if not start_dt or not end_dt:
+        return None  # Taslak (tarihi belirsiz) → kategorize etmeyiz
+    
+    bugun_date = bugun.date()
+    start_date = start_dt.date()
+    end_date = end_dt.date()
+    
+    if bugun_date < start_date:
+        return "talep"            # Tarihi henüz gelmemiş
+    elif start_date <= bugun_date <= end_date:
+        return "arz"              # Bugün talep toplama aşamasında
+    else:
+        return "islem_goruyor"    # Talep tarihi geçmiş -> Borsaya girdi/girecek
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# COLLECTAPI — Borsa Fiyatlarını Çekme
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def _collect_headers() -> dict:
-    # Kullanıcı secret içine 'apikey ' kısmını dahil etmiş olabilir
     auth_val = COLLECT_API_KEY
     if not auth_val.lower().startswith("apikey "):
         auth_val = f"apikey {COLLECT_API_KEY}"
-        
     return {
         "Authorization": auth_val,
         "Content-Type": "application/json",
     }
 
-
-def fetch_halka_arz_listesi() -> list[dict]:
-    """CollectAPI /economy/halkaArz endpoint'inden halka arz listesini çeker."""
-    if not COLLECT_API_KEY:
-        print("[HATA] COLLECT_API_KEY ayarlanmadı.")
-        return []
-    try:
-        resp = requests.get(
-            f"{COLLECT_BASE}/halkaArz",
-            headers=_collect_headers(),
-            timeout=15,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        if data.get("success"):
-            result = data.get("result", [])
-            print(f"[COLLECT] halkaArz → {len(result)} kayıt alındı.")
-            return result
-        print(f"[HATA] CollectAPI halkaArz başarısız: {data}")
-        return []
-    except Exception as e:
-        print(f"[HATA] CollectAPI halkaArz: {e}")
-        return []
-
-
 def fetch_hisse_fiyatlari() -> dict[str, dict]:
-    """
-    CollectAPI /economy/hisseSenedi endpoint'inden BIST fiyatlarını çeker.
-    Dönüş: {hisse_kodu: {"son_fiyat": float, "onceki_kapanis": float, ...}}
-    """
+    """CollectAPI /economy/hisseSenedi endpoint'inden BIST fiyatlarını çeker."""
     if not COLLECT_API_KEY:
         print("[HATA] COLLECT_API_KEY ayarlanmadı.")
         return {}
     try:
-        resp = requests.get(
-            f"{COLLECT_BASE}/hisseSenedi",
-            headers=_collect_headers(),
-            timeout=30,
-        )
+        resp = requests.get(f"{COLLECT_BASE}/hisseSenedi", headers=_collect_headers(), timeout=30)
         resp.raise_for_status()
         data = resp.json()
         if not data.get("success"):
@@ -154,20 +355,12 @@ def fetch_hisse_fiyatlari() -> dict[str, dict]:
         fiyat_map = {}
         for item in results:
             kod = (item.get("code") or item.get("kod") or "").replace(".IS", "").strip().upper()
-            if not kod:
-                continue
+            if not kod: continue
             try:
-                son_fiyat = float(str(item.get("lastprice", item.get("son_fiyat", "0"))).replace(",", "."))
+                son = float(str(item.get("lastprice", item.get("son_fiyat", "0"))).replace(",", "."))
                 onceki = float(str(item.get("previousClose", item.get("onceki_kapanis", "0"))).replace(",", "."))
-                fiyat_map[kod] = {
-                    "son_fiyat": son_fiyat,
-                    "onceki_kapanis": onceki if onceki > 0 else son_fiyat,
-                    "en_yuksek": float(str(item.get("high", item.get("en_yuksek", "0"))).replace(",", ".")),
-                    "en_dusuk": float(str(item.get("low", item.get("en_dusuk", "0"))).replace(",", ".")),
-                }
-            except (ValueError, TypeError):
-                continue
-
+                fiyat_map[kod] = {"son_fiyat": son, "onceki_kapanis": onceki if onceki > 0 else son}
+            except (ValueError, TypeError): continue
         print(f"[COLLECT] hisseSenedi → {len(fiyat_map)} hisse fiyatı alındı.")
         return fiyat_map
     except Exception as e:
@@ -176,525 +369,155 @@ def fetch_hisse_fiyatlari() -> dict[str, dict]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# TARİH PARSE + KATEGORİZASYON
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def _parse_tarih(tarih_str: str) -> Optional[datetime]:
-    """
-    CollectAPI'den gelen tarih string'lerini parse eder.
-    Olası formatlar:
-      - '2026-03-15' (ISO)
-      - '15.03.2026' (TR)
-      - '15 Mart 2026' (TR metin)
-      - '10-11-12 Mart 2026' (aralıklı)
-    """
-    if not tarih_str or tarih_str.strip() in ("", "-", "Belirsiz", "belirsiz"):
-        return None
-
-    tarih_str = tarih_str.strip()
-
-    # ISO format: 2026-03-15
-    try:
-        return datetime.strptime(tarih_str, "%Y-%m-%d")
-    except ValueError:
-        pass
-
-    # TR format: 15.03.2026
-    try:
-        return datetime.strptime(tarih_str, "%d.%m.%Y")
-    except ValueError:
-        pass
-
-    # TR metin: "15 Mart 2026" veya "10-11-12 Mart 2026"
-    try:
-        parts = tarih_str.replace(",", " ").split()
-        if len(parts) >= 3:
-            yil = int(parts[-1])
-            ay_str = parts[-2].lower()
-            ay = MONTHS_TR.get(ay_str)
-            if ay:
-                gun_str = parts[0]
-                gun = int(gun_str.split("-")[-1])  # "10-11-12" → 12
-                return datetime(yil, ay, gun)
-    except Exception:
-        pass
-
-    return None
-
-
-def kategorize_et(item: dict, bugun: datetime) -> Optional[str]:
-    """
-    API'den gelen bir halka arz kaydını kategorize eder.
-    Dönüş: "talep" | "arz" | "islem_goruyor" | None (yok say)
-
-    Kurallar:
-      - Tarih bilgisi yoksa → None (tamamen yok say)
-      - Talep başlangıcı gelecekte → "talep"
-      - Bugün, talep toplama tarihleri arasındaysa → "arz"
-      - Talep toplama tarihi geçmişse → "islem_goruyor"
-    """
-    # CollectAPI'den gelen alan adları değişkenlik gösterebilir
-    tarih_str = (
-        item.get("date") or
-        item.get("tarih") or
-        item.get("halkaArzTarihi") or
-        item.get("borsaIslemTarihi") or
-        ""
-    )
-    tarih = _parse_tarih(tarih_str)
-
-    if tarih is None:
-        return None  # Taslak: tarihi belli değil → YOK SAY
-
-    tarih_date = tarih.date()
-    bugun_date = bugun.date()
-
-    if tarih_date > bugun_date:
-        return "talep"          # Tarihi henüz gelmemiş
-    elif tarih_date == bugun_date:
-        return "arz"            # Bugün talep toplama tarihinde
-    else:
-        return "islem_goruyor"  # Tarihi geçmiş → borsada
-
-
-def parse_ipo_item(item: dict) -> dict:
-    """CollectAPI'den gelen bir halka arz kaydını standart formata dönüştürür."""
-    # CollectAPI alan adlarını normalize et
-    kod = (
-        item.get("code") or
-        item.get("kod") or
-        item.get("hisseKodu") or
-        item.get("sirketKodu") or
-        ""
-    ).strip().upper()
-
-    ad = (
-        item.get("title") or
-        item.get("name") or
-        item.get("sirketAdi") or
-        item.get("ad") or
-        ""
-    ).strip()
-
-    fiyat_str = str(item.get("price") or item.get("fiyat") or item.get("arzFiyati") or "0")
-    try:
-        fiyat = float(fiyat_str.replace(",", ".").replace("TL", "").strip())
-    except (ValueError, TypeError):
-        fiyat = 0.0
-
-    tarih_str = (
-        item.get("date") or
-        item.get("tarih") or
-        item.get("halkaArzTarihi") or
-        item.get("borsaIslemTarihi") or
-        ""
-    )
-
-    return {
-        "sirket_kodu": kod,
-        "sirket_adi": ad,
-        "arz_fiyati": fiyat,
-        "tarih_str": tarih_str,
-        "ham_veri": item,  # Orijinal kaydı da sakla
-    }
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# FIRESTORE — Okuma / Yazma (REST API)
+# FIRESTORE & BİLDİRİM & RTDB İŞLEMLERİ
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def _firestore_url(path: str) -> str:
-    """Firestore REST API URL'i oluşturur."""
     return f"https://firestore.googleapis.com/v1/projects/{FIREBASE_PROJECT_ID}/databases/(default)/documents/{path}"
 
-
 def _to_firestore_value(val):
-    """Python değerini Firestore REST API formatına çevirir."""
-    if val is None:
-        return {"nullValue": None}
-    if isinstance(val, bool):
-        return {"booleanValue": val}
-    if isinstance(val, int):
-        return {"integerValue": str(val)}
-    if isinstance(val, float):
-        return {"doubleValue": val}
-    if isinstance(val, str):
-        return {"stringValue": val}
-    if isinstance(val, list):
-        return {"arrayValue": {"values": [_to_firestore_value(v) for v in val]}}
-    if isinstance(val, dict):
-        return {"mapValue": {"fields": {k: _to_firestore_value(v) for k, v in val.items()}}}
+    if val is None: return {"nullValue": None}
+    if isinstance(val, bool): return {"booleanValue": val}
+    if isinstance(val, int): return {"integerValue": str(val)}
+    if isinstance(val, float): return {"doubleValue": val}
+    if isinstance(val, str): return {"stringValue": val}
+    if isinstance(val, list): return {"arrayValue": {"values": [_to_firestore_value(v) for v in val]}}
+    if isinstance(val, dict): return {"mapValue": {"fields": {k: _to_firestore_value(v) for k, v in val.items()}}}
     return {"stringValue": str(val)}
 
-
 def _from_firestore_value(fv: dict):
-    """Firestore REST API değerini Python nesnesine çevirir."""
-    if "stringValue" in fv:
-        return fv["stringValue"]
-    if "integerValue" in fv:
-        return int(fv["integerValue"])
-    if "doubleValue" in fv:
-        return fv["doubleValue"]
-    if "booleanValue" in fv:
-        return fv["booleanValue"]
-    if "nullValue" in fv:
-        return None
-    if "arrayValue" in fv:
-        return [_from_firestore_value(v) for v in fv.get("arrayValue", {}).get("values", [])]
-    if "mapValue" in fv:
-        fields = fv.get("mapValue", {}).get("fields", {})
-        return {k: _from_firestore_value(v) for k, v in fields.items()}
+    if "stringValue" in fv: return fv["stringValue"]
+    if "integerValue" in fv: return int(fv["integerValue"])
+    if "doubleValue" in fv: return fv["doubleValue"]
+    if "booleanValue" in fv: return fv["booleanValue"]
+    if "nullValue" in fv: return None
+    if "arrayValue" in fv: return [_from_firestore_value(v) for v in fv.get("arrayValue", {}).get("values", [])]
+    if "mapValue" in fv: return {k: _from_firestore_value(v) for k, v in fv.get("mapValue", {}).get("fields", {}).items()}
     return None
 
-
 def firestore_get_doc(doc_path: str) -> Optional[dict]:
-    """Firestore'dan tek bir doküman okur."""
     token = get_firestore_access_token()
-    if not token:
-        return None
+    if not token: return None
     try:
-        resp = requests.get(
-            _firestore_url(doc_path),
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=15,
-        )
+        resp = requests.get(_firestore_url(doc_path), headers={"Authorization": f"Bearer {token}"}, timeout=15)
         if resp.status_code == 200:
-            fields = resp.json().get("fields", {})
-            return {k: _from_firestore_value(v) for k, v in fields.items()}
+            return {k: _from_firestore_value(v) for k, v in resp.json().get("fields", {}).items()}
         elif resp.status_code == 404:
-            return {}  # Doküman henüz yok
-        print(f"[HATA] Firestore GET {doc_path} ({resp.status_code}): {resp.text[:200]}")
+            return {}
         return None
-    except Exception as e:
-        print(f"[HATA] Firestore GET {doc_path}: {e}")
-        return None
-
+    except Exception: return None
 
 def firestore_set_doc(doc_path: str, data: dict, merge: bool = False) -> bool:
-    """
-    Firestore'a doküman yazar.
-    merge=False → Eski verinin ÜZERİNE YAZAR (overwrite).
-    merge=True  → Sadece verilen alanları günceller.
-    """
     token = get_firestore_access_token()
-    if not token:
-        return False
-
-    fields = {k: _to_firestore_value(v) for k, v in data.items()}
-    body = {"fields": fields}
-
+    if not token: return False
+    body = {"fields": {k: _to_firestore_value(v) for k, v in data.items()}}
     url = _firestore_url(doc_path)
-
     try:
         if merge:
-            # PATCH ile belirtilen alanları güncelle
             field_paths = "&".join([f"updateMask.fieldPaths={k}" for k in data.keys()])
-            resp = requests.patch(
-                f"{url}?{field_paths}",
-                json=body,
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json",
-                },
-                timeout=15,
-            )
+            resp = requests.patch(f"{url}?{field_paths}", json=body, headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}, timeout=15)
         else:
-            # PATCH ile tüm dokümanı overwrite et (updateMask yok)
-            resp = requests.patch(
-                url,
-                json=body,
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json",
-                },
-                timeout=15,
-            )
-
-        if resp.status_code == 200:
-            return True
-        print(f"[HATA] Firestore SET {doc_path} ({resp.status_code}): {resp.text[:200]}")
-        return False
-    except Exception as e:
-        print(f"[HATA] Firestore SET {doc_path}: {e}")
-        return False
-
+            resp = requests.patch(url, json=body, headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}, timeout=15)
+        return resp.status_code == 200
+    except Exception: return False
 
 def firestore_get_collection(collection: str) -> list[dict]:
-    """Firestore'dan bir koleksiyondaki tüm dokümanları çeker."""
     token = get_firestore_access_token()
-    if not token:
-        return []
+    if not token: return []
     try:
-        docs = []
-        url = _firestore_url(collection)
-        page_token = None
+        docs, page_token = [], None
         while True:
             params = {"pageSize": 100}
-            if page_token:
-                params["pageToken"] = page_token
-
-            resp = requests.get(
-                url,
-                params=params,
-                headers={"Authorization": f"Bearer {token}"},
-                timeout=30,
-            )
-            if resp.status_code != 200:
-                print(f"[HATA] Firestore LIST {collection} ({resp.status_code}): {resp.text[:200]}")
-                break
-
+            if page_token: params["pageToken"] = page_token
+            resp = requests.get(_firestore_url(collection), params=params, headers={"Authorization": f"Bearer {token}"}, timeout=30)
+            if resp.status_code != 200: break
             result = resp.json()
             for doc in result.get("documents", []):
-                doc_id = doc["name"].split("/")[-1]
-                fields = doc.get("fields", {})
-                parsed = {k: _from_firestore_value(v) for k, v in fields.items()}
-                parsed["_doc_id"] = doc_id
+                parsed = {k: _from_firestore_value(v) for k, v in doc.get("fields", {}).items()}
+                parsed["_doc_id"] = doc["name"].split("/")[-1]
                 docs.append(parsed)
-
             page_token = result.get("nextPageToken")
-            if not page_token:
-                break
-
+            if not page_token: break
         return docs
-    except Exception as e:
-        print(f"[HATA] Firestore LIST {collection}: {e}")
-        return []
+    except Exception: return []
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# FCM BİLDİRİMLER — Mevcut mantıkla birebir aynı
-# ═══════════════════════════════════════════════════════════════════════════════
 
 def send_fcm_notification(title: str, body: str, data: Optional[dict] = None) -> bool:
-    """FCM v1 API ile bildirim gönderir (topic: halka_arz)."""
-    if not FIREBASE_PROJECT_ID:
-        print(f"[SİMÜLE] {title} — {body}")
-        return False
-
+    if not FIREBASE_PROJECT_ID: return False
     access_token = get_fcm_access_token()
-    if not access_token:
-        return False
-
-    url = FCM_V1_URL.format(project_id=FIREBASE_PROJECT_ID)
+    if not access_token: return False
     message = {
         "message": {
             "topic": "halka_arz",
             "notification": {"title": title, "body": body},
-            "android": {
-                "priority": "high",
-                "notification": {
-                    "sound": "default",
-                    "channel_id": "halka_arz_channel",
-                    "click_action": "FLUTTER_NOTIFICATION_CLICK",
-                },
-            },
+            "android": {"priority": "high", "notification": {"sound": "default", "channel_id": "halka_arz_channel", "click_action": "FLUTTER_NOTIFICATION_CLICK"}},
             "apns": {"payload": {"aps": {"sound": "default", "badge": 1}}},
             "data": {k: str(v) for k, v in (data or {}).items()},
         }
     }
-
     try:
-        resp = requests.post(
-            url, json=message,
-            headers={
-                "Authorization": f"Bearer {access_token}",
-                "Content-Type": "application/json; UTF-8",
-            },
-            timeout=10,
-        )
+        resp = requests.post(FCM_V1_URL.format(project_id=FIREBASE_PROJECT_ID), json=message, headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json; UTF-8"}, timeout=10)
         if resp.status_code == 200:
             print(f"[BİLDİRİM ✓] {title} — {body}")
             return True
-        print(f"[HATA] FCM v1 ({resp.status_code}): {resp.text[:200]}")
         return False
-    except requests.RequestException as e:
-        print(f"[HATA] FCM isteği: {e}")
-        return False
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# FIREBASE REALTIME DATABASE — Mevcut mantıkla birebir aynı
-# ═══════════════════════════════════════════════════════════════════════════════
+    except Exception: return False
 
 def write_prices_to_rtdb(prices: dict[str, float]) -> bool:
-    """
-    Fiyatları Firebase Realtime Database'e yazar.
-    Tek endpoint: /prices.json
-    Format: {"EMPAE": 72.4, "ATATR": 41.2, ...}
-    """
-    if not FIREBASE_RTDB_URL:
-        print("[UYARI] FIREBASE_RTDB_URL ayarlanmadı, RTDB yazma atlandı.")
-        return False
-
-    if not prices:
-        print("[BİLGİ] Yazılacak fiyat yok.")
-        return False
-
+    if not FIREBASE_RTDB_URL or not prices: return False
     token = get_rtdb_access_token()
-    if not token:
-        return False
-
+    if not token: return False
     url = f"{FIREBASE_RTDB_URL.rstrip('/')}/prices.json"
     try:
-        resp = requests.patch(
-            url,
-            json=prices,
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-            },
-            timeout=15,
-        )
+        resp = requests.patch(url, json=prices, headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}, timeout=15)
         if resp.status_code == 200:
-            print(f"[RTDB ✓] {len(prices)} fiyat yazıldı → {url}")
+            print(f"[RTDB ✓] {len(prices)} fiyat yazıldı.")
             return True
-        print(f"[HATA] RTDB ({resp.status_code}): {resp.text[:200]}")
         return False
-    except requests.RequestException as e:
-        print(f"[HATA] RTDB yazma: {e}")
-        return False
+    except Exception: return False
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# BİLDİRİM STATE YÖNETİMİ — Firestore üzerinden
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def load_notification_state() -> dict:
-    """Firestore'dan bildirim durumunu okur."""
-    doc = firestore_get_doc(STATE_DOC_PATH)
-    if doc is None:
-        print("[UYARI] Bildirim state okunamadı, boş dict kullanılıyor.")
-        return {}
-    return doc
-
-
-def save_notification_state(state: dict) -> bool:
-    """Bildirim durumunu Firestore'a kaydeder."""
-    return firestore_set_doc(STATE_DOC_PATH, state, merge=False)
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# DURUM MAKİNESİ (TAVAN / TABAN) — Mevcut mantıkla birebir aynı
-# ═══════════════════════════════════════════════════════════════════════════════
+def load_notification_state() -> dict: return firestore_get_doc(STATE_DOC_PATH) or {}
+def save_notification_state(state: dict) -> bool: return firestore_set_doc(STATE_DOC_PATH, state, merge=False)
 
 def get_stock_state(current_price: float, previous_close: float) -> str:
-    """
-    Hissenin mevcut durumunu belirler.
-    Dönüş: "tavan", "taban", veya "normal"
-    """
     tavan = round(previous_close * TAVAN_CARPANI, 2)
     taban = round(previous_close * TABAN_CARPANI, 2)
+    if current_price >= tavan * TAVAN_ESIGI: return "tavan"
+    elif current_price <= taban * TABAN_ESIGI: return "taban"
+    return "normal"
 
-    if current_price >= tavan * TAVAN_ESIGI:
-        return "tavan"
-    elif current_price <= taban * TABAN_ESIGI:
-        return "taban"
-    else:
-        return "normal"
-
-
-def process_tavan_taban(ticker: str, adi: str, current_price: float,
-                        previous_close: float, state: dict) -> dict:
-    """
-    Tavan/taban durum geçişlerini kontrol eder ve gerekirse bildirim gönderir.
-    Mevcut price_checker.py mantığıyla birebir aynı.
-    """
+def process_tavan_taban(ticker: str, adi: str, current_price: float, previous_close: float, state: dict) -> dict:
     tavan = round(previous_close * TAVAN_CARPANI, 2)
     taban = round(previous_close * TABAN_CARPANI, 2)
-
     current_state = get_stock_state(current_price, previous_close)
     previous_state = state.get(f"stock_state_{ticker}", "normal")
 
-    print(f"  ₺{current_price} | Tavan: ₺{tavan} | Taban: ₺{taban} | Durum: {previous_state} → {current_state}")
+    if current_state == previous_state: return state
 
-    # Durum değişmediyse bildirim gönderme
-    if current_state == previous_state:
-        return state
-
-    # ─── Durum Geçişleri ─────────────────────────────
-
-    # normal/taban → tavan = "Tavan Yaptı!"
     if current_state == "tavan" and previous_state != "tavan":
-        if previous_state == "taban":
-            send_fcm_notification(
-                title="📈 Taban Bozdu!",
-                body=f"{adi} tabandan çıktı! Taban: ₺{taban} → Anlık: ₺{current_price}",
-                data={"type": "taban_bozdu", "ticker": ticker},
-            )
-        send_fcm_notification(
-            title="🚀 Tavan Yaptı!",
-            body=f"{adi} tavan yaptı! Tavan: ₺{tavan} | Anlık: ₺{current_price}",
-            data={"type": "tavan_yapti", "ticker": ticker},
-        )
-
-    # tavan → normal/taban = "Tavan Bozdu!"
+        if previous_state == "taban": send_fcm_notification("📈 Taban Bozdu!", f"{adi} tabandan çıktı! Taban: ₺{taban} → Anlık: ₺{current_price}", {"type": "taban_bozdu", "ticker": ticker})
+        send_fcm_notification("🚀 Tavan Yaptı!", f"{adi} tavan yaptı! Tavan: ₺{tavan} | Anlık: ₺{current_price}", {"type": "tavan_yapti", "ticker": ticker})
     elif previous_state == "tavan" and current_state != "tavan":
-        send_fcm_notification(
-            title="⚠️ Tavan Bozdu!",
-            body=f"{adi} tavan bozdu! Tavan: ₺{tavan} → Anlık: ₺{current_price}",
-            data={"type": "tavan_bozdu", "ticker": ticker},
-        )
-        if current_state == "taban":
-            send_fcm_notification(
-                title="📉 Taban Yaptı!",
-                body=f"{adi} tabana indi! Taban: ₺{taban} | Anlık: ₺{current_price}",
-                data={"type": "taban_yapti", "ticker": ticker},
-            )
-
-    # normal/tavan → taban = "Taban Yaptı!"
+        send_fcm_notification("⚠️ Tavan Bozdu!", f"{adi} tavan bozdu! Tavan: ₺{tavan} → Anlık: ₺{current_price}", {"type": "tavan_bozdu", "ticker": ticker})
+        if current_state == "taban": send_fcm_notification("📉 Taban Yaptı!", f"{adi} tabana indi! Taban: ₺{taban} | Anlık: ₺{current_price}", {"type": "taban_yapti", "ticker": ticker})
     elif current_state == "taban" and previous_state != "taban":
-        send_fcm_notification(
-            title="📉 Taban Yaptı!",
-            body=f"{adi} tabana indi! Taban: ₺{taban} | Anlık: ₺{current_price}",
-            data={"type": "taban_yapti", "ticker": ticker},
-        )
-
-    # taban → normal = "Taban Bozdu!"
+        send_fcm_notification("📉 Taban Yaptı!", f"{adi} tabana indi! Taban: ₺{taban} | Anlık: ₺{current_price}", {"type": "taban_yapti", "ticker": ticker})
     elif previous_state == "taban" and current_state == "normal":
-        send_fcm_notification(
-            title="📈 Taban Bozdu!",
-            body=f"{adi} tabandan çıktı! Taban: ₺{taban} → Anlık: ₺{current_price}",
-            data={"type": "taban_bozdu", "ticker": ticker},
-        )
+        send_fcm_notification("📈 Taban Bozdu!", f"{adi} tabandan çıktı! Taban: ₺{taban} → Anlık: ₺{current_price}", {"type": "taban_bozdu", "ticker": ticker})
 
-    # Durumu güncelle
     state[f"stock_state_{ticker}"] = current_state
     state[f"stock_state_ts_{ticker}"] = datetime.now().isoformat()
-
     return state
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# HAFTA SONU KONTROLÜ
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def is_weekend(dt: datetime) -> bool:
-    """Cumartesi (5) veya Pazar (6) mı kontrol er."""
-    return dt.weekday() in (5, 6)
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# BİLDİRİM YARDIMCILARI
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def check_yeni_arz(kod: str, state: dict) -> bool:
-    """Bu hisse için daha önce yeni arz bildirimi gönderildi mi?"""
-    key = f"yeni_arz_{kod}"
-    return key not in state
-
+def is_weekend(dt: datetime) -> bool: return dt.weekday() in (5, 6)
 
 def cleanup_old_states(state: dict) -> dict:
-    """7 günden eski bildirim kayıtlarını temizler."""
     cutoff = datetime.now() - timedelta(days=7)
     cleaned = {}
     for k, v in state.items():
         try:
-            ts = datetime.fromisoformat(str(v))
-            if ts > cutoff:
-                cleaned[k] = v
-        except (ValueError, TypeError):
-            # Timestamp değilse (örn. durum bilgisi), koru
-            cleaned[k] = v
+            if datetime.fromisoformat(str(v)) > cutoff: cleaned[k] = v
+        except Exception: cleaned[k] = v
     return cleaned
 
 
@@ -705,212 +528,115 @@ def cleanup_old_states(state: dict) -> dict:
 def main():
     bugun = datetime.now()
     print("=" * 60)
-    print(f"Halka Arz Botu — {bugun.strftime('%Y-%m-%d %H:%M')}")
+    print(f"Halka Arz Botu (HİBRİT) — {bugun.strftime('%Y-%m-%d %H:%M')}")
     print("=" * 60)
 
-    # ─── 1. CollectAPI'den halka arz listesini çek ────────────────
-    print("\n[1/5] CollectAPI halka arz listesi çekiliyor...")
-    ham_liste = fetch_halka_arz_listesi()
-    if not ham_liste:
-        print("[BİLGİ] CollectAPI'den veri alınamadı. Çıkılıyor.")
-        return
+    ham_liste = scrape_halkarz_com()
 
-    # ─── 2. Bildirim state'ini Firestore'dan oku ──────────────────
-    print("\n[2/5] Bildirim durumu Firestore'dan okunuyor...")
+    print("\n[2/6] Mevcut halka arzlar Firestore'dan çekiliyor...")
+    existing_docs = firestore_get_collection(FIRESTORE_COLLECTION)
+    
+    print("\n[3/6] Bildirim durumu Firestore'dan okunuyor...")
     state = load_notification_state()
-    print(f"[BİLGİ] {len(state)} bildirim kaydı yüklendi.")
 
-    # ─── 3. Kategorize et + Firestore'a yaz ───────────────────────
-    print("\n[3/5] Halka arzlar kategorize ediliyor ve Firestore'a yazılıyor...")
+    print("\n[4/6] Veriler kategorize ediliyor ve birleştiriliyor...")
+    
+    islem_gorenler = {}
+    talep_count = arz_count = atlanan_count = 0
 
-    talep_count = 0
-    arz_count = 0
-    islem_count = 0
-    atlanan_count = 0
+    scraped_codes = set()
+    for ipo in ham_liste:
+        kod = ipo["sirket_kodu"]
+        scraped_codes.add(kod)
+        adi = ipo["sirket_adi"]
 
-    islem_gorenler = []  # Fiyat takibi için
-
-    for raw_item in ham_liste:
-        parsed = parse_ipo_item(raw_item)
-        kod = parsed["sirket_kodu"]
-        adi = parsed["sirket_adi"]
-
-        if not kod:
+        kategori = kategorize_et(ipo["start_dt"], ipo["end_dt"], bugun)
+        if not kategori:
             atlanan_count += 1
+            print(f"  [ATLANDI] {adi} ({kod}) — tarih belirsiz (taslak)")
             continue
 
-        kategori = kategorize_et(raw_item, bugun)
-
-        if kategori is None:
-            # Taslak: tarihi belli değil → TAMAMEN YOK SAY
-            atlanan_count += 1
-            print(f"  [ATLANDI] {adi} ({kod}) — tarih belli değil")
-            continue
+        del ipo["start_dt"]
+        del ipo["end_dt"]
+        ipo["durum"] = kategori
+        ipo["guncelleme_zamani"] = bugun.isoformat()
 
         doc_path = f"{FIRESTORE_COLLECTION}/{kod}"
 
         if kategori == "talep":
-            # ─── TALEP: Overwrite (merge=False) ──────────────
-            doc_data = {
-                "sirket_kodu": kod,
-                "sirket_adi": adi,
-                "durum": "talep",
-                "arz_fiyati": parsed["arz_fiyati"],
-                "tarih": parsed["tarih_str"],
-                "guncelleme_zamani": bugun.isoformat(),
-            }
-            if firestore_set_doc(doc_path, doc_data, merge=False):
-                print(f"  [TALEP] {adi} ({kod}) → Firestore ✓")
+            firestore_set_doc(doc_path, ipo, merge=False)
             talep_count += 1
-
-            # Yeni arz bildirimi
-            if check_yeni_arz(kod, state):
-                send_fcm_notification(
-                    title="🆕 Yeni Halka Arz!",
-                    body=f"{adi} — ₺{parsed['arz_fiyati']}",
-                    data={"type": "yeni_arz", "ticker": kod},
-                )
+            if f"yeni_arz_{kod}" not in state:
+                send_fcm_notification("🆕 Yeni Halka Arz!", f"{adi} — ₺{ipo['arz_fiyati']}", {"type": "yeni_arz", "ticker": kod})
                 state[f"yeni_arz_{kod}"] = bugun.isoformat()
 
         elif kategori == "arz":
-            # ─── ARZ: Overwrite (merge=False) ────────────────
-            doc_data = {
-                "sirket_kodu": kod,
-                "sirket_adi": adi,
-                "durum": "arz",
-                "arz_fiyati": parsed["arz_fiyati"],
-                "tarih": parsed["tarih_str"],
-                "guncelleme_zamani": bugun.isoformat(),
-            }
-            if firestore_set_doc(doc_path, doc_data, merge=False):
-                print(f"  [ARZ] {adi} ({kod}) → Firestore ✓")
+            firestore_set_doc(doc_path, ipo, merge=False)
             arz_count += 1
-
-            # Yeni arz bildirimi
-            if check_yeni_arz(kod, state):
-                send_fcm_notification(
-                    title="🆕 Yeni Halka Arz!",
-                    body=f"{adi} — ₺{parsed['arz_fiyati']}",
-                    data={"type": "yeni_arz", "ticker": kod},
-                )
+            if f"yeni_arz_{kod}" not in state:
+                send_fcm_notification("🆕 Yeni Halka Arz!", f"{adi} — ₺{ipo['arz_fiyati']}", {"type": "yeni_arz", "ticker": kod})
                 state[f"yeni_arz_{kod}"] = bugun.isoformat()
-
-            # Durum değişikliği: talep → arz
+            
             durum_key = f"durum_degisim_{kod}_arz"
             if durum_key not in state:
-                send_fcm_notification(
-                    title="📢 Talep Toplama Başladı!",
-                    body=f"{adi} halka arzı şu an talep topluyor!",
-                    data={"type": "talep_basladi", "ticker": kod},
-                )
+                send_fcm_notification("📢 Talep Toplama Başladı!", f"{adi} halka arzı şu an talep topluyor!", {"type": "talep_basladi", "ticker": kod})
                 state[durum_key] = bugun.isoformat()
 
         elif kategori == "islem_goruyor":
-            # ─── İŞLEM GÖRÜYOR: Fiyat geçmişi korunacak ────
-            islem_gorenler.append(parsed)
-            islem_count += 1
+            islem_gorenler[kod] = ipo
 
-    print(f"\n[ÖZET] Talep: {talep_count} | Arz: {arz_count} | İşlem: {islem_count} | Atlanan: {atlanan_count}")
 
-    # ─── 4. İşlem gören hisseler: Fiyat çek + Firestore güncelle + Bildirim ──
-    print("\n[4/5] İşlem gören hisseler için fiyat kontrolü...")
+    for doc in existing_docs:
+        kod = doc.get("_doc_id", "")
+        if kod and kod not in scraped_codes and doc.get("durum") == "islem_goruyor":
+            doc["sirket_kodu"] = kod
+            del doc["_doc_id"]
+            islem_gorenler[kod] = doc
 
-    rtdb_prices: dict[str, float] = {}
+    print(f"\n[ÖZET] Talep: {talep_count} | Arz: {arz_count} | İşlem: {len(islem_gorenler)} | Atlanan: {atlanan_count}")
+
+    print("\n[5/6] İşlem gören hisseler için fiyat kontrolü (CollectAPI)...")
+    rtdb_prices = {}
 
     if islem_gorenler and not is_weekend(bugun):
         fiyat_map = fetch_hisse_fiyatlari()
 
-        for ipo in islem_gorenler:
-            kod = ipo["sirket_kodu"]
-            adi = ipo["sirket_adi"]
-
-            print(f"\n[KONTROL] {adi} ({kod})...")
-
-            # Fiyat bilgisini al
+        for kod, doc_data in islem_gorenler.items():
+            adi = doc_data.get("sirket_adi", kod)
             fiyat_bilgi = fiyat_map.get(kod)
+            
             if not fiyat_bilgi:
-                print(f"  [UYARI] {kod} fiyat bulunamadı, sadece temel bilgi yazılacak.")
-                # Fiyat yoksa bile temel bilgiyi yaz (merge ile)
-                doc_data = {
-                    "sirket_kodu": kod,
-                    "sirket_adi": adi,
-                    "durum": "islem_goruyor",
-                    "arz_fiyati": ipo["arz_fiyati"],
-                    "tarih": ipo["tarih_str"],
-                    "guncelleme_zamani": bugun.isoformat(),
-                }
                 firestore_set_doc(f"{FIRESTORE_COLLECTION}/{kod}", doc_data, merge=True)
                 continue
 
             son_fiyat = fiyat_bilgi["son_fiyat"]
             onceki_kapanis = fiyat_bilgi["onceki_kapanis"]
-
-            # RTDB için fiyat ekle
             rtdb_prices[kod] = son_fiyat
 
-            # Mevcut Firestore dokümanını oku (fiyat geçmişini korumak için)
-            doc_path = f"{FIRESTORE_COLLECTION}/{kod}"
-            mevcut_doc = firestore_get_doc(doc_path) or {}
+            mevcut_doc = firestore_get_doc(f"{FIRESTORE_COLLECTION}/{kod}") or {}
             fiyat_gecmisi = mevcut_doc.get("fiyat_gecmisi", {})
-            if not isinstance(fiyat_gecmisi, dict):
-                fiyat_gecmisi = {}
+            fiyat_gecmisi[bugun.strftime("%Y-%m-%d")] = son_fiyat
 
-            # Bugünün tarihiyle fiyat ekle
-            bugun_str = bugun.strftime("%Y-%m-%d")
-            fiyat_gecmisi[bugun_str] = son_fiyat
+            doc_data["son_fiyat"] = son_fiyat
+            doc_data["onceki_kapanis"] = onceki_kapanis
+            doc_data["fiyat_gecmisi"] = fiyat_gecmisi
+            doc_data["guncelleme_zamani"] = bugun.isoformat()
 
-            # Firestore'a yaz (merge=True — eski veriyi, özellikle fiyat_gecmisi'ni koru)
-            doc_data = {
-                "sirket_kodu": kod,
-                "sirket_adi": adi,
-                "durum": "islem_goruyor",
-                "arz_fiyati": ipo["arz_fiyati"],
-                "tarih": ipo["tarih_str"],
-                "son_fiyat": son_fiyat,
-                "onceki_kapanis": onceki_kapanis,
-                "fiyat_gecmisi": fiyat_gecmisi,
-                "guncelleme_zamani": bugun.isoformat(),
-            }
-            firestore_set_doc(doc_path, doc_data, merge=True)
-            print(f"  [FIRESTORE ✓] {kod} → ₺{son_fiyat} (geçmiş: {len(fiyat_gecmisi)} gün)")
-
-            # Tavan/Taban durum makinesi
+            firestore_set_doc(f"{FIRESTORE_COLLECTION}/{kod}", doc_data, merge=True)
             state = process_tavan_taban(kod, adi, son_fiyat, onceki_kapanis, state)
 
     elif is_weekend(bugun):
-        print("[BİLGİ] Hafta sonu — fiyat çekme ve fiyat_gecmisi güncellemesi atlandı.")
-        # Hafta sonu sadece temel bilgileri güncelle
-        for ipo in islem_gorenler:
-            kod = ipo["sirket_kodu"]
-            doc_data = {
-                "sirket_kodu": kod,
-                "sirket_adi": ipo["sirket_adi"],
-                "durum": "islem_goruyor",
-                "arz_fiyati": ipo["arz_fiyati"],
-                "tarih": ipo["tarih_str"],
-                "guncelleme_zamani": bugun.isoformat(),
-            }
+        print("  Hafta sonu nedeniyle fiyat güncellemesi atlandı.")
+        for kod, doc_data in islem_gorenler.items():
             firestore_set_doc(f"{FIRESTORE_COLLECTION}/{kod}", doc_data, merge=True)
 
-    # ─── 5. RTDB fiyat yazma + State kaydet ───────────────────────
-    print(f"\n[5/5] Tamamlanıyor...")
-
-    # RTDB'ye canlı fiyatları yaz
-    if rtdb_prices:
-        print(f"[RTDB] {len(rtdb_prices)} fiyat yazılıyor...")
-        write_prices_to_rtdb(rtdb_prices)
-
-    # Eski bildirim kayıtlarını temizle
-    state = cleanup_old_states(state)
-
-    # Bildirim state'ini Firestore'a kaydet
-    save_notification_state(state)
+    print(f"\n[6/6] RTDB ve State güncelleniyor...")
+    if rtdb_prices: write_prices_to_rtdb(rtdb_prices)
+    save_notification_state(cleanup_old_states(state))
 
     print("\n" + "=" * 60)
-    print(f"[BİLGİ] Tamamlandı! Talep:{talep_count} | Arz:{arz_count} | "
-          f"İşlem:{islem_count} | RTDB:{len(rtdb_prices)} fiyat")
+    print(f"[BİLGİ] Hibrit Tarama Tamamlandı! RTDB: {len(rtdb_prices)} fiyat yazıldı.")
     print("=" * 60)
-
 
 if __name__ == "__main__":
     main()
