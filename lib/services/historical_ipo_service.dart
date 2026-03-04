@@ -11,7 +11,7 @@ class HistoricalIpo {
 
   // Statik (GitHub ipos.json'dan, sonsuza kadar cache)
   final double arzFiyati;
-  final int kisiBasiLot;
+  final String kisiBasiLot; // Artık String (örn: "50 Lot")
   final int toplamLot;
   final DateTime islemTarihi;
   final bool katilimEndeksi;
@@ -91,16 +91,24 @@ class HistoricalIpo {
     return (guncelFiyat! - prev) / prev >= 0.095;
   }
 
+  static int _safeInt(dynamic v) {
+    if (v == null) return 0;
+    if (v is int) return v;
+    if (v is double) return v.toInt();
+    if (v is String) return int.tryParse(v) ?? 0;
+    return 0;
+  }
+
   factory HistoricalIpo.fromJson(Map<String, dynamic> j) {
     return HistoricalIpo(
       sirketKodu: (j['sirket_kodu'] ?? j['kod'] ?? '').toString().toUpperCase(),
       sirketAdi: j['sirket_adi'] ?? j['ad'] ?? '',
       arzFiyati: (j['arz_fiyati'] ?? 0).toDouble(),
-      kisiBasiLot: (j['kisi_basi_lot'] ?? 0).toInt(),
-      toplamLot: (j['toplam_lot'] ?? 0).toInt(),
+      kisiBasiLot: (j['kisi_basi_lot'] ?? '').toString(),
+      toplamLot: _safeInt(j['toplam_lot']),
       islemTarihi:
           DateTime.tryParse(
-            j['borsada_islem_tarihi'] ?? j['islem_tarihi'] ?? '',
+            j['bist_ilk_islem_tarihi'] ?? j['borsada_islem_tarihi'] ?? j['islem_tarihi'] ?? '',
           ) ??
           DateTime.now(),
       katilimEndeksi: j['katilim_endeksine_uygun'] ?? j['katilim'] ?? false,

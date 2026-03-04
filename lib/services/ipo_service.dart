@@ -16,56 +16,24 @@ class IpoService {
   /// Firestore'dan verileri çeker. Günde 1x server, sonrası cache.
   static Future<List<IpoModel>> getIpos() async {
     final box = Hive.box(_boxName);
-    final lastFetchStr = box.get('last_firestore_fetch') as String?;
     
+    // İlk çalıştırmada her zaman server'dan çek
     bool shouldFetchFromServer = true;
 
-    if (lastFetchStr != null) {
-      final lastDate = DateTime.tryParse(lastFetchStr);
-      if (lastDate != null) {
-        final now = DateTime.now();
-        if (lastDate.year == now.year &&
-            lastDate.month == now.month &&
-            lastDate.day == now.day) {
-          shouldFetchFromServer = false;
-        }
-      }
-    }
-
     try {
-      final options = shouldFetchFromServer
-          ? const GetOptions(source: Source.serverAndCache)
-          : const GetOptions(source: Source.cache);
-          
-      if (shouldFetchFromServer) {
-        debugPrint('[IpoService] Sunucudan taze Firestore verisi çekiliyor (Günde 1 kez)...');
-      } else {
-        debugPrint('[IpoService] Bugün zaten çekilmiş, Firebase cihaz-içi Cache kullanılıyor.');
-      }
-
-      final snapshot = await _db.collection('halka_arzlar').get(options);
+      debugPrint('[IpoService] halka_arzlar koleksiyonundan veri çekiliyor (server)...');
       
-      // Cache'ten boş sonuç geldiyse server'a git
-      if (!shouldFetchFromServer && snapshot.docs.isEmpty) {
-        debugPrint('[IpoService] Cache boş geldi, server\'dan taze veri çekiliyor...');
-        final freshSnapshot = await _db
-            .collection('halka_arzlar')
-            .get(const GetOptions(source: Source.serverAndCache));
-        if (freshSnapshot.docs.isNotEmpty) {
-          await box.put('last_firestore_fetch', DateTime.now().toIso8601String());
-          final results = <IpoModel>[];
-          for (var doc in freshSnapshot.docs) {
-            final data = doc.data();
-            data['sirket_kodu'] = doc.id;
-            try { results.add(IpoModel.fromJson(data)); } catch (_) {}
-          }
-          return results;
-        }
+      final snapshot = await _db.collection('halka_arzlar')
+          .get(const GetOptions(source: Source.serverAndCache));
+      
+      debugPrint('[IpoService] Firestore döndü: ${snapshot.docs.length} doküman');
+      
+      if (snapshot.docs.isEmpty) {
+        debugPrint('[IpoService] ❌ halka_arzlar koleksiyonu boş!');
+        return [];
       }
       
-      if (shouldFetchFromServer && snapshot.docs.isNotEmpty) {
-         await box.put('last_firestore_fetch', DateTime.now().toIso8601String());
-      }
+      await box.put('last_firestore_fetch', DateTime.now().toIso8601String());
       
       final List<IpoModel> results = [];
       for (var doc in snapshot.docs) {
@@ -74,11 +42,13 @@ class IpoService {
         try {
           results.add(IpoModel.fromJson(data));
         } catch (e) {
-          debugPrint('[IpoService] Model Parse Hatası (${doc.id}): $e');
+          debugPrint('[IpoService] ❌ Model Parse Hatası (${doc.id}): $e');
         }
       }
       
-      // TÜM verileri dön (taslak + arz + islem)
+      debugPrint('[IpoService] ✅ ${results.length} IPO başarıyla parse edildi');
+      debugPrint('[IpoService] Durumlar: ${results.map((r) => '${r.sirketKodu}=${r.durum}').join(', ')}');
+      
       return results;
       
     } catch (e) {

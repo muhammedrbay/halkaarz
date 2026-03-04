@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // halka_arzlar koleksiyonu: Herkes okuyabilir, sadece admin yazabilir
+    match /halka_arzlar/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    // Eski ipos koleksiyonu (geriye uyumluluk)
+    match /ipos/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

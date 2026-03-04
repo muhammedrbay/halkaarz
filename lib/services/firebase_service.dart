@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import '../firebase_options.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -22,9 +23,16 @@ class FirebaseService {
     }
 
     try {
-      await Firebase.initializeApp();
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
       _initialized = true;
-      await _setupFCM();
+      // FCM kurulumunu ayrı try-catch'e al — APNS token henüz hazır olmayabilir
+      try {
+        await _setupFCM();
+      } catch (fcmError) {
+        print('FCM kurulumu başarısız (APNS token hazır olmayabilir): $fcmError');
+      }
       await _setupLocalNotifications();
       return true;
     } catch (e) {
