@@ -1,13 +1,13 @@
-name: Günlük Halka Arz Botu
+name: Canlı Fiyat Takibi
 
 on:
   schedule:
-    # Her gün 08:00 TR = 05:00 UTC
-    - cron: '0 5 * * *'
+    # Her 8 dk'da bir, hafta içi, borsa saatleri (UTC 06:30–15:10 = TR 09:30–18:10)
+    - cron: '*/8 6-15 * * 1-5'
   workflow_dispatch:
 
 jobs:
-  gunluk-bot:
+  fiyat-takip:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,9 +25,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
 
-      - name: 🚀 Günlük Botu Çalıştır
+      - name: 📈 Fiyat Takibini Çalıştır
         env:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_SA_KEY_JSON: ${{ secrets.FIREBASE_SA_KEY_JSON }}
           FIREBASE_RTDB_URL: ${{ secrets.FIREBASE_RTDB_URL }}
-        run: python backend/main.py
+        run: python backend/price_tracker.py
