@@ -213,7 +213,14 @@ def clean_lot(text):
     except: return 0
 
 def fetch_detail(url):
-    defaults = {"arz_fiyati": 0.0, "toplam_lot": 0, "dagitim_sekli": "Eşit", "konsorsiyum_lideri": "", "katilim_endeksine_uygun": False, "kisi_basi_lot": "", "halka_arz_sekli": "", "fonun_kullanim_yeri": "", "satis_yontemi": "", "tahsisat_gruplari": "", "bireysel_lot": 0, "bireysel_yuzde": 0, "sirket_aciklama": ""}
+    defaults = {
+        "arz_fiyati": 0.0, "toplam_lot": 0, "dagitim_sekli": "Eşit",
+        "konsorsiyum_lideri": "", "katilim_endeksine_uygun": False,
+        "kisi_basi_lot": "", "halka_arz_sekli": "", "fonun_kullanim_yeri": "",
+        "satis_yontemi": "", "tahsisat_gruplari": "",
+        "bireysel_lot": 0, "bireysel_yuzde": 0, "sirket_aciklama": "",
+        "pazar": "", "bist_ilk_islem_tarihi": "",
+    }
     if not url: return defaults
     resp = safe_get(url)
     if not resp: return defaults
@@ -230,6 +237,8 @@ def fetch_detail(url):
             elif "dağıtım" in lt and val: d["dagitim_sekli"] = "Oransal" if "oransal" in val.lower() else "Eşit"
             elif "aracı kurum" in lt and val: d["konsorsiyum_lideri"] = val
             elif "kişi başı" in lt and val: d["kisi_basi_lot"] = val
+            elif "pazar" in lt and val: d["pazar"] = val
+            elif "ilk işlem" in lt and val: d["bist_ilk_islem_tarihi"] = val
         break
 
     body = soup.find("body")
@@ -371,14 +380,20 @@ def main():
     state = fs_get(STATE_DOC_PATH) or {}
     prev_docs = {d["_doc_id"]: d for d in fs_collection(FIRESTORE_COLLECTION)}
 
-    # 3. Kategorize et ve işle
-    print("\n[3/4] Kategorize ediliyor ve Firestore'a yazılıyor...")
+    # 3. Kategorize et ve TÜM detayları çek
+    print("\n[3/5] Kategorize ediliyor ve detaylar çekiliyor...")
     taslak_list, arz_list, islem_list = [], [], []
 
     for item in raw_list:
         kod = item["sirket_kodu"]
         adi = item["sirket_adi"]
         kat = kategorize(item["start_dt"], item["end_dt"], bugun)
+        item["kategori"] = kat
+
+        # TÜM halka arzlar için detay sayfasını çek
+        print(f"  [{kat.upper()}] {adi} ({kod}) detay çekiliyor...")
+        det = fetch_detail(item["detail_url"])
+        item["det"] = det
 
         if kat == "taslak":
             taslak_list.append(item)
@@ -387,18 +402,14 @@ def main():
         else:
             islem_list.append(item)
 
-    # ── TASLAK + ARZ → Detay çekip Firestore'a yaz ──
-    for item in taslak_list + arz_list:
-        kod = item["sirket_kodu"]
-        adi = item["sirket_adi"]
-        kat = "taslak" if item in taslak_list else "arz"
+    # 4. Firestore'a yaz
+    print("\n[4/5] Firestore'a yazılıyor...")
 
-        print(f"  [{kat.upper()}] {adi} ({kod}) detay çekiliyor...")
-        det = fetch_detail(item["detail_url"])
-
+    def build_doc(item, kat, extra=None):
+        det = item["det"]
         doc = {
-            "sirket_kodu": kod, "sirket_adi": adi, "durum": kat,
-            "tarih": item["tarih_str"],
+            "sirket_kodu": item["sirket_kodu"], "sirket_adi": item["sirket_adi"],
+            "durum": kat, "tarih": item["tarih_str"],
             "arz_fiyati": det["arz_fiyati"], "toplam_lot": det["toplam_lot"],
             "dagitim_sekli": det["dagitim_sekli"], "konsorsiyum_lideri": det["konsorsiyum_lideri"],
             "katilim_endeksine_uygun": det["katilim_endeksine_uygun"],
@@ -406,13 +417,24 @@ def main():
             "fonun_kullanim_yeri": det["fonun_kullanim_yeri"], "satis_yontemi": det["satis_yontemi"],
             "tahsisat_gruplari": det["tahsisat_gruplari"], "bireysel_lot": det["bireysel_lot"],
             "bireysel_yuzde": det["bireysel_yuzde"], "sirket_aciklama": det["sirket_aciklama"],
+            "pazar": det["pazar"], "bist_ilk_islem_tarihi": det["bist_ilk_islem_tarihi"],
             "guncelleme_zamani": bugun.isoformat(),
         }
+        if extra:
+            doc.update(extra)
+        return doc
+
+    # ── TASLAK + ARZ → Firestore'a yaz (merge=False) ──
+    for item in taslak_list + arz_list:
+        kod = item["sirket_kodu"]
+        adi = item["sirket_adi"]
+        kat = item["kategori"]
+        doc = build_doc(item, kat)
         fs_set(f"{FIRESTORE_COLLECTION}/{kod}", doc, merge=False)
 
         # Bildirim: yeni arz mı?
         if f"yeni_arz_{kod}" not in state:
-            send_fcm("🆕 Yeni Halka Arz!", f"{adi} — ₺{det['arz_fiyati']}", {"type": "yeni_arz", "ticker": kod})
+            send_fcm("🆕 Yeni Halka Arz!", f"{adi} — ₺{item['det']['arz_fiyati']}", {"type": "yeni_arz", "ticker": kod})
             state[f"yeni_arz_{kod}"] = bugun.isoformat()
 
         # Bildirim: durum değişikliği?
@@ -422,7 +444,7 @@ def main():
                 send_fcm("📢 Talep Toplama Başladı!", f"{adi} halka arzı talep topluyor!", {"type": "durum_degisim", "ticker": kod})
             state[f"durum_{kod}_{kat}"] = bugun.isoformat()
 
-    # ── İŞLEM → Yahoo Finance fiyat + Firestore güncelle ──
+    # ── İŞLEM → Detay + Yahoo Finance fiyat + Firestore güncelle ──
     if islem_list:
         print(f"\n  İşlem gören {len(islem_list)} hisse için fiyat çekiliyor...")
         islem_kodlari = [i["sirket_kodu"] for i in islem_list]
@@ -433,25 +455,24 @@ def main():
             adi = item["sirket_adi"]
             fiyat = fiyatlar.get(kod)
 
-            # Mevcut dokümanı oku
+            # Mevcut dokümanı oku (fiyat_gecmisi'ni korumak için)
             mevcut = fs_get(f"{FIRESTORE_COLLECTION}/{kod}") or {}
             fiyat_gecmisi = mevcut.get("fiyat_gecmisi", {})
             if not isinstance(fiyat_gecmisi, dict): fiyat_gecmisi = {}
 
-            update = {
-                "sirket_kodu": kod, "sirket_adi": adi, "durum": "islem",
-                "tarih": item["tarih_str"], "guncelleme_zamani": bugun.isoformat(),
-            }
-
+            extra = {}
             if fiyat:
                 fiyat_gecmisi[bugun.strftime("%Y-%m-%d")] = fiyat
-                update["son_fiyat"] = fiyat
-                update["fiyat_gecmisi"] = fiyat_gecmisi
+                extra["son_fiyat"] = fiyat
+                extra["fiyat_gecmisi"] = fiyat_gecmisi
                 print(f"  [İŞLEM] {adi} ({kod}) → ₺{fiyat}")
             else:
-                print(f"  [İŞLEM] {adi} ({kod}) → fiyat alınamadı")
+                extra["son_fiyat"] = "Borsaya açılmadı henüz"
+                print(f"  [İŞLEM] {adi} ({kod}) → Borsaya açılmadı henüz")
 
-            fs_set(f"{FIRESTORE_COLLECTION}/{kod}", update, merge=True)
+            doc = build_doc(item, "islem", extra)
+            # Mevcut fiyat_gecmisi'ni korumak için merge=True
+            fs_set(f"{FIRESTORE_COLLECTION}/{kod}", doc, merge=True)
 
             # Bildirim: durum değişikliği (arz → islem)?
             prev = prev_docs.get(kod, {})
@@ -461,9 +482,8 @@ def main():
                     send_fcm("🔔 Borsada İşlem Başladı!", f"{adi} artık borsada işlem görüyor!", {"type": "islem_basladi", "ticker": kod})
                     state[dkey] = bugun.isoformat()
 
-    # 4. State kaydet
-    print(f"\n[4/4] Bildirim durumu kaydediliyor...")
-    # Eski kayıtları temizle (7 günden eski)
+    # 5. State kaydet
+    print(f"\n[5/5] Bildirim durumu kaydediliyor...")
     cutoff = bugun - timedelta(days=7)
     cleaned = {}
     for k, v in state.items():
