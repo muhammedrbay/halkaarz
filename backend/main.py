@@ -123,6 +123,14 @@ def fs_set(doc_path, data, merge=False):
         return r.status_code == 200
     except: return False
 
+def fs_delete(doc_path):
+    token = get_firestore_token()
+    if not token: return False
+    try:
+        r = requests.delete(_fs_url(doc_path), headers={"Authorization": f"Bearer {token}"}, timeout=15)
+        return r.status_code == 200
+    except: return False
+
 def fs_collection(col):
     token = get_firestore_token()
     if not token: return []
@@ -335,7 +343,7 @@ def fetch_yahoo_prices(ticker_list):
         for kod, sym in zip(ticker_list, symbols):
             try:
                 tk = yf.Ticker(sym)
-                hist = tk.history(period="1d")
+                hist = tk.history(period="5d")
                 if not hist.empty:
                     prices[kod] = round(float(hist["Close"].iloc[-1]), 2)
                     print(f"    {kod} → ₺{prices[kod]}")
@@ -477,6 +485,24 @@ def main():
             if datetime.fromisoformat(str(v)) > cutoff: cleaned[k] = v
         except: cleaned[k] = v
     fs_set(STATE_DOC_PATH, cleaned, merge=False)
+
+    # 6. Eski halka arzları sil (son 20'de olmayanlar)
+    print(f"\n[6/6] Eski halka arzlar temizleniyor...")
+    aktif_kodlar = set(i["sirket_kodu"] for i in taslak_list + arz_list + islem_list)
+    mevcut_docs = fs_collection(FIRESTORE_COLLECTION)
+    silinen = 0
+    for doc in mevcut_docs:
+        doc_id = doc.get("_doc_id", "")
+        if doc_id and doc_id not in aktif_kodlar:
+            if fs_delete(f"{FIRESTORE_COLLECTION}/{doc_id}"):
+                print(f"  [×] {doc_id} silindi (artık ilk 20'de değil)")
+                silinen += 1
+            else:
+                print(f"  [!] {doc_id} silinemedi")
+    if silinen:
+        print(f"  Toplam {silinen} eski doküman silindi.")
+    else:
+        print(f"  Temizlenecek doküman yok.")
 
     print("\n" + "=" * 60)
     print(f"  Taslak: {len(taslak_list)} | Arz: {len(arz_list)} | İşlem: {len(islem_list)}")
