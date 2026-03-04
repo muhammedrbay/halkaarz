@@ -11,6 +11,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'historical_ipo_detail_screen.dart';
 
 enum _Filter { hepsi, tavanlar, katilim }
+enum _HistSort { tarihYeni, tarihEski, getiriArtan, getiriAzalan, fiyatArtan, fiyatAzalan, isimAZ }
 
 class HistoricalIpoScreen extends StatefulWidget {
   const HistoricalIpoScreen({super.key});
@@ -25,6 +26,7 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
   bool _isLoading = true;
   bool _fetchingPrices = false;
   _Filter _filter = _Filter.hepsi;
+  _HistSort _sort = _HistSort.tarihYeni;
   Timer? _priceRefreshTimer;
 
   @override
@@ -99,16 +101,45 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
   }
 
   List<HistoricalIpo> get _filtered {
+    List<HistoricalIpo> list;
     switch (_filter) {
       case _Filter.hepsi:
-        return _ipos;
+        list = List.from(_ipos);
+        break;
       case _Filter.tavanlar:
-        return _ipos
+        list = _ipos
             .where((i) => i.tavanMi || (i.tavanGunSayisi ?? 0) > 0)
             .toList();
+        break;
       case _Filter.katilim:
-        return _ipos.where((i) => i.katilimEndeksi).toList();
+        list = _ipos.where((i) => i.katilimEndeksi).toList();
+        break;
     }
+    // Sıralama
+    switch (_sort) {
+      case _HistSort.tarihYeni:
+        list.sort((a, b) => b.islemTarihi.compareTo(a.islemTarihi));
+        break;
+      case _HistSort.tarihEski:
+        list.sort((a, b) => a.islemTarihi.compareTo(b.islemTarihi));
+        break;
+      case _HistSort.getiriArtan:
+        list.sort((a, b) => a.getiviYuzde.compareTo(b.getiviYuzde));
+        break;
+      case _HistSort.getiriAzalan:
+        list.sort((a, b) => b.getiviYuzde.compareTo(a.getiviYuzde));
+        break;
+      case _HistSort.fiyatArtan:
+        list.sort((a, b) => a.arzFiyati.compareTo(b.arzFiyati));
+        break;
+      case _HistSort.fiyatAzalan:
+        list.sort((a, b) => b.arzFiyati.compareTo(a.arzFiyati));
+        break;
+      case _HistSort.isimAZ:
+        list.sort((a, b) => a.sirketAdi.compareTo(b.sirketAdi));
+        break;
+    }
+    return list;
   }
 
   @override
@@ -127,6 +158,7 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
           children: [
             _buildHeader(),
             _buildFilters(),
+            _buildSortRow(),
             if (_isLoading)
               const Expanded(
                 child: Center(
@@ -280,6 +312,92 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSortRow() {
+    String label;
+    switch (_sort) {
+      case _HistSort.tarihYeni: label = 'Tarih (Yeni → Eski)'; break;
+      case _HistSort.tarihEski: label = 'Tarih (Eski → Yeni)'; break;
+      case _HistSort.getiriArtan: label = 'Getiri (Düşük → Yüksek)'; break;
+      case _HistSort.getiriAzalan: label = 'Getiri (Yüksek → Düşük)'; break;
+      case _HistSort.fiyatArtan: label = 'Fiyat (Düşük → Yüksek)'; break;
+      case _HistSort.fiyatAzalan: label = 'Fiyat (Yüksek → Düşük)'; break;
+      case _HistSort.isimAZ: label = 'İsim (A → Z)'; break;
+    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      child: GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            backgroundColor: const Color(0xFF1A1F38),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            builder: (_) => SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text('Sıralama', style: GoogleFonts.inter(
+                      color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700,
+                    )),
+                  ),
+                  ..._HistSort.values.map((s) {
+                    String text;
+                    IconData icon;
+                    switch (s) {
+                      case _HistSort.tarihYeni: text = 'Tarih (Yeni → Eski)'; icon = Icons.calendar_month; break;
+                      case _HistSort.tarihEski: text = 'Tarih (Eski → Yeni)'; icon = Icons.calendar_month; break;
+                      case _HistSort.getiriArtan: text = 'Getiri (Düşük → Yüksek)'; icon = Icons.trending_up; break;
+                      case _HistSort.getiriAzalan: text = 'Getiri (Yüksek → Düşük)'; icon = Icons.trending_down; break;
+                      case _HistSort.fiyatArtan: text = 'Fiyat (Düşük → Yüksek)'; icon = Icons.price_change; break;
+                      case _HistSort.fiyatAzalan: text = 'Fiyat (Yüksek → Düşük)'; icon = Icons.price_change; break;
+                      case _HistSort.isimAZ: text = 'İsim (A → Z)'; icon = Icons.sort_by_alpha; break;
+                    }
+                    return ListTile(
+                      leading: Icon(icon, color: _sort == s ? const Color(0xFF7C3AED) : Colors.white38, size: 20),
+                      title: Text(text, style: GoogleFonts.inter(
+                        color: _sort == s ? const Color(0xFF7C3AED) : Colors.white70,
+                        fontSize: 14, fontWeight: _sort == s ? FontWeight.w700 : FontWeight.w400,
+                      )),
+                      trailing: _sort == s ? const Icon(Icons.check, color: Color(0xFF7C3AED), size: 18) : null,
+                      onTap: () {
+                        setState(() => _sort = s);
+                        Navigator.pop(context);
+                      },
+                    );
+                  }),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF12162B),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFF2A2F4A), width: 0.5),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.sort_rounded, size: 14, color: Color(0xFF7C3AED)),
+              const SizedBox(width: 6),
+              Text(label, style: GoogleFonts.inter(
+                color: Colors.white54, fontSize: 11, fontWeight: FontWeight.w500,
+              )),
+              const SizedBox(width: 4),
+              const Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.white38),
+            ],
+          ),
         ),
       ),
     );

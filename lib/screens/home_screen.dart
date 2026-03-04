@@ -8,6 +8,8 @@ import '../services/realtime_price_service.dart';
 import '../services/ad_service.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+enum _SortType { tarihYeni, tarihEski, fiyatArtan, fiyatAzalan, isimAZ, isimZA }
+
 /// Ana Ekran — 3 sekmeli halka arz listesi
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen>
   List<IpoModel> _allIpos = [];
   bool _katilimFilter = false;
   bool _isLoading = true;
+  _SortType _sortType = _SortType.tarihYeni;
 
   @override
   void initState() {
@@ -59,7 +62,43 @@ class _HomeScreenState extends State<HomeScreen>
     if (_katilimFilter) {
       filtered = IpoService.filterKatilimEndeksi(filtered);
     }
+    // Sıralama uygula
+    filtered = List.from(filtered);
+    switch (_sortType) {
+      case _SortType.tarihYeni:
+        filtered.sort((a, b) => _parseDate(b.bistIlkIslemTarihi.isNotEmpty ? b.bistIlkIslemTarihi : b.tarih)
+            .compareTo(_parseDate(a.bistIlkIslemTarihi.isNotEmpty ? a.bistIlkIslemTarihi : a.tarih)));
+        break;
+      case _SortType.tarihEski:
+        filtered.sort((a, b) => _parseDate(a.bistIlkIslemTarihi.isNotEmpty ? a.bistIlkIslemTarihi : a.tarih)
+            .compareTo(_parseDate(b.bistIlkIslemTarihi.isNotEmpty ? b.bistIlkIslemTarihi : b.tarih)));
+        break;
+      case _SortType.fiyatArtan:
+        filtered.sort((a, b) => a.arzFiyati.compareTo(b.arzFiyati));
+        break;
+      case _SortType.fiyatAzalan:
+        filtered.sort((a, b) => b.arzFiyati.compareTo(a.arzFiyati));
+        break;
+      case _SortType.isimAZ:
+        filtered.sort((a, b) => a.sirketAdi.compareTo(b.sirketAdi));
+        break;
+      case _SortType.isimZA:
+        filtered.sort((a, b) => b.sirketAdi.compareTo(a.sirketAdi));
+        break;
+    }
     return filtered;
+  }
+
+  DateTime _parseDate(String s) {
+    // "05.03.2025" veya "05.03.2025 - 07.03.2025" formatı
+    try {
+      final part = s.split(' ').first.trim();
+      final parts = part.split('.');
+      if (parts.length == 3) {
+        return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      }
+    } catch (_) {}
+    return DateTime(2000);
   }
 
   @override
@@ -99,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen>
                       children: [
                         _buildIpoList('taslak'),
                         _buildIpoList('arz'),
-                        _buildIpoList('islem'),
+                        _buildIpoList('islem', showSort: true),
                       ],
                     ),
             ),
@@ -217,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildIpoList(String durum) {
+  Widget _buildIpoList(String durum, {bool showSort = false}) {
     final ipos = _getFilteredIpos(durum);
     if (ipos.isEmpty) {
       // Taslaklar sekmesine özel mesaj
@@ -306,15 +345,104 @@ class _HomeScreenState extends State<HomeScreen>
       color: const Color(0xFF00D4AA),
       child: ListView.builder(
         padding: const EdgeInsets.only(top: 4, bottom: 80),
-        itemCount: ipos.length + (hasAd ? 1 : 0),
+        itemCount: ipos.length + (hasAd ? 1 : 0) + (showSort ? 1 : 0),
         itemBuilder: (context, index) {
-          if (hasAd && index == adIndex) {
+          // Sıralama satırı
+          if (showSort && index == 0) {
+            return _buildSortRow();
+          }
+          final adjustedIndex = showSort ? index - 1 : index;
+          if (hasAd && adjustedIndex == adIndex) {
             return AdService.buildNativeAdWidget('home');
           }
-          final ipoIndex = hasAd && index > adIndex ? index - 1 : index;
-          if (ipoIndex >= ipos.length) return const SizedBox.shrink();
+          final ipoIndex = hasAd && adjustedIndex > adIndex ? adjustedIndex - 1 : adjustedIndex;
+          if (ipoIndex >= ipos.length || ipoIndex < 0) return const SizedBox.shrink();
           return IpoCard(ipo: ipos[ipoIndex]);
         },
+      ),
+    );
+  }
+
+  Widget _buildSortRow() {
+    String label;
+    switch (_sortType) {
+      case _SortType.tarihYeni: label = 'Tarih (Yeni → Eski)'; break;
+      case _SortType.tarihEski: label = 'Tarih (Eski → Yeni)'; break;
+      case _SortType.fiyatArtan: label = 'Fiyat (Düşük → Yüksek)'; break;
+      case _SortType.fiyatAzalan: label = 'Fiyat (Yüksek → Düşük)'; break;
+      case _SortType.isimAZ: label = 'İsim (A → Z)'; break;
+      case _SortType.isimZA: label = 'İsim (Z → A)'; break;
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            backgroundColor: const Color(0xFF1A1F38),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            builder: (_) => SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text('Sıralama', style: GoogleFonts.inter(
+                      color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700,
+                    )),
+                  ),
+                  ..._SortType.values.map((s) {
+                    String text;
+                    IconData icon;
+                    switch (s) {
+                      case _SortType.tarihYeni: text = 'Tarih (Yeni → Eski)'; icon = Icons.calendar_month; break;
+                      case _SortType.tarihEski: text = 'Tarih (Eski → Yeni)'; icon = Icons.calendar_month; break;
+                      case _SortType.fiyatArtan: text = 'Fiyat (Düşük → Yüksek)'; icon = Icons.trending_up; break;
+                      case _SortType.fiyatAzalan: text = 'Fiyat (Yüksek → Düşük)'; icon = Icons.trending_down; break;
+                      case _SortType.isimAZ: text = 'İsim (A → Z)'; icon = Icons.sort_by_alpha; break;
+                      case _SortType.isimZA: text = 'İsim (Z → A)'; icon = Icons.sort_by_alpha; break;
+                    }
+                    return ListTile(
+                      leading: Icon(icon, color: _sortType == s ? const Color(0xFF00D4AA) : Colors.white38, size: 20),
+                      title: Text(text, style: GoogleFonts.inter(
+                        color: _sortType == s ? const Color(0xFF00D4AA) : Colors.white70,
+                        fontSize: 14, fontWeight: _sortType == s ? FontWeight.w700 : FontWeight.w400,
+                      )),
+                      trailing: _sortType == s ? const Icon(Icons.check, color: Color(0xFF00D4AA), size: 18) : null,
+                      onTap: () {
+                        setState(() => _sortType = s);
+                        Navigator.pop(context);
+                      },
+                    );
+                  }),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF12162B),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFF2A2F4A), width: 0.5),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.sort_rounded, size: 14, color: Color(0xFF00D4AA)),
+              const SizedBox(width: 6),
+              Text(label, style: GoogleFonts.inter(
+                color: Colors.white54, fontSize: 11, fontWeight: FontWeight.w500,
+              )),
+              const SizedBox(width: 4),
+              const Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.white38),
+            ],
+          ),
+        ),
       ),
     );
   }
