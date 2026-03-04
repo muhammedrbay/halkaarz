@@ -98,8 +98,8 @@ class _HomeScreenState extends State<HomeScreen>
                       controller: _tabController,
                       children: [
                         _buildIpoList('taslak'),
-                        _buildIpoList('talep_topluyor'),
-                        _buildIpoList('islem_goruyor'),
+                        _buildIpoList('arz'),
+                        _buildIpoList('islem'),
                       ],
                     ),
             ),
@@ -188,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen>
               children: [
                 const Icon(Icons.edit_note_rounded, size: 16),
                 const SizedBox(width: 4),
-                Text('Taslaklar', style: GoogleFonts.inter(fontSize: 12)),
+                Text('Taslak', style: GoogleFonts.inter(fontSize: 12)),
               ],
             ),
           ),
@@ -198,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen>
               children: [
                 const Icon(Icons.how_to_vote_rounded, size: 16),
                 const SizedBox(width: 4),
-                Text('Talep', style: GoogleFonts.inter(fontSize: 12)),
+                Text('Arz', style: GoogleFonts.inter(fontSize: 12)),
               ],
             ),
           ),

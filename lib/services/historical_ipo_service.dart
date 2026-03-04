@@ -219,13 +219,13 @@ class HistoricalIpoService {
 
   // ─── Firestore Okuma ──────────────────────────────────────────────────────
 
-  /// Firestore'daki 'ipos' koleksiyonundan islem_goruyor belgelerini çeker (24h cache)
+  /// Firestore'daki 'halka_arzlar' koleksiyonundan islem belgelerini çeker (24h cache)
   static Future<List<HistoricalIpo>?> _fetchFromFirestore() async {
     try {
-      debugPrint('[Firestore] islem_goruyor belgeler çekiliyor...');
+      debugPrint('[Firestore] islem belgeler çekiliyor...');
       final snapshot = await FirebaseFirestore.instance
-          .collection('ipos')
-          .where('durum', isEqualTo: 'islem_goruyor')
+          .collection('halka_arzlar')
+          .where('durum', isEqualTo: 'islem')
           .get(GetOptions(source: Source.serverAndCache));
 
       final cutoff = DateTime.now().subtract(const Duration(days: 365));
@@ -236,7 +236,7 @@ class HistoricalIpoService {
           .toList()
         ..sort((a, b) => b.islemTarihi.compareTo(a.islemTarihi));
 
-      debugPrint('[Firestore ✓] ${ipos.length} islem_goruyor IPO çekildi.');
+      debugPrint('[Firestore ✓] ${ipos.length} islem IPO çekildi.');
       await _markStaticFetched();
       return ipos;
     } catch (e) {

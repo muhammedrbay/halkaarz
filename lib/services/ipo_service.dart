@@ -3,8 +3,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/ipo_model.dart';
 import 'package:flutter/foundation.dart';
 
-/// Firestore üzerinden KAP'tan gelen Taslak ve Talep listelerini alır.
-/// Günlük 1 defa server maliyeti yapmak için (100K+ DAU için) agresif cache uygulanır.
+/// Firestore 'halka_arzlar' koleksiyonundan TÜM halka arzları çeker.
+/// Günlük 1 defa server maliyeti yapmak için agresif cache uygulanır.
 class IpoService {
   static const String _boxName = 'ipo_cache_meta';
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -13,8 +13,7 @@ class IpoService {
     await Hive.openBox(_boxName);
   }
 
-  /// Firestore'dan verileri çeker. Maliyetleri düşürmek için gün içinde
-  /// yapılan tüm takipler/açılışlar yerel (cache) üzerinden servis edilir.
+  /// Firestore'dan verileri çeker. Günde 1x server, sonrası cache.
   static Future<List<IpoModel>> getIpos() async {
     final box = Hive.box(_boxName);
     final lastFetchStr = box.get('last_firestore_fetch') as String?;
@@ -25,7 +24,6 @@ class IpoService {
       final lastDate = DateTime.tryParse(lastFetchStr);
       if (lastDate != null) {
         final now = DateTime.now();
-        // Eğer aynı takvim günü içindeysek server'dan GİTME, Firebase Cache'ten al.
         if (lastDate.year == now.year &&
             lastDate.month == now.month &&
             lastDate.day == now.day) {
@@ -35,25 +33,23 @@ class IpoService {
     }
 
     try {
-      // Firebase'in yerleşik maliyet ve performans dostu GetOptions özelliği
       final options = shouldFetchFromServer
-          ? const GetOptions(source: Source.serverAndCache) // Yeni günde 1 kez Server'a git
-          : const GetOptions(source: Source.cache);       // Gün içindeki tüm diğer açılışlarda Cache kullan
+          ? const GetOptions(source: Source.serverAndCache)
+          : const GetOptions(source: Source.cache);
           
       if (shouldFetchFromServer) {
         debugPrint('[IpoService] Sunucudan taze Firestore verisi çekiliyor (Günde 1 kez)...');
       } else {
-        debugPrint('[IpoService] Bugün zaten çekilmiş, Firebase cihaz-içi Cache kullanılıyor (Bedava Okuma).');
+        debugPrint('[IpoService] Bugün zaten çekilmiş, Firebase cihaz-içi Cache kullanılıyor.');
       }
 
-      final snapshot = await _db.collection('ipos').get(options);
+      final snapshot = await _db.collection('halka_arzlar').get(options);
       
-      // ── KRİTİK: Eğer cache'ten boş sonuç geldiyse, server'a git ──
-      // (İlk kurulumda scraper henüz çalışmamışsa veya cache temiz değilse olur)
+      // Cache'ten boş sonuç geldiyse server'a git
       if (!shouldFetchFromServer && snapshot.docs.isEmpty) {
         debugPrint('[IpoService] Cache boş geldi, server\'dan taze veri çekiliyor...');
         final freshSnapshot = await _db
-            .collection('ipos')
+            .collection('halka_arzlar')
             .get(const GetOptions(source: Source.serverAndCache));
         if (freshSnapshot.docs.isNotEmpty) {
           await box.put('last_firestore_fetch', DateTime.now().toIso8601String());
@@ -63,11 +59,10 @@ class IpoService {
             data['sirket_kodu'] = doc.id;
             try { results.add(IpoModel.fromJson(data)); } catch (_) {}
           }
-          return results.where((ipo) => ipo.durum == 'taslak' || ipo.durum == 'talep_topluyor').toList();
+          return results;
         }
       }
       
-      // Eğer sunucudan taze çekim başarılıysa o anki zamanı meta verisi olarak kaydet
       if (shouldFetchFromServer && snapshot.docs.isNotEmpty) {
          await box.put('last_firestore_fetch', DateTime.now().toIso8601String());
       }
@@ -75,7 +70,6 @@ class IpoService {
       final List<IpoModel> results = [];
       for (var doc in snapshot.docs) {
         final data = doc.data();
-        // KAP'tan gelen python datasındaki eksik stringleri eşitleme koruması
         data['sirket_kodu'] = doc.id;
         try {
           results.add(IpoModel.fromJson(data));
@@ -84,22 +78,20 @@ class IpoService {
         }
       }
       
-      // Sadece Taslak ve Talep Toplayanları gönderir (Geçmişler Performans sekmesi için ayrıldı)
-      return results.where((ipo) => ipo.durum == 'taslak' || ipo.durum == 'talep_topluyor').toList();
+      // TÜM verileri dön (taslak + arz + islem)
+      return results;
       
     } catch (e) {
       debugPrint('[IpoService] Firestore bağlantı hatası: $e');
       
-      // Çevrimdışı (Offline) kalındığında Cache'ten zorla yükleme Fallback'i
       try {
-        final fallbackSnapshot = await _db.collection('ipos').get(const GetOptions(source: Source.cache));
+        final fallbackSnapshot = await _db.collection('halka_arzlar').get(const GetOptions(source: Source.cache));
         return fallbackSnapshot.docs
             .map((d) {
                final data = d.data();
                data['sirket_kodu'] = d.id;
                return IpoModel.fromJson(data);
             })
-            .where((ipo) => ipo.durum == 'taslak' || ipo.durum == 'talep_topluyor')
             .toList();
       } catch (e2) {
         debugPrint('[IpoService] Cache fallback başarısız: $e2');

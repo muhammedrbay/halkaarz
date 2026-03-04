@@ -14,9 +14,9 @@ class IpoCard extends StatelessWidget {
     switch (ipo.durum) {
       case 'taslak':
         return const Color(0xFFFFBE0B);
-      case 'talep_topluyor':
+      case 'arz':
         return const Color(0xFF00D4AA);
-      case 'islem_goruyor':
+      case 'islem':
         return const Color(0xFF00B4D8);
       default:
         return Colors.white54;
@@ -27,10 +27,10 @@ class IpoCard extends StatelessWidget {
     switch (ipo.durum) {
       case 'taslak':
         return 'Taslak';
-      case 'talep_topluyor':
-        return 'Talep Topluyor';
-      case 'islem_goruyor':
-        return 'İşlem Görüyor';
+      case 'arz':
+        return 'Arz';
+      case 'islem':
+        return 'İşlem';
       default:
         return 'Bilinmiyor';
     }
@@ -40,9 +40,9 @@ class IpoCard extends StatelessWidget {
     switch (ipo.durum) {
       case 'taslak':
         return Icons.edit_note_rounded;
-      case 'talep_topluyor':
+      case 'arz':
         return Icons.how_to_vote_rounded;
-      case 'islem_goruyor':
+      case 'islem':
         return Icons.show_chart_rounded;
       default:
         return Icons.help_outline;
@@ -160,7 +160,7 @@ class IpoCard extends StatelessWidget {
                     'Arz Fiyatı',
                   ),
                   const SizedBox(width: 16),
-                  if (ipo.durum == 'islem_goruyor' && RealtimePriceService.getPrice(ipo.sirketKodu) != null) ...[
+                  if (ipo.durum == 'islem' && RealtimePriceService.getPrice(ipo.sirketKodu) != null) ...[
                     _buildInfoChip(
                       Icons.show_chart_rounded,
                       '₺${RealtimePriceService.getPrice(ipo.sirketKodu)!.toStringAsFixed(2)}',
@@ -210,7 +210,7 @@ class IpoCard extends StatelessWidget {
                 ],
               ),
 
-              if (ipo.talepBaslangic.isNotEmpty) ...[
+              if (ipo.tarih.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 Row(
                   children: [
@@ -221,7 +221,7 @@ class IpoCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      ipo.talepTarihAraligi,
+                      ipo.tarih,
                       style: GoogleFonts.inter(
                         color: Colors.white38,
                         fontSize: 11,

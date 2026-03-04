@@ -1,4 +1,4 @@
-/// Halka Arz (IPO) veri modeli
+/// Halka Arz (IPO) veri modeli — Firestore `halka_arzlar` koleksiyonuyla eşleşir
 class IpoModel {
   final String sirketKodu;
   final String sirketAdi;
@@ -6,23 +6,19 @@ class IpoModel {
   final int toplamLot;
   final String dagitimSekli;
   final String konsorsiyumLideri;
-  final double iskontoOrani;
-  final Map<String, dynamic> fonKullanimYeri;
   final bool katilimEndeksineUygun;
-  final String talepBaslangic;
-  final String talepBitis;
-  final String borsadaIslemTarihi;
-  final String durum; // taslak | talep_topluyor | islem_goruyor
-  final List<int> sonKatilimciSayilari;
-  final String guncellemeZamani;
-  // Yeni detay alanları
-  final String halkaArzSekli;
-  final String fonunKullanimYeriMetin;
-  final String satisYontemi;
-  final String tahsisatGruplari;
+  final String kisiBashiLot;
+  final String tarih;
+  final String durum; // taslak | arz | islem
+  final String pazar;
+  final String bistIlkIslemTarihi;
+  final String sirketAciklama;
   final int bireyselLot;
   final int bireyselYuzde;
-  final String sirketAciklama;
+  final String guncellemeZamani;
+  // İşlem gören hisseler için:
+  final dynamic sonFiyat; // double veya "Borsaya açılmadı henüz"
+  final Map<String, dynamic> fiyatGecmisi;
 
   IpoModel({
     required this.sirketKodu,
@@ -31,22 +27,18 @@ class IpoModel {
     required this.toplamLot,
     required this.dagitimSekli,
     required this.konsorsiyumLideri,
-    required this.iskontoOrani,
-    required this.fonKullanimYeri,
     required this.katilimEndeksineUygun,
-    required this.talepBaslangic,
-    required this.talepBitis,
-    required this.borsadaIslemTarihi,
+    required this.kisiBashiLot,
+    required this.tarih,
     required this.durum,
-    required this.sonKatilimciSayilari,
+    required this.pazar,
+    required this.bistIlkIslemTarihi,
+    required this.sirketAciklama,
+    required this.bireyselLot,
+    required this.bireyselYuzde,
     required this.guncellemeZamani,
-    this.halkaArzSekli = '',
-    this.fonunKullanimYeriMetin = '',
-    this.satisYontemi = '',
-    this.tahsisatGruplari = '',
-    this.bireyselLot = 0,
-    this.bireyselYuzde = 0,
-    this.sirketAciklama = '',
+    required this.sonFiyat,
+    required this.fiyatGecmisi,
   });
 
   factory IpoModel.fromJson(Map<String, dynamic> json) {
@@ -57,26 +49,18 @@ class IpoModel {
       toplamLot: json['toplam_lot'] ?? 0,
       dagitimSekli: json['dagitim_sekli'] ?? 'Eşit',
       konsorsiyumLideri: json['konsorsiyum_lideri'] ?? '',
-      iskontoOrani: (json['iskonto_orani'] ?? 0).toDouble(),
-      fonKullanimYeri: Map<String, dynamic>.from(
-        json['fon_kullanim_yeri'] ?? {},
-      ),
       katilimEndeksineUygun: json['katilim_endeksine_uygun'] ?? false,
-      talepBaslangic: json['talep_baslangic'] ?? '',
-      talepBitis: json['talep_bitis'] ?? '',
-      borsadaIslemTarihi: json['borsada_islem_tarihi'] ?? '',
+      kisiBashiLot: json['kisi_basi_lot']?.toString() ?? '',
+      tarih: json['tarih'] ?? '',
       durum: json['durum'] ?? 'taslak',
-      sonKatilimciSayilari: List<int>.from(
-        json['son_katilimci_sayilari'] ?? [],
-      ),
-      guncellemeZamani: json['guncelleme_zamani'] ?? '',
-      halkaArzSekli: json['halka_arz_sekli'] ?? '',
-      fonunKullanimYeriMetin: json['fonun_kullanim_yeri'] ?? '',
-      satisYontemi: json['satis_yontemi'] ?? '',
-      tahsisatGruplari: json['tahsisat_gruplari'] ?? '',
+      pazar: json['pazar'] ?? '',
+      bistIlkIslemTarihi: json['bist_ilk_islem_tarihi'] ?? '',
+      sirketAciklama: json['sirket_aciklama'] ?? '',
       bireyselLot: json['bireysel_lot'] ?? 0,
       bireyselYuzde: json['bireysel_yuzde'] ?? 0,
-      sirketAciklama: json['sirket_aciklama'] ?? '',
+      guncellemeZamani: json['guncelleme_zamani'] ?? '',
+      sonFiyat: json['son_fiyat'],
+      fiyatGecmisi: Map<String, dynamic>.from(json['fiyat_gecmisi'] ?? {}),
     );
   }
 
@@ -88,36 +72,29 @@ class IpoModel {
       'toplam_lot': toplamLot,
       'dagitim_sekli': dagitimSekli,
       'konsorsiyum_lideri': konsorsiyumLideri,
-      'iskonto_orani': iskontoOrani,
-      'fon_kullanim_yeri': fonKullanimYeri,
       'katilim_endeksine_uygun': katilimEndeksineUygun,
-      'talep_baslangic': talepBaslangic,
-      'talep_bitis': talepBitis,
-      'borsada_islem_tarihi': borsadaIslemTarihi,
+      'kisi_basi_lot': kisiBashiLot,
+      'tarih': tarih,
       'durum': durum,
-      'son_katilimci_sayilari': sonKatilimciSayilari,
-      'guncelleme_zamani': guncellemeZamani,
-      'halka_arz_sekli': halkaArzSekli,
-      'fonun_kullanim_yeri': fonunKullanimYeriMetin,
-      'satis_yontemi': satisYontemi,
-      'tahsisat_gruplari': tahsisatGruplari,
+      'pazar': pazar,
+      'bist_ilk_islem_tarihi': bistIlkIslemTarihi,
+      'sirket_aciklama': sirketAciklama,
       'bireysel_lot': bireyselLot,
       'bireysel_yuzde': bireyselYuzde,
-      'sirket_aciklama': sirketAciklama,
+      'guncelleme_zamani': guncellemeZamani,
+      'son_fiyat': sonFiyat,
+      'fiyat_gecmisi': fiyatGecmisi,
     };
   }
 
-  /// Talep toplama tarih aralığı formatlı metin
-  String get talepTarihAraligi {
-    if (talepBaslangic.isEmpty || talepBitis.isEmpty) return 'Belirtilmedi';
-    try {
-      final bas = DateTime.parse(talepBaslangic);
-      final bit = DateTime.parse(talepBitis);
-      return '${bas.day}.${bas.month.toString().padLeft(2, '0')}.${bas.year} - '
-          '${bit.day}.${bit.month.toString().padLeft(2, '0')}.${bit.year}';
-    } catch (_) {
-      return 'Belirtilmedi';
-    }
+  /// Halka arz fiyatı formatlanmış
+  String get arzFiyatiFormatli => '₺${arzFiyati.toStringAsFixed(2)}';
+
+  /// Son fiyat formatlanmış
+  String get sonFiyatFormatli {
+    if (sonFiyat == null) return 'Veri yok';
+    if (sonFiyat is String) return sonFiyat;
+    return '₺${(sonFiyat as num).toDouble().toStringAsFixed(2)}';
   }
 
   /// Toplam yatırım tutarı (1 lot için)
@@ -126,10 +103,6 @@ class IpoModel {
   /// Tahmini lot hesapla
   double tahminiLot(int tahminiKatilimciSayisi) {
     if (tahminiKatilimciSayisi <= 0) return 0;
-    if (dagitimSekli == 'Eşit') {
-      return toplamLot / tahminiKatilimciSayisi;
-    }
-    // Oransal dağıtım — basit eşit varsayım
     return toplamLot / tahminiKatilimciSayisi;
   }
 }

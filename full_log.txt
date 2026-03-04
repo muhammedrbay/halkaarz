@@ -1,0 +1,303 @@
+scrape-and-sync	Set up job	﻿2026-03-01T18:10:15.4637478Z Current runner version: '2.331.0'
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4663419Z ##[group]Runner Image Provisioner
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4664406Z Hosted Compute Agent
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4665203Z Version: 20260213.493
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4665965Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4667011Z Build Date: 2026-02-13T00:28:41Z
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4668025Z Worker ID: ***61f68e18-13c3-47c3-84cf-437afa10d959***
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4668965Z Azure Region: northcentralus
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4669986Z ##[endgroup]
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4671658Z ##[group]Operating System
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4672370Z Ubuntu
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4673035Z 24.04.3
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4673654Z LTS
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4674285Z ##[endgroup]
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4674912Z ##[group]Runner Image
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4675632Z Image: ubuntu-24.04
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4676588Z Version: 20260224.36.1
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4677782Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260224.36/images/ubuntu/Ubuntu2404-Readme.md
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4679560Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260224.36
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4680575Z ##[endgroup]
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4682413Z ##[group]GITHUB_TOKEN Permissions
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4685681Z Contents: read
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4687029Z Metadata: read
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4688131Z Packages: read
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4689112Z ##[endgroup]
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4692187Z Secret source: Actions
+scrape-and-sync	Set up job	2026-03-01T18:10:15.4693547Z Prepare workflow directory
+scrape-and-sync	Set up job	2026-03-01T18:10:15.5023728Z Prepare all required actions
+scrape-and-sync	Set up job	2026-03-01T18:10:15.5064390Z Getting action download info
+scrape-and-sync	Set up job	2026-03-01T18:10:15.8206977Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+scrape-and-sync	Set up job	2026-03-01T18:10:15.9472843Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+scrape-and-sync	Set up job	2026-03-01T18:10:16.1482373Z Complete job name: scrape-and-sync
+scrape-and-sync	📥 Proje Kodlarını Çek	﻿2026-03-01T18:10:16.2247043Z ##[group]Run actions/checkout@v4
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2248068Z with:
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2248581Z   repository: muhammedrbay/halkaarz
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2249395Z   token: ***
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2249866Z   ssh-strict: true
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2250353Z   ssh-user: git
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2250841Z   persist-credentials: true
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2251375Z   clean: true
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2251883Z   sparse-checkout-cone-mode: true
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2252441Z   fetch-depth: 1
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2252904Z   fetch-tags: false
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2253384Z   show-progress: true
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2253881Z   lfs: false
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2254346Z   submodules: false
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2254845Z   set-safe-directory: true
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.2255574Z ##[endgroup]
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3279936Z Syncing repository: muhammedrbay/halkaarz
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3281946Z ##[group]Getting Git version info
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3282714Z Working directory is '/home/runner/work/halkaarz/halkaarz'
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3283779Z [command]/usr/bin/git version
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3335256Z git version 2.53.0
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3359182Z ##[endgroup]
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3374292Z Temporarily overriding HOME='/home/runner/work/_temp/89bc8896-57dd-41fa-939f-a091c047f22b' before making global git config changes
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3376905Z Adding repository directory to the temporary git global config as a safe directory
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3389793Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/halkaarz/halkaarz
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3428943Z Deleting the contents of '/home/runner/work/halkaarz/halkaarz'
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3432535Z ##[group]Initializing the repository
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3436633Z [command]/usr/bin/git init /home/runner/work/halkaarz/halkaarz
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3522571Z hint: Using 'master' as the name for the initial branch. This default branch name
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3524440Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3526058Z hint: to use in all of your new repositories, which will suppress this warning,
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3528022Z hint: call:
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3528747Z hint:
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3529921Z hint: 	git config --global init.defaultBranch <name>
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3530963Z hint:
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3532041Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3533681Z hint: 'development'. The just-created branch can be renamed via this command:
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3534890Z hint:
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3535626Z hint: 	git branch -m <name>
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3536831Z hint:
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3537941Z hint: Disable this message with "git config set advice.defaultBranchName false"
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3539695Z Initialized empty Git repository in /home/runner/work/halkaarz/halkaarz/.git/
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3542589Z [command]/usr/bin/git remote add origin https://github.com/muhammedrbay/halkaarz
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3571944Z ##[endgroup]
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3573406Z ##[group]Disabling automatic garbage collection
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3576760Z [command]/usr/bin/git config --local gc.auto 0
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3603209Z ##[endgroup]
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3604471Z ##[group]Setting up auth
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3610769Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3639550Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3915887Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.3943526Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.4121941Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.4148982Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.4340126Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.4372339Z ##[endgroup]
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.4373883Z ##[group]Fetching the repository
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.4381581Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +ef12d60ca05cfb4439d6b5c9f0b00c6485aeafe8:refs/remotes/origin/main
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.7809049Z From https://github.com/muhammedrbay/halkaarz
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.7811264Z  * [new ref]         ef12d60ca05cfb4439d6b5c9f0b00c6485aeafe8 -> origin/main
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.7842323Z ##[endgroup]
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.7843961Z ##[group]Determining the checkout info
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.7845801Z ##[endgroup]
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.7851333Z [command]/usr/bin/git sparse-checkout disable
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.7895858Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.7924027Z ##[group]Checking out the ref
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.7928694Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.8034868Z Switched to a new branch 'main'
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.8036501Z branch 'main' set up to track 'origin/main'.
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.8042613Z ##[endgroup]
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.8075846Z [command]/usr/bin/git log -1 --format=%H
+scrape-and-sync	📥 Proje Kodlarını Çek	2026-03-01T18:10:16.8095882Z ef12d60ca05cfb4439d6b5c9f0b00c6485aeafe8
+scrape-and-sync	🐍 Python 3 Kurulumu	﻿2026-03-01T18:10:16.8337645Z ##[group]Run actions/setup-python@v5
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:16.8338411Z with:
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:16.8338900Z   python-version: 3.12
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:16.8339442Z   cache: pip
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:16.8339937Z   check-latest: false
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:16.8340664Z   token: ***
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:16.8341173Z   update-environment: true
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:16.8341772Z   allow-prereleases: false
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:16.8342361Z   freethreaded: false
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:16.8342899Z ##[endgroup]
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:16.9916655Z ##[group]Installed versions
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:17.0022128Z Successfully set up CPython (3.12.12)
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:17.0023737Z ##[endgroup]
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:17.0557909Z [command]/opt/hostedtoolcache/Python/3.12.12/x64/bin/pip cache dir
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:17.3122391Z /home/runner/.cache/pip
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:17.4478062Z Cache hit for: setup-python-Linux-x64-24.04-Ubuntu-python-3.12.12-pip-412951c19fc37e15c8d6940dc1ebe7bde1226260975a4d79a4ccfe458f3e8464
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:18.0857867Z Received 32783699 of 32783699 (100.0%), 59.8 MBs/sec
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:18.0858801Z Cache Size: ~31 MB (32783699 B)
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:18.0896442Z [command]/usr/bin/tar -xf /home/runner/work/_temp/fe090b79-844b-4997-a44c-cf991f0d5aa9/cache.tzst -P -C /home/runner/work/halkaarz/halkaarz --use-compress-program unzstd
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:18.1426707Z Cache restored successfully
+scrape-and-sync	🐍 Python 3 Kurulumu	2026-03-01T18:10:18.1483276Z Cache restored from key: setup-python-Linux-x64-24.04-Ubuntu-python-3.12.12-pip-412951c19fc37e15c8d6940dc1ebe7bde1226260975a4d79a4ccfe458f3e8464
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	﻿2026-03-01T18:10:18.1631273Z ##[group]Run python -m pip install --upgrade pip
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:18.1631891Z [36;1mpython -m pip install --upgrade pip[0m
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:18.1632344Z [36;1mpip install -r backend/requirements.txt[0m
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:18.1666862Z shell: /usr/bin/bash -e ***0***
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:18.1667234Z env:
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:18.1667563Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:18.1668050Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:18.1668515Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:18.1668951Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:18.1669374Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:18.1669835Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:18.1670197Z ##[endgroup]
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:18.6817695Z Requirement already satisfied: pip in /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages (26.0.1)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.1880622Z Collecting beautifulsoup4==4.12.3 (from -r backend/requirements.txt (line 1))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.1893297Z   Using cached beautifulsoup4-4.12.3-py3-none-any.whl.metadata (3.8 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.2067234Z Collecting requests==2.31.0 (from -r backend/requirements.txt (line 2))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.2079920Z   Using cached requests-2.31.0-py3-none-any.whl.metadata (4.6 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.2227229Z Collecting firebase-admin==6.4.0 (from -r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.2239140Z   Using cached firebase_admin-6.4.0-py3-none-any.whl.metadata (1.5 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.2382598Z Collecting soupsieve>1.2 (from beautifulsoup4==4.12.3->-r backend/requirements.txt (line 1))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.2394658Z   Using cached soupsieve-2.8.3-py3-none-any.whl.metadata (4.6 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.3027191Z Collecting charset-normalizer<4,>=2 (from requests==2.31.0->-r backend/requirements.txt (line 2))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.3041125Z   Using cached charset_normalizer-3.4.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (37 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.3169841Z Collecting idna<4,>=2.5 (from requests==2.31.0->-r backend/requirements.txt (line 2))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.3181966Z   Using cached idna-3.11-py3-none-any.whl.metadata (8.4 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.3368338Z Collecting urllib3<3,>=1.21.1 (from requests==2.31.0->-r backend/requirements.txt (line 2))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.3379942Z   Using cached urllib3-2.6.3-py3-none-any.whl.metadata (6.9 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.3653946Z Collecting certifi>=2017.4.17 (from requests==2.31.0->-r backend/requirements.txt (line 2))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.3664850Z   Using cached certifi-2026.2.25-py3-none-any.whl.metadata (2.5 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.3774832Z Collecting cachecontrol>=0.12.6 (from firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.3785548Z   Using cached cachecontrol-0.14.4-py3-none-any.whl.metadata (3.1 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.4176560Z Collecting google-api-python-client>=1.7.8 (from firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.4188117Z   Using cached google_api_python_client-2.190.0-py3-none-any.whl.metadata (7.0 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.4382491Z Collecting google-cloud-storage>=1.37.1 (from firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.4391973Z   Using cached google_cloud_storage-3.9.0-py3-none-any.whl.metadata (15 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.4553026Z Collecting pyjwt>=2.5.0 (from pyjwt[crypto]>=2.5.0->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.4564164Z   Using cached pyjwt-2.11.0-py3-none-any.whl.metadata (4.0 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.4839909Z Collecting google-api-core<3.0.0dev,>=1.22.1 (from google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.4851514Z   Using cached google_api_core-2.30.0-py3-none-any.whl.metadata (3.1 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.5015885Z Collecting google-cloud-firestore>=2.9.1 (from firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.5027264Z   Using cached google_cloud_firestore-2.23.0-py3-none-any.whl.metadata (10 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.5171389Z Collecting googleapis-common-protos<2.0.0,>=1.56.3 (from google-api-core<3.0.0dev,>=1.22.1->google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.5182217Z   Using cached googleapis_common_protos-1.72.0-py3-none-any.whl.metadata (9.4 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.6407117Z Collecting protobuf<7.0.0,>=4.25.8 (from google-api-core<3.0.0dev,>=1.22.1->google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.6419128Z   Using cached protobuf-6.33.5-cp39-abi3-manylinux2014_x86_64.whl.metadata (593 bytes)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.6564810Z Collecting proto-plus<2.0.0,>=1.22.3 (from google-api-core<3.0.0dev,>=1.22.1->google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.6575563Z   Using cached proto_plus-1.27.1-py3-none-any.whl.metadata (2.2 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.6818488Z Collecting google-auth<3.0.0,>=2.14.1 (from google-api-core<3.0.0dev,>=1.22.1->google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:19.6831044Z   Using cached google_auth-2.48.0-py3-none-any.whl.metadata (6.2 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.1027626Z Collecting grpcio<2.0.0,>=1.33.2 (from google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.1041314Z   Using cached grpcio-1.78.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (3.8 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.1333422Z Collecting grpcio-status<2.0.0,>=1.33.2 (from google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.1346358Z   Using cached grpcio_status-1.78.0-py3-none-any.whl.metadata (1.3 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.1553330Z Collecting pyasn1-modules>=0.2.1 (from google-auth<3.0.0,>=2.14.1->google-api-core<3.0.0dev,>=1.22.1->google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.1565676Z   Using cached pyasn1_modules-0.4.2-py3-none-any.whl.metadata (3.5 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.2966909Z Collecting cryptography>=38.0.3 (from google-auth<3.0.0,>=2.14.1->google-api-core<3.0.0dev,>=1.22.1->google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.2978366Z   Using cached cryptography-46.0.5-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (5.7 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.3134456Z Collecting rsa<5,>=3.1.4 (from google-auth<3.0.0,>=2.14.1->google-api-core<3.0.0dev,>=1.22.1->google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.3146619Z   Using cached rsa-4.9.1-py3-none-any.whl.metadata (5.6 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.3358359Z Collecting typing-extensions~=4.12 (from grpcio<2.0.0,>=1.33.2->google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.3370498Z   Using cached typing_extensions-4.15.0-py3-none-any.whl.metadata (3.3 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.3689704Z Collecting pyasn1>=0.1.3 (from rsa<5,>=3.1.4->google-auth<3.0.0,>=2.14.1->google-api-core<3.0.0dev,>=1.22.1->google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.3702300Z   Using cached pyasn1-0.6.2-py3-none-any.whl.metadata (8.4 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.4257842Z Collecting msgpack<2.0.0,>=0.5.2 (from cachecontrol>=0.12.6->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.4271394Z   Using cached msgpack-1.1.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.1 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5104545Z Collecting cffi>=2.0.0 (from cryptography>=38.0.3->google-auth<3.0.0,>=2.14.1->google-api-core<3.0.0dev,>=1.22.1->google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5118133Z   Using cached cffi-2.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.6 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5214449Z Collecting pycparser (from cffi>=2.0.0->cryptography>=38.0.3->google-auth<3.0.0,>=2.14.1->google-api-core<3.0.0dev,>=1.22.1->google-api-core[grpc]<3.0.0dev,>=1.22.1; platform_python_implementation != "PyPy"->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5227251Z   Using cached pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5357477Z Collecting httplib2<1.0.0,>=0.19.0 (from google-api-python-client>=1.7.8->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5369136Z   Using cached httplib2-0.31.2-py3-none-any.whl.metadata (2.2 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5501224Z Collecting google-auth-httplib2<1.0.0,>=0.2.0 (from google-api-python-client>=1.7.8->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5512796Z   Using cached google_auth_httplib2-0.3.0-py3-none-any.whl.metadata (3.1 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5598022Z Collecting uritemplate<5,>=3.0.1 (from google-api-python-client>=1.7.8->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5609439Z   Using cached uritemplate-4.2.0-py3-none-any.whl.metadata (2.6 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5798919Z Collecting pyparsing<4,>=3.1 (from httplib2<1.0.0,>=0.19.0->google-api-python-client>=1.7.8->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5811120Z   Using cached pyparsing-3.3.2-py3-none-any.whl.metadata (5.8 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5970502Z Collecting google-cloud-core<3.0.0,>=1.4.1 (from google-cloud-firestore>=2.9.1->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.5982508Z   Using cached google_cloud_core-2.5.0-py3-none-any.whl.metadata (3.1 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.6750616Z Collecting google-resumable-media<3.0.0,>=2.7.2 (from google-cloud-storage>=1.37.1->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.6761930Z   Using cached google_resumable_media-2.8.0-py3-none-any.whl.metadata (2.6 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7169547Z Collecting google-crc32c<2.0.0,>=1.1.3 (from google-cloud-storage>=1.37.1->firebase-admin==6.4.0->-r backend/requirements.txt (line 3))
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7182442Z   Using cached google_crc32c-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl.metadata (1.7 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7362234Z Using cached beautifulsoup4-4.12.3-py3-none-any.whl (147 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7374054Z Using cached requests-2.31.0-py3-none-any.whl (62 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7384495Z Using cached firebase_admin-6.4.0-py3-none-any.whl (120 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7395889Z Using cached charset_normalizer-3.4.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (153 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7406434Z Using cached google_api_core-2.30.0-py3-none-any.whl (173 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7417292Z Using cached google_auth-2.48.0-py3-none-any.whl (236 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7428374Z Using cached googleapis_common_protos-1.72.0-py3-none-any.whl (297 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7440229Z Using cached grpcio-1.78.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (6.7 MB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7486291Z Using cached grpcio_status-1.78.0-py3-none-any.whl (14 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7495931Z Using cached idna-3.11-py3-none-any.whl (71 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7506318Z Using cached proto_plus-1.27.1-py3-none-any.whl (50 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7516356Z Using cached protobuf-6.33.5-cp39-abi3-manylinux2014_x86_64.whl (323 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7527848Z Using cached rsa-4.9.1-py3-none-any.whl (34 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7537543Z Using cached typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7547627Z Using cached urllib3-2.6.3-py3-none-any.whl (131 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7557943Z Using cached cachecontrol-0.14.4-py3-none-any.whl (22 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7568298Z Using cached msgpack-1.1.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (427 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7580188Z Using cached certifi-2026.2.25-py3-none-any.whl (153 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7590818Z Using cached cryptography-46.0.5-cp311-abi3-manylinux_2_34_x86_64.whl (4.5 MB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7625313Z Using cached cffi-2.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (219 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7635532Z Using cached google_api_python_client-2.190.0-py3-none-any.whl (14.7 MB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7723618Z Using cached google_auth_httplib2-0.3.0-py3-none-any.whl (9.5 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7732830Z Using cached httplib2-0.31.2-py3-none-any.whl (91 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7743094Z Using cached pyparsing-3.3.2-py3-none-any.whl (122 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7753256Z Using cached uritemplate-4.2.0-py3-none-any.whl (11 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7763139Z Using cached google_cloud_firestore-2.23.0-py3-none-any.whl (411 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7775058Z Using cached google_cloud_core-2.5.0-py3-none-any.whl (29 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7784818Z Using cached google_cloud_storage-3.9.0-py3-none-any.whl (321 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7796930Z Using cached google_crc32c-1.8.0-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl (33 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7806646Z Using cached google_resumable_media-2.8.0-py3-none-any.whl (81 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7816558Z Using cached pyasn1-0.6.2-py3-none-any.whl (83 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7826567Z Using cached pyasn1_modules-0.4.2-py3-none-any.whl (181 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7837544Z Using cached pyjwt-2.11.0-py3-none-any.whl (28 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7847324Z Using cached soupsieve-2.8.3-py3-none-any.whl (37 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.7857143Z Using cached pycparser-3.0-py3-none-any.whl (48 kB)
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:20.8896309Z Installing collected packages: urllib3, uritemplate, typing-extensions, soupsieve, pyparsing, pyjwt, pycparser, pyasn1, protobuf, msgpack, idna, google-crc32c, charset-normalizer, certifi, rsa, requests, pyasn1-modules, proto-plus, httplib2, grpcio, googleapis-common-protos, google-resumable-media, cffi, beautifulsoup4, grpcio-status, cryptography, cachecontrol, google-auth, google-auth-httplib2, google-api-core, google-cloud-core, google-api-python-client, google-cloud-storage, google-cloud-firestore, firebase-admin
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:23.1759411Z 
+scrape-and-sync	📦 Gerekli Kütüphaneleri Yükle	2026-03-01T18:10:23.1790454Z Successfully installed beautifulsoup4-4.12.3 cachecontrol-0.14.4 certifi-2026.2.25 cffi-2.0.0 charset-normalizer-3.4.4 cryptography-46.0.5 firebase-admin-6.4.0 google-api-core-2.30.0 google-api-python-client-2.190.0 google-auth-2.48.0 google-auth-httplib2-0.3.0 google-cloud-core-2.5.0 google-cloud-firestore-2.23.0 google-cloud-storage-3.9.0 google-crc32c-1.8.0 google-resumable-media-2.8.0 googleapis-common-protos-1.72.0 grpcio-1.78.0 grpcio-status-1.78.0 httplib2-0.31.2 idna-3.11 msgpack-1.1.2 proto-plus-1.27.1 protobuf-6.33.5 pyasn1-0.6.2 pyasn1-modules-0.4.2 pycparser-3.0 pyjwt-2.11.0 pyparsing-3.3.2 requests-2.31.0 rsa-4.9.1 soupsieve-2.8.3 typing-extensions-4.15.0 uritemplate-4.2.0 urllib3-2.6.3
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	﻿2026-03-01T18:10:23.4690481Z ##[group]Run python backend/kap_scraper.py
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:23.4690895Z [36;1mpython backend/kap_scraper.py[0m
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:23.4720805Z shell: /usr/bin/bash -e ***0***
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:23.4721129Z env:
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:23.4721461Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:23.4721946Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:23.4722405Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:23.4722824Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:23.4723242Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:23.4723665Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:23.4732589Z   FIREBASE_CREDENTIALS: ***
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:23.4732890Z ##[endgroup]
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7421899Z [✓] Firebase Firestore bağlantısı tamam.
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7422754Z ==========================================================
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7423440Z   Halka Arz Bot  —  2026-03-01 18:10:24
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7423943Z ==========================================================
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7424295Z 
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7424570Z [■] halkarz.com ana sayfa çekiliyor...
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7425178Z   21 öğe bulundu. Kronolojik tarama başlıyor...
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7425425Z 
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7425700Z   ↳ (MetropolCard) Metropal Kurumsal Hizmetler A.Ş. (MCARD) | taslak
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7426600Z     Detay sayfası çekiliyor: https://halkarz.com/metropal-kurumsal-hizmetler-a-s/
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7427203Z   ↳ Luxera Gayrimenkul Yatırım Ortaklığı A.Ş. (LXGYO) | taslak
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7427798Z     Detay sayfası çekiliyor: https://halkarz.com/luxera-gayrimenkul-yatirim-ortakligi-a-s/
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7428403Z   ↳ Gentaş Kimya San. ve Tic. Pazarlama A.Ş. (GENKM) | taslak
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7428986Z     Detay sayfası çekiliyor: https://halkarz.com/gentas-kimya-san-ve-tic-pazarlama-a-s/
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7429585Z   ↳ Savur Gayrimenkul Yatırım Ortaklığı A.Ş. (SVGYO) | talep_topluyor
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7430203Z     Detay sayfası çekiliyor: https://halkarz.com/savur-gayrimenkul-yatirim-ortakligi-a-s/
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7430817Z   [SON] Empa Elektronik San. ve Tic. A.Ş. geçmişte → tarama durduruluyor.
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7431126Z 
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7431328Z [✓] 4 aktif halka arz bulundu (sadece taslak + talep).
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7431786Z   [✓] MCARD    (MetropolCard) Metropal Kurumsal Hizmetl → taslak
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7432273Z   [✓] LXGYO    Luxera Gayrimenkul Yatırım Ortaklığı A.Ş → taslak
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7432738Z   [✓] GENKM    Gentaş Kimya San. ve Tic. Pazarlama A.Ş. → taslak
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7433228Z   [✓] SVGYO    Savur Gayrimenkul Yatırım Ortaklığı A.Ş. → talep_topluyor
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7433501Z 
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7433665Z ── 4 kayıt Firestore'a yazıldı. ──
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7433859Z 
+scrape-and-sync	🚀 KAP Veri Kazıyıcısını (Scraper) Çalıştır	2026-03-01T18:10:34.7434034Z [İSTATİSTİK] Taslak:3 | Talep:1 | Toplam:4
+scrape-and-sync	Post 🐍 Python 3 Kurulumu	﻿2026-03-01T18:10:34.8263647Z Post job cleanup.
+scrape-and-sync	Post 🐍 Python 3 Kurulumu	2026-03-01T18:10:34.9772689Z Cache hit occurred on the primary key setup-python-Linux-x64-24.04-Ubuntu-python-3.12.12-pip-412951c19fc37e15c8d6940dc1ebe7bde1226260975a4d79a4ccfe458f3e8464, not saving cache.
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	﻿2026-03-01T18:10:34.9958027Z Post job cleanup.
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.0836982Z [command]/usr/bin/git version
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.0871209Z git version 2.53.0
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.0910006Z Temporarily overriding HOME='/home/runner/work/_temp/15854dfa-c23c-4105-84e4-0c15a886dc14' before making global git config changes
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.0911132Z Adding repository directory to the temporary git global config as a safe directory
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.0915515Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/halkaarz/halkaarz
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.0950410Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.0982346Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.1175534Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.1195077Z http.https://github.com/.extraheader
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.1206075Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.1232585Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.1412909Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+scrape-and-sync	Post 📥 Proje Kodlarını Çek	2026-03-01T18:10:35.1441016Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+scrape-and-sync	Complete job	﻿2026-03-01T18:10:35.1723010Z Cleaning up orphan processes

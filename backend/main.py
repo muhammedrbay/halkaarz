@@ -216,8 +216,7 @@ def fetch_detail(url):
     defaults = {
         "arz_fiyati": 0.0, "toplam_lot": 0, "dagitim_sekli": "Eşit",
         "konsorsiyum_lideri": "", "katilim_endeksine_uygun": False,
-        "kisi_basi_lot": "", "halka_arz_sekli": "", "fonun_kullanim_yeri": "",
-        "satis_yontemi": "", "tahsisat_gruplari": "",
+        "kisi_basi_lot": "",
         "bireysel_lot": 0, "bireysel_yuzde": 0, "sirket_aciklama": "",
         "pazar": "", "bist_ilk_islem_tarihi": "",
     }
@@ -245,19 +244,7 @@ def fetch_detail(url):
     if not body: return d
     full_text = body.get_text("\n", strip=True)
 
-    section_headers = ["Halka Arz Şekli", "Fonun Kullanım Yeri", "Halka Arz Satış Yöntemi", "Tahsisat Grupları", "Dağıtılacak Pay Miktarı", "Katılım Endeksi", "Özet Bilgiler", "Forum", "Başvuru Yerleri", "Halka Arz Bilgileri", "Grafiği"]
-
-    for key, header in [("halka_arz_sekli", "Halka Arz Şekli"), ("fonun_kullanim_yeri", "Fonun Kullanım Yeri"), ("satis_yontemi", "Halka Arz Satış Yöntemi"), ("tahsisat_gruplari", "Tahsisat Grupları")]:
-        lt = full_text.lower()
-        start = lt.find(header.lower())
-        if start < 0: continue
-        start += len(header)
-        end = len(full_text)
-        for nh in section_headers:
-            pos = lt.find(nh.lower(), start)
-            if 0 < pos < end: end = pos
-        sec = full_text[start:end].strip()
-        if sec: d[key] = sec
+    # Katılım endeksi kontrolü aşağıda yapılıyor
 
     if "katılım endeksi" in full_text.lower():
         idx = full_text.lower().find("katılım endeksi")
@@ -413,9 +400,8 @@ def main():
             "arz_fiyati": det["arz_fiyati"], "toplam_lot": det["toplam_lot"],
             "dagitim_sekli": det["dagitim_sekli"], "konsorsiyum_lideri": det["konsorsiyum_lideri"],
             "katilim_endeksine_uygun": det["katilim_endeksine_uygun"],
-            "kisi_basi_lot": det["kisi_basi_lot"], "halka_arz_sekli": det["halka_arz_sekli"],
-            "fonun_kullanim_yeri": det["fonun_kullanim_yeri"], "satis_yontemi": det["satis_yontemi"],
-            "tahsisat_gruplari": det["tahsisat_gruplari"], "bireysel_lot": det["bireysel_lot"],
+            "kisi_basi_lot": det["kisi_basi_lot"],
+            "bireysel_lot": det["bireysel_lot"],
             "bireysel_yuzde": det["bireysel_yuzde"], "sirket_aciklama": det["sirket_aciklama"],
             "pazar": det["pazar"], "bist_ilk_islem_tarihi": det["bist_ilk_islem_tarihi"],
             "guncelleme_zamani": bugun.isoformat(),

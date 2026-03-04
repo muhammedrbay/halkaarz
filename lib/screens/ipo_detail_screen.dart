@@ -95,8 +95,8 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
                     _buildInfoRow('Dağıtım Şekli', ipo.dagitimSekli),
                     _buildInfoRow('Konsorsiyum Lideri', ipo.konsorsiyumLideri),
                     _buildInfoRow(
-                      'İskonto Oranı',
-                      '%${ipo.iskontoOrani.toStringAsFixed(1)}',
+                      'Pazar',
+                      ipo.pazar.isEmpty ? 'Belirtilmedi' : ipo.pazar,
                     ),
                     _buildInfoRow(
                       'Katılım Endeksine Uygun',
@@ -110,69 +110,36 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
                   _buildSectionTitle('Tarihler'),
                   const SizedBox(height: 12),
                   _buildInfoCard([
-                    _buildInfoRow('Talep Toplama', ipo.talepTarihAraligi),
+                    _buildInfoRow('Halka Arz Tarihi', ipo.tarih.isEmpty ? 'Belirtilmedi' : ipo.tarih),
                     _buildInfoRow(
-                      'Borsada İşlem',
-                      ipo.borsadaIslemTarihi.isEmpty
+                      'Bist İlk İşlem',
+                      ipo.bistIlkIslemTarihi.isEmpty
                           ? 'Belirtilmedi'
-                          : _formatDate(ipo.borsadaIslemTarihi),
+                          : ipo.bistIlkIslemTarihi,
                     ),
+                    if (ipo.durum == 'islem' && ipo.sonFiyat != null)
+                      _buildInfoRow('Son Fiyat', ipo.sonFiyatFormatli),
                   ]),
 
                   const SizedBox(height: 20),
 
-                  // Fon Kullanım Yeri (Pie Chart benzeri gösterim)
-                  if (ipo.fonKullanimYeri.isNotEmpty) ...[
-                    _buildSectionTitle('Fon Kullanım Yeri (Grafik)'),
+                  // İşlem gören hisseler için açıklama
+                  if (ipo.durum == 'islem' &&
+                      ipo.sirketAciklama.isNotEmpty) ...[
+                    _buildSectionTitle('Şirket Açıklaması'),
                     const SizedBox(height: 12),
-                    _buildFonKullanimCard(ipo),
-                    const SizedBox(height: 20),
-                  ],
-
-                  // Fon Kullanım Yeri Metin Detayı
-                  if (ipo.fonunKullanimYeriMetin.isNotEmpty) ...[
-                    _buildSectionTitle('Fon Kullanım Yeri (Detay)'),
-                    const SizedBox(height: 12),
-                    _buildTextSection(ipo.fonunKullanimYeriMetin),
-                    const SizedBox(height: 20),
-                  ],
-
-                  // Halka Arz Şekli
-                  if (ipo.halkaArzSekli.isNotEmpty) ...[
-                    _buildSectionTitle('Halka Arz Şekli'),
-                    const SizedBox(height: 12),
-                    _buildTextSection(ipo.halkaArzSekli),
-                    const SizedBox(height: 20),
-                  ],
-
-                  // Satış Yöntemi
-                  if (ipo.satisYontemi.isNotEmpty) ...[
-                    _buildSectionTitle('Satış Yöntemi'),
-                    const SizedBox(height: 12),
-                    _buildTextSection(ipo.satisYontemi),
-                    const SizedBox(height: 20),
-                  ],
-
-                  // Tahsisat Grupları
-                  if (ipo.tahsisatGruplari.isNotEmpty) ...[
-                    _buildSectionTitle('Tahsisat Grupları'),
-                    const SizedBox(height: 12),
-                    _buildTextSection(ipo.tahsisatGruplari),
-                    const SizedBox(height: 20),
-                  ],
-
-                  // Şirket Açıklaması
-                  if (ipo.sirketAciklama.isNotEmpty) ...[
-                    _buildSectionTitle('Şirket Hakkında'),
-                    const SizedBox(height: 12),
-                    _buildTextSection(ipo.sirketAciklama),
-                    const SizedBox(height: 24),
-                  ],
-
-                  // ---- Kişi Başı Lot Kartı (sadece sonuçlanmış arzlarda) ----
-                  if (ipo.durum == 'islem_goruyor' &&
-                      ipo.sonKatilimciSayilari.isNotEmpty) ...[
-                    _buildKisiBasiLotCard(ipo),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1A1F38),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFF2A2F4A), width: 0.5),
+                      ),
+                      child: Text(
+                        ipo.sirketAciklama,
+                        style: GoogleFonts.inter(color: Colors.white70, fontSize: 13, height: 1.5),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                   ],
 
@@ -259,134 +226,7 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
     );
   }
 
-  Widget _buildFonKullanimCard(IpoModel ipo) {
-    if (ipo.fonKullanimYeri.isEmpty) return const SizedBox();
-
-    final dynamicEntries = ipo.fonKullanimYeri.entries.toList();
-    // Sort descending by percentage
-    dynamicEntries.sort((a, b) => (b.value as num).compareTo(a.value as num));
-
-    final entries = dynamicEntries.map((e) {
-      return MapEntry(e.key.toString(), (e.value as num).toDouble());
-    }).toList();
-
-    final colors = [
-      const Color(0xFF00D4AA),
-      const Color(0xFF00B4D8),
-      const Color(0xFFFFBE0B),
-      const Color(0xFFFF5252),
-      const Color(0xFFE040FB),
-      const Color(0xFF00E676),
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1F38),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF2A2F4A), width: 0.5),
-      ),
-      child: Column(
-        children: [
-          // Bar chart gösterimi
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: SizedBox(
-              height: 20,
-              child: Row(
-                children: entries.asMap().entries.map((e) {
-                  final pct = e.value.value;
-                  return Expanded(
-                    flex: pct.toInt().clamp(1, 100),
-                    child: Container(color: colors[e.key % colors.length]),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          ...entries.asMap().entries.map((e) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: colors[e.key % colors.length],
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    e.value.key,
-                    style: GoogleFonts.inter(
-                      color: Colors.white70,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    '%${e.value.value.toStringAsFixed(0)}',
-                    style: GoogleFonts.inter(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextSection(String text) {
-    final lines = text.split('\n').where((l) => l.trim().isNotEmpty).toList();
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1F38),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF2A2F4A), width: 0.5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: lines.map((line) {
-          final isBullet = line.trim().startsWith('-');
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 3),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (isBullet) ...[
-                  const Padding(
-                    padding: EdgeInsets.only(top: 6),
-                    child: Icon(Icons.circle, size: 6, color: Color(0xFF00D4AA)),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: Text(
-                    isBullet ? line.trim().substring(1).trim() : line.trim(),
-                    style: GoogleFonts.inter(
-                      color: Colors.white70,
-                      fontSize: 13,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
+  // _buildFonKullanimCard kaldırıldı (artık fonKullanimYeri verisi çekilmiyor)
 
   Widget _buildCalculatorCard(IpoModel ipo) {
     return Container(
@@ -534,153 +374,49 @@ class _IpoDetailScreenState extends State<IpoDetailScreen> {
             ),
           ],
 
-          // Son 3 Halka Arza Katılan Kişi Sayıları
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF12162B),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.history_rounded,
-                      color: Color(0xFFFFBE0B),
-                      size: 16,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Son 3 Halka Arza Katılan Kişi Sayıları',
-                      style: GoogleFonts.inter(
-                        color: Color(0xFFFFBE0B),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                if (ipo.sonKatilimciSayilari.isEmpty)
-                  Text(
-                    'Henüz referans verisi yok',
-                    style: GoogleFonts.inter(
-                      color: Colors.white38,
-                      fontSize: 12,
-                    ),
-                  )
-                else
-                  ...ipo.sonKatilimciSayilari.asMap().entries.map((e) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 3),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 20,
-                            height: 20,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.05),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Text(
-                              '${e.key + 1}',
-                              style: GoogleFonts.inter(
-                                color: Colors.white38,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${_formatNumber(e.value)} kişi',
-                            style: GoogleFonts.inter(
-                              color: Colors.white70,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildKisiBasiLotCard(IpoModel ipo) {
-    final katilimci = ipo.sonKatilimciSayilari.last;
-    final kisiBasiLot = katilimci > 0 ? (ipo.toplamLot / katilimci) : 0.0;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFF00D4AA).withValues(alpha: 0.08),
-            const Color(0xFF00B4D8).withValues(alpha: 0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: const Color(0xFF00D4AA).withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF00D4AA).withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.person_rounded,
-              color: Color(0xFF00D4AA),
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Kişi Başı Ortalama',
-                  style: GoogleFonts.inter(color: Colors.white54, fontSize: 12),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${kisiBasiLot.toStringAsFixed(1)} Lot Düştü',
-                  style: GoogleFonts.inter(
-                    color: const Color(0xFF00D4AA),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
+          // Kişi Başı Lot Bilgisi
+          if (ipo.kisiBashiLot.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF12162B),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.person_rounded,
+                    color: Color(0xFFFFBE0B),
+                    size: 16,
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${_formatNumber(ipo.toplamLot)} lot / ${_formatNumber(katilimci)} kişi',
-                  style: GoogleFonts.inter(color: Colors.white38, fontSize: 11),
-                ),
-              ],
+                  const SizedBox(width: 6),
+                  Text(
+                    'Kişi Başı Lot: ',
+                    style: GoogleFonts.inter(
+                      color: Color(0xFFFFBE0B),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    ipo.kisiBashiLot,
+                    style: GoogleFonts.inter(
+                      color: Colors.white70,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
   }
+
+  // _buildKisiBasiLotCard kaldırıldı (sonKatilimciSayilari artık yok)
 
   Widget _buildAddToPortfolioButton(IpoModel ipo) {
     return SizedBox(
