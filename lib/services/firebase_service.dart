@@ -54,8 +54,10 @@ class FirebaseService {
     if (Platform.isIOS) {
       String? apnsToken;
       for (int i = 0; i < 10; i++) {
-        apnsToken = await messaging.getAPNSToken();
-        if (apnsToken != null) break;
+        try {
+          apnsToken = await messaging.getAPNSToken();
+          if (apnsToken != null) break;
+        } catch (_) {}
         await Future.delayed(const Duration(seconds: 1));
       }
       if (apnsToken == null) {
