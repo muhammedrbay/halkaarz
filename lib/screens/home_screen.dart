@@ -34,26 +34,22 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+    // Önce cache'ten göster (anında — spinner yok)
+    final cached = await IpoService.getIpos();
+    if (cached.isNotEmpty && mounted) {
+      setState(() {
+        _allIpos = cached;
+        _isLoading = false;
+      });
+    }
+    // Arka planda RTDB fiyatları güncelle (cache 3dk)
     try {
-      final ipos = await IpoService.getIpos();
-      // Yenile butonuna/pull-to-refresh'e tıklandığında cache'i atla ve Firebase'den taze çek
-      await RealtimePriceService.fetchAll(forceRefresh: true);
-      if (mounted) {
-        setState(() {
-          _allIpos = ipos;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      final ipos = await IpoService.getIpos();
-      await RealtimePriceService.fetchAll(forceRefresh: true);
-      if (mounted) {
-        setState(() {
-          _allIpos = ipos;
-          _isLoading = false;
-        });
-      }
+      await RealtimePriceService.fetchAll();
+      if (mounted) setState(() {});
+    } catch (_) {}
+    // Hâlâ veri yoksa loading kapat
+    if (_isLoading && mounted) {
+      setState(() => _isLoading = false);
     }
   }
 
