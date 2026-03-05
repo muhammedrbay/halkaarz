@@ -116,6 +116,45 @@ class HistoricalIpo {
     return DateTime.now();
   }
 
+  /// fiyat_gecmisi map → sorted sparkline list
+  static List<double> _buildSparkline(Map<String, dynamic> j) {
+    // Önce mevcut sparkline varsa onu kullan
+    final existing = j['sparkline'] as List<dynamic>?;
+    if (existing != null && existing.isNotEmpty) {
+      return existing.map((e) => (e as num).toDouble()).toList();
+    }
+    // fiyat_gecmisi map'ten oluştur
+    final gecmis = j['fiyat_gecmisi'];
+    if (gecmis is Map && gecmis.isNotEmpty) {
+      final sorted = gecmis.entries.toList()
+        ..sort((a, b) => a.key.toString().compareTo(b.key.toString()));
+      return sorted
+          .where((e) => e.value != null)
+          .map((e) {
+            try { return (e.value as num).toDouble(); }
+            catch (_) { return 0.0; }
+          })
+          .toList();
+    }
+    return [];
+  }
+
+  /// fiyat_gecmisi map → sorted date list
+  static List<String> _buildSparklineDates(Map<String, dynamic> j) {
+    // Önce mevcut sparkline_dates varsa onu kullan
+    final existing = j['sparkline_dates'] as List<dynamic>?;
+    if (existing != null && existing.isNotEmpty) {
+      return existing.map((e) => e.toString()).toList();
+    }
+    // fiyat_gecmisi map'ten oluştur
+    final gecmis = j['fiyat_gecmisi'];
+    if (gecmis is Map && gecmis.isNotEmpty) {
+      final sorted = gecmis.keys.map((k) => k.toString()).toList()..sort();
+      return sorted;
+    }
+    return [];
+  }
+
   factory HistoricalIpo.fromJson(Map<String, dynamic> j) {
     return HistoricalIpo(
       sirketKodu: (j['sirket_kodu'] ?? j['kod'] ?? '').toString().toUpperCase(),
@@ -136,15 +175,9 @@ class HistoricalIpo {
       minFiyat: (j['min_fiyat'] as num?)?.toDouble(),
       tavanGunSayisi: (j['tavan_gun'] as num?)?.toInt(),
       sparkline:
-          (j['sparkline'] as List<dynamic>?)
-              ?.map((e) => (e as num).toDouble())
-              .toList() ??
-          [],
+          _buildSparkline(j),
       sparklineDates:
-          (j['sparkline_dates'] as List<dynamic>?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          [],
+          _buildSparklineDates(j),
       staticFetched: j['static_fetched'] as bool?,
       staticFetchedAt: j['static_fetched_at'] != null
           ? DateTime.tryParse(j['static_fetched_at'])
@@ -173,6 +206,10 @@ class HistoricalIpo {
     'tavan_gun': tavanGunSayisi,
     'sparkline': sparkline,
     'sparkline_dates': sparklineDates,
+    'fiyat_gecmisi': Map.fromIterables(
+      sparklineDates.take(sparkline.length),
+      sparkline.take(sparklineDates.length),
+    ),
     'static_fetched': staticFetched,
     'static_fetched_at': staticFetchedAt?.toIso8601String(),
     'guncel_fiyat': guncelFiyat,
@@ -183,7 +220,7 @@ class HistoricalIpo {
 // ─── Servis ──────────────────────────────────────────────────────────────────
 
 class HistoricalIpoService {
-  static const String _boxName = 'historical_ipos_v4';
+  static const String _boxName = 'historical_ipos_v5';
   static const String _metaBoxName = 'historical_ipos_meta';
 
   // Firestore'dan kaç saatte bir taze veri çekilir
