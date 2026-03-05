@@ -353,6 +353,10 @@ def main():
         else:
             print(f"  {kod}: ₺{fiyat} (dünkü fiyat yok, tavan/taban kontrolü atlandı)")
 
+        # Bugünkü fiyatı fiyat_gecmisi'ne ekle (grafik için)
+        fiyat_gecmisi[bugun_str] = fiyat
+        fs_set(f"{FIRESTORE_COLLECTION}/{kod}", {"fiyat_gecmisi": fiyat_gecmisi}, merge=True)
+
     # State'i kaydet
     fs_set(STATE_DOC_PATH, state, merge=False)
 
