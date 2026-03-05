@@ -86,19 +86,37 @@ class _HomeScreenState extends State<HomeScreen>
     }
     return filtered;
   }
+  static const _ayMap = {
+    'ocak': 1, 'şubat': 2, 'mart': 3, 'nisan': 4,
+    'mayıs': 5, 'haziran': 6, 'temmuz': 7, 'ağustos': 8,
+    'eylül': 9, 'ekim': 10, 'kasım': 11, 'aralık': 12,
+  };
 
   DateTime _parseDate(String s) {
     if (s.isEmpty) return DateTime(2000);
     try {
-      // ISO format: "2025-03-05" veya "2025-03-05T08:00:00"
-      if (s.contains('-') && !s.contains('.')) {
-        return DateTime.tryParse(s) ?? DateTime(2000);
+      // DD.MM.YYYY: "05.03.2025" veya "05.03.2025 - 07.03.2025"
+      if (s.contains('.')) {
+        final part = s.split(' - ').last.trim().split(' ').first.trim();
+        final parts = part.split('.');
+        if (parts.length == 3) {
+          return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+        }
       }
-      // Türk formatı: "05.03.2025" veya "05.03.2025 - 07.03.2025"
-      final part = s.split(' ').first.trim();
-      final parts = part.split('.');
-      if (parts.length == 3) {
-        return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      // ISO: "2025-03-05"
+      final iso = DateTime.tryParse(s);
+      if (iso != null) return iso;
+      // Türkçe: "28-29-30 Ocak 2026" veya "5-6 Şubat 2026"
+      final tokens = s.replaceAll(RegExp(r'\(.*?\)'), '').trim().split(RegExp(r'\s+'));
+      if (tokens.length >= 3) {
+        final yil = int.tryParse(tokens.last);
+        final ayStr = tokens[tokens.length - 2].toLowerCase();
+        final ay = _ayMap[ayStr];
+        if (yil != null && ay != null) {
+          final gunler = tokens[0].split('-').map((g) => int.tryParse(g) ?? 0).toList();
+          final sonGun = gunler.reduce((a, b) => a > b ? a : b);
+          if (sonGun > 0) return DateTime(yil, ay, sonGun);
+        }
       }
     } catch (_) {}
     return DateTime(2000);
