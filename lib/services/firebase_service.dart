@@ -12,6 +12,7 @@ class FirebaseService {
       FlutterLocalNotificationsPlugin();
 
   static bool _initialized = false;
+  static bool _topicSubscribed = false;
 
   /// Firebase'i başlat
   static Future<bool> init() async {
@@ -49,12 +50,33 @@ class FirebaseService {
   static Future<void> _setupFCM() async {
     final messaging = FirebaseMessaging.instance;
 
+    // iOS'ta APNS token hazır olana kadar bekle
+    if (Platform.isIOS) {
+      String? apnsToken;
+      for (int i = 0; i < 10; i++) {
+        apnsToken = await messaging.getAPNSToken();
+        if (apnsToken != null) break;
+        await Future.delayed(const Duration(seconds: 1));
+      }
+      if (apnsToken == null) {
+        print('[FCM] APNS token 10 sn içinde alınamadı, topic subscription erteleniyor.');
+        // Foreground dinleyicilerini yine de ayarla
+        FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+        FirebaseMessaging.onBackgroundMessage(_handleBackgroundMessage);
+        FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
+        return;
+      }
+      print('[FCM] APNS token alındı ✓');
+    }
+
     // 'halka_arz' topic'ine abone ol
     await messaging.subscribeToTopic('halka_arz');
+    _topicSubscribed = true;
+    print('[FCM] halka_arz topic abone olundu ✓');
 
     // Token al (debug için)
     final token = await messaging.getToken();
-    print('FCM Token: $token');
+    print('[FCM] Token: $token');
 
     // Foreground mesajları
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
@@ -140,5 +162,16 @@ class FirebaseService {
     // Firebase'in push token alması için Apple APNs onayı
     final messaging = FirebaseMessaging.instance;
     await messaging.requestPermission(alert: true, badge: true, sound: true);
+
+    // Eğer başlangıçta APNS token geciktiği için topic aboneliği yapılamadıysa, şimdi tekrar dene
+    if (!_topicSubscribed) {
+      try {
+        await messaging.subscribeToTopic('halka_arz');
+        _topicSubscribed = true;
+        debugPrint('[FCM] İzin sonrası halka_arz topic abone olundu ✓');
+      } catch (e) {
+        debugPrint('[FCM] İzin sonrası topic aboneliği de başarısız: $e');
+      }
+    }
   }
 }
