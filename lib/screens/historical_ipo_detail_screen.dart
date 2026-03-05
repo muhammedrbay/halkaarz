@@ -111,6 +111,28 @@ class HistoricalIpoDetailScreen extends StatelessWidget {
                 if (ipo.sparkline.length >= 3) ...[
                   _buildChartCard(renk),
                   const SizedBox(height: 16),
+                ] else ...[
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1A1F3A),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          const Icon(Icons.hourglass_empty_rounded, color: Colors.white24, size: 32),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Henüz işleme açılmadı',
+                            style: GoogleFonts.inter(color: Colors.white38, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                 ],
 
                 // ── İPO Detayları ──
@@ -184,7 +206,7 @@ class HistoricalIpoDetailScreen extends StatelessWidget {
                 // ── Yasal Uyarı ──
                 Center(
                   child: Text(
-                    'Veriler 20 dk gecikmelidir • Yatırım tavsiyesi değildir',
+                    'Veriler yaklaşık 15-20 dk gecikmelidir • Yatırım tavsiyesi değildir',
                     style: GoogleFonts.inter(color: Colors.white12, fontSize: 9),
                     textAlign: TextAlign.center,
                   ),
@@ -216,7 +238,7 @@ class HistoricalIpoDetailScreen extends StatelessWidget {
                 Text('Güncel Fiyat', style: GoogleFonts.inter(color: Colors.white38, fontSize: 12)),
                 const SizedBox(height: 4),
                 Text(
-                  ipo.guncelFiyat != null ? '₺${ipo.guncelFiyat!.toStringAsFixed(2)}' : 'Yükleniyor...',
+                  ipo.guncelFiyat != null ? '₺${ipo.guncelFiyat!.toStringAsFixed(2)}' : 'Henüz işleme açılmadı',
                   style: GoogleFonts.inter(
                     color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900,
                   ),

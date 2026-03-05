@@ -718,13 +718,23 @@ class _IpoCard extends StatelessWidget {
                                   ),
                                 ],
                               )
-                            : const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Color(0xFF7C3AED),
-                                ),
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.hourglass_empty_rounded,
+                                    color: Colors.white12,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Henüz işleme açılmadı',
+                                    style: GoogleFonts.inter(
+                                      color: Colors.white24,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
                               ),
                       ),
               ),
