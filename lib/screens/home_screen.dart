@@ -105,9 +105,9 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   DateTime _getSortDate(IpoModel ipo) {
-    // Öncelik: bistIlkIslemTarihi > tarih > guncellemeZamani
-    if (ipo.bistIlkIslemTarihi.isNotEmpty) return _parseDate(ipo.bistIlkIslemTarihi);
+    // Kartta gösterilen tarih alanına göre sırala
     if (ipo.tarih.isNotEmpty) return _parseDate(ipo.tarih);
+    if (ipo.bistIlkIslemTarihi.isNotEmpty) return _parseDate(ipo.bistIlkIslemTarihi);
     if (ipo.guncellemeZamani.isNotEmpty) return _parseDate(ipo.guncellemeZamani);
     return DateTime(2000);
   }
