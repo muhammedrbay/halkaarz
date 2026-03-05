@@ -754,7 +754,7 @@ class _IpoCard extends StatelessWidget {
                         : null,
                   ),
                   _stat(
-                    'İşlem',
+                    'İlk İşlem',
                     _date(ipo.islemTarihi),
                     Icons.calendar_today_rounded,
                   ),

@@ -155,6 +155,39 @@ class HistoricalIpo {
     return [];
   }
 
+  /// İlk işlem tarihini bul: bist_ilk_islem_tarihi → fiyat_gecmisi'nin ilk günü → fallback
+  static DateTime _resolveIslemTarihi(Map<String, dynamic> j) {
+    // 1. bist_ilk_islem_tarihi veya alternatif alanlar
+    final dateStr = (j['bist_ilk_islem_tarihi'] ?? j['borsada_islem_tarihi'] ?? j['islem_tarihi'] ?? '').toString();
+    if (dateStr.isNotEmpty) {
+      final dt = _parseTarihNullable(dateStr);
+      if (dt != null) return dt;
+    }
+    // 2. fiyat_gecmisi map'inin en eski tarihi
+    final gecmis = j['fiyat_gecmisi'];
+    if (gecmis is Map && gecmis.isNotEmpty) {
+      final dates = gecmis.keys.map((k) => k.toString()).toList()..sort();
+      final dt = DateTime.tryParse(dates.first);
+      if (dt != null) return dt;
+    }
+    // 3. Fallback
+    return DateTime.now();
+  }
+
+  static DateTime? _parseTarihNullable(String s) {
+    if (s.isEmpty) return null;
+    final iso = DateTime.tryParse(s);
+    if (iso != null) return iso;
+    try {
+      final part = s.split(' ').first.trim();
+      final parts = part.split('.');
+      if (parts.length == 3) {
+        return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      }
+    } catch (_) {}
+    return null;
+  }
+
   factory HistoricalIpo.fromJson(Map<String, dynamic> j) {
     return HistoricalIpo(
       sirketKodu: (j['sirket_kodu'] ?? j['kod'] ?? '').toString().toUpperCase(),
@@ -162,9 +195,7 @@ class HistoricalIpo {
       arzFiyati: (j['arz_fiyati'] ?? 0).toDouble(),
       kisiBasiLot: (j['kisi_basi_lot'] ?? '').toString(),
       toplamLot: _safeInt(j['toplam_lot']),
-      islemTarihi: _parseTarih(
-            j['bist_ilk_islem_tarihi'] ?? j['borsada_islem_tarihi'] ?? j['islem_tarihi'] ?? '',
-          ),
+      islemTarihi: _resolveIslemTarihi(j),
       katilimEndeksi: j['katilim_endeksine_uygun'] ?? j['katilim'] ?? false,
       sektor: j['sektor'] as String?,
       fonKullanim: j['fon_kullanim_yeri'] is String
@@ -220,7 +251,7 @@ class HistoricalIpo {
 // ─── Servis ──────────────────────────────────────────────────────────────────
 
 class HistoricalIpoService {
-  static const String _boxName = 'historical_ipos_v5';
+  static const String _boxName = 'historical_ipos_v6';
   static const String _metaBoxName = 'historical_ipos_meta';
 
   // Firestore'dan kaç saatte bir taze veri çekilir
