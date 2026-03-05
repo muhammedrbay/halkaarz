@@ -99,6 +99,23 @@ class HistoricalIpo {
     return 0;
   }
 
+  /// DD.MM.YYYY veya ISO formatını DateTime'a çevirir
+  static DateTime _parseTarih(String s) {
+    if (s.isEmpty) return DateTime.now();
+    // ISO: "2025-03-07" veya "2025-03-07T..."
+    final iso = DateTime.tryParse(s);
+    if (iso != null) return iso;
+    // Türk formatı: "07.03.2025" veya "07.03.2025 - 10.03.2025"
+    try {
+      final part = s.split(' ').first.trim();
+      final parts = part.split('.');
+      if (parts.length == 3) {
+        return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      }
+    } catch (_) {}
+    return DateTime.now();
+  }
+
   factory HistoricalIpo.fromJson(Map<String, dynamic> j) {
     return HistoricalIpo(
       sirketKodu: (j['sirket_kodu'] ?? j['kod'] ?? '').toString().toUpperCase(),
@@ -106,11 +123,9 @@ class HistoricalIpo {
       arzFiyati: (j['arz_fiyati'] ?? 0).toDouble(),
       kisiBasiLot: (j['kisi_basi_lot'] ?? '').toString(),
       toplamLot: _safeInt(j['toplam_lot']),
-      islemTarihi:
-          DateTime.tryParse(
+      islemTarihi: _parseTarih(
             j['bist_ilk_islem_tarihi'] ?? j['borsada_islem_tarihi'] ?? j['islem_tarihi'] ?? '',
-          ) ??
-          DateTime.now(),
+          ),
       katilimEndeksi: j['katilim_endeksine_uygun'] ?? j['katilim'] ?? false,
       sektor: j['sektor'] as String?,
       fonKullanim: j['fon_kullanim_yeri'] is String

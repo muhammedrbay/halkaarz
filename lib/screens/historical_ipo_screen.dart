@@ -158,7 +158,6 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
           children: [
             _buildHeader(),
             _buildFilters(),
-            _buildSortRow(),
             if (_isLoading)
               const Expanded(
                 child: Center(
@@ -247,6 +246,17 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
         .length;
     final katilimCount = _ipos.where((i) => i.katilimEndeksi).length;
 
+    String sortLabel;
+    switch (_sort) {
+      case _HistSort.tarihYeni: sortLabel = 'Yeni→Eski'; break;
+      case _HistSort.tarihEski: sortLabel = 'Eski→Yeni'; break;
+      case _HistSort.getiriArtan: sortLabel = 'Getiri ↑'; break;
+      case _HistSort.getiriAzalan: sortLabel = 'Getiri ↓'; break;
+      case _HistSort.fiyatArtan: sortLabel = 'Fiyat ↑'; break;
+      case _HistSort.fiyatAzalan: sortLabel = 'Fiyat ↓'; break;
+      case _HistSort.isimAZ: sortLabel = 'A→Z'; break;
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -270,6 +280,29 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
             Icons.verified_rounded,
             _Filter.katilim,
             color: const Color(0xFF3B82F6),
+          ),
+          const SizedBox(width: 12),
+          // Sıralama butonu
+          GestureDetector(
+            onTap: () => _showSortSheet(),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF12162B),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF7C3AED).withValues(alpha: 0.4), width: 1),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.sort_rounded, size: 13, color: Color(0xFF7C3AED)),
+                  const SizedBox(width: 5),
+                  Text(sortLabel, style: GoogleFonts.inter(
+                    color: const Color(0xFF7C3AED), fontSize: 12, fontWeight: FontWeight.w600,
+                  )),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -317,86 +350,51 @@ class _HistoricalIpoScreenState extends State<HistoricalIpoScreen>
     );
   }
 
-  Widget _buildSortRow() {
-    String label;
-    switch (_sort) {
-      case _HistSort.tarihYeni: label = 'Tarih (Yeni → Eski)'; break;
-      case _HistSort.tarihEski: label = 'Tarih (Eski → Yeni)'; break;
-      case _HistSort.getiriArtan: label = 'Getiri (Düşük → Yüksek)'; break;
-      case _HistSort.getiriAzalan: label = 'Getiri (Yüksek → Düşük)'; break;
-      case _HistSort.fiyatArtan: label = 'Fiyat (Düşük → Yüksek)'; break;
-      case _HistSort.fiyatAzalan: label = 'Fiyat (Yüksek → Düşük)'; break;
-      case _HistSort.isimAZ: label = 'İsim (A → Z)'; break;
-    }
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-      child: GestureDetector(
-        onTap: () {
-          showModalBottomSheet(
-            context: context,
-            backgroundColor: const Color(0xFF1A1F38),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            builder: (_) => SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text('Sıralama', style: GoogleFonts.inter(
-                      color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700,
-                    )),
-                  ),
-                  ..._HistSort.values.map((s) {
-                    String text;
-                    IconData icon;
-                    switch (s) {
-                      case _HistSort.tarihYeni: text = 'Tarih (Yeni → Eski)'; icon = Icons.calendar_month; break;
-                      case _HistSort.tarihEski: text = 'Tarih (Eski → Yeni)'; icon = Icons.calendar_month; break;
-                      case _HistSort.getiriArtan: text = 'Getiri (Düşük → Yüksek)'; icon = Icons.trending_up; break;
-                      case _HistSort.getiriAzalan: text = 'Getiri (Yüksek → Düşük)'; icon = Icons.trending_down; break;
-                      case _HistSort.fiyatArtan: text = 'Fiyat (Düşük → Yüksek)'; icon = Icons.price_change; break;
-                      case _HistSort.fiyatAzalan: text = 'Fiyat (Yüksek → Düşük)'; icon = Icons.price_change; break;
-                      case _HistSort.isimAZ: text = 'İsim (A → Z)'; icon = Icons.sort_by_alpha; break;
-                    }
-                    return ListTile(
-                      leading: Icon(icon, color: _sort == s ? const Color(0xFF7C3AED) : Colors.white38, size: 20),
-                      title: Text(text, style: GoogleFonts.inter(
-                        color: _sort == s ? const Color(0xFF7C3AED) : Colors.white70,
-                        fontSize: 14, fontWeight: _sort == s ? FontWeight.w700 : FontWeight.w400,
-                      )),
-                      trailing: _sort == s ? const Icon(Icons.check, color: Color(0xFF7C3AED), size: 18) : null,
-                      onTap: () {
-                        setState(() => _sort = s);
-                        Navigator.pop(context);
-                      },
-                    );
-                  }),
-                  const SizedBox(height: 8),
-                ],
-              ),
-            ),
-          );
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFF12162B),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFF2A2F4A), width: 0.5),
-          ),
-          child: Row(
+  void _showSortSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A1F38),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.sort_rounded, size: 14, color: Color(0xFF7C3AED)),
-              const SizedBox(width: 6),
-              Text(label, style: GoogleFonts.inter(
-                color: Colors.white54, fontSize: 11, fontWeight: FontWeight.w500,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text('Sıralama', style: GoogleFonts.inter(
+                color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700,
               )),
-              const SizedBox(width: 4),
-              const Icon(Icons.keyboard_arrow_down, size: 14, color: Colors.white38),
-            ],
+            ),
+            ..._HistSort.values.map((s) {
+              String text;
+              IconData icon;
+              switch (s) {
+                case _HistSort.tarihYeni: text = 'Tarih (Yeni → Eski)'; icon = Icons.calendar_month; break;
+                case _HistSort.tarihEski: text = 'Tarih (Eski → Yeni)'; icon = Icons.calendar_month; break;
+                case _HistSort.getiriArtan: text = 'Getiri (Düşük → Yüksek)'; icon = Icons.trending_up; break;
+                case _HistSort.getiriAzalan: text = 'Getiri (Yüksek → Düşük)'; icon = Icons.trending_down; break;
+                case _HistSort.fiyatArtan: text = 'Fiyat (Düşük → Yüksek)'; icon = Icons.price_change; break;
+                case _HistSort.fiyatAzalan: text = 'Fiyat (Yüksek → Düşük)'; icon = Icons.price_change; break;
+                case _HistSort.isimAZ: text = 'İsim (A → Z)'; icon = Icons.sort_by_alpha; break;
+              }
+              return ListTile(
+                leading: Icon(icon, color: _sort == s ? const Color(0xFF7C3AED) : Colors.white38, size: 20),
+                title: Text(text, style: GoogleFonts.inter(
+                  color: _sort == s ? const Color(0xFF7C3AED) : Colors.white70,
+                  fontSize: 14, fontWeight: _sort == s ? FontWeight.w700 : FontWeight.w400,
+                )),
+                trailing: _sort == s ? const Icon(Icons.check, color: Color(0xFF7C3AED), size: 18) : null,
+                onTap: () {
+                  setState(() => _sort = s);
+                  Navigator.pop(context);
+                },
+              );
+            }),
+            const SizedBox(height: 8),
+          ],
           ),
         ),
       ),

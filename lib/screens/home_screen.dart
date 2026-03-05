@@ -66,12 +66,10 @@ class _HomeScreenState extends State<HomeScreen>
     filtered = List.from(filtered);
     switch (_sortType) {
       case _SortType.tarihYeni:
-        filtered.sort((a, b) => _parseDate(b.bistIlkIslemTarihi.isNotEmpty ? b.bistIlkIslemTarihi : b.tarih)
-            .compareTo(_parseDate(a.bistIlkIslemTarihi.isNotEmpty ? a.bistIlkIslemTarihi : a.tarih)));
+        filtered.sort((a, b) => _getSortDate(b).compareTo(_getSortDate(a)));
         break;
       case _SortType.tarihEski:
-        filtered.sort((a, b) => _parseDate(a.bistIlkIslemTarihi.isNotEmpty ? a.bistIlkIslemTarihi : a.tarih)
-            .compareTo(_parseDate(b.bistIlkIslemTarihi.isNotEmpty ? b.bistIlkIslemTarihi : b.tarih)));
+        filtered.sort((a, b) => _getSortDate(a).compareTo(_getSortDate(b)));
         break;
       case _SortType.fiyatArtan:
         filtered.sort((a, b) => a.arzFiyati.compareTo(b.arzFiyati));
@@ -90,14 +88,27 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   DateTime _parseDate(String s) {
-    // "05.03.2025" veya "05.03.2025 - 07.03.2025" formatı
+    if (s.isEmpty) return DateTime(2000);
     try {
+      // ISO format: "2025-03-05" veya "2025-03-05T08:00:00"
+      if (s.contains('-') && !s.contains('.')) {
+        return DateTime.tryParse(s) ?? DateTime(2000);
+      }
+      // Türk formatı: "05.03.2025" veya "05.03.2025 - 07.03.2025"
       final part = s.split(' ').first.trim();
       final parts = part.split('.');
       if (parts.length == 3) {
         return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
       }
     } catch (_) {}
+    return DateTime(2000);
+  }
+
+  DateTime _getSortDate(IpoModel ipo) {
+    // Öncelik: bistIlkIslemTarihi > tarih > guncellemeZamani
+    if (ipo.bistIlkIslemTarihi.isNotEmpty) return _parseDate(ipo.bistIlkIslemTarihi);
+    if (ipo.tarih.isNotEmpty) return _parseDate(ipo.tarih);
+    if (ipo.guncellemeZamani.isNotEmpty) return _parseDate(ipo.guncellemeZamani);
     return DateTime(2000);
   }
 
