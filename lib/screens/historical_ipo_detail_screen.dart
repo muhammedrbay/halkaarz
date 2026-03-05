@@ -181,10 +181,10 @@ class HistoricalIpoDetailScreen extends StatelessWidget {
                 ]),
                 const SizedBox(height: 16),
 
-                // ── Veri Kaynağı ──
+                // ── Yasal Uyarı ──
                 Center(
                   child: Text(
-                    'Fiyat verileri Yahoo Finance\'dan • Borsa saatleri dışında gecikmeli',
+                    'Veriler 20 dk gecikmelidir • Yatırım tavsiyesi değildir',
                     style: GoogleFonts.inter(color: Colors.white12, fontSize: 9),
                     textAlign: TextAlign.center,
                   ),
