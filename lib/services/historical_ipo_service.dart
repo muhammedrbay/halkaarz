@@ -163,6 +163,7 @@ class HistoricalIpo {
     'kisi_basi_lot': kisiBasiLot,
     'toplam_lot': toplamLot,
     'borsada_islem_tarihi': islemTarihi.toIso8601String(),
+    'bist_ilk_islem_tarihi': islemTarihi.toIso8601String(),
     'katilim_endeksine_uygun': katilimEndeksi,
     'sektor': sektor,
     'fon_kullanim_yeri': fonKullanim,
@@ -182,7 +183,7 @@ class HistoricalIpo {
 // ─── Servis ──────────────────────────────────────────────────────────────────
 
 class HistoricalIpoService {
-  static const String _boxName = 'historical_ipos_v3';
+  static const String _boxName = 'historical_ipos_v4';
   static const String _metaBoxName = 'historical_ipos_meta';
 
   // Firestore'dan kaç saatte bir taze veri çekilir
