@@ -88,6 +88,15 @@ class FirebaseService {
 
     // Bildirime tıklanınca
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
+
+    // iOS Foreground Presentation ayarı
+    if (Platform.isIOS) {
+      await messaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
   }
 
   /// Yerel bildirim kurulumu
@@ -164,6 +173,15 @@ class FirebaseService {
     // Firebase'in push token alması için Apple APNs onayı
     final messaging = FirebaseMessaging.instance;
     await messaging.requestPermission(alert: true, badge: true, sound: true);
+
+    // iOS'ta uygulama açıkken bildirim (banner) gösterilmesi için:
+    if (Platform.isIOS) {
+      await messaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
 
     // Eğer başlangıçta APNS token geciktiği için topic aboneliği yapılamadıysa, şimdi tekrar dene
     if (!_topicSubscribed) {
