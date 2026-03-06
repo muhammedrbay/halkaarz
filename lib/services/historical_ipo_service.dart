@@ -19,9 +19,6 @@ class HistoricalIpo {
   final String? fonKullanim;
 
   // Yarı-statik (Yahoo Finance'den, sadece 1 kez çekilir)
-  double? ilkGunKapanis;
-  double? maxFiyat;
-  double? minFiyat;
   int? tavanGunSayisi;
   List<double> sparkline;
   List<String> sparklineDates;
@@ -42,9 +39,6 @@ class HistoricalIpo {
     this.katilimEndeksi = false,
     this.sektor,
     this.fonKullanim,
-    this.ilkGunKapanis,
-    this.maxFiyat,
-    this.minFiyat,
     this.tavanGunSayisi,
     this.sparkline = const [],
     this.sparklineDates = const [],
@@ -55,6 +49,21 @@ class HistoricalIpo {
   });
 
   // — Hesaplanan alanlar —
+
+  double? get ilkGunKapanis {
+    if (sparkline.isNotEmpty) return sparkline.first;
+    return null;
+  }
+
+  double? get maxFiyat {
+    if (sparkline.isEmpty) return null;
+    return sparkline.reduce((a, b) => a > b ? a : b);
+  }
+
+  double? get minFiyat {
+    if (sparkline.isEmpty) return null;
+    return sparkline.reduce((a, b) => a < b ? a : b);
+  }
 
   double get getiviYuzde {
     if (guncelFiyat == null || arzFiyati <= 0) return 0;
@@ -99,22 +108,7 @@ class HistoricalIpo {
     return 0;
   }
 
-  /// DD.MM.YYYY veya ISO formatını DateTime'a çevirir
-  static DateTime _parseTarih(String s) {
-    if (s.isEmpty) return DateTime.now();
-    // ISO: "2025-03-07" veya "2025-03-07T..."
-    final iso = DateTime.tryParse(s);
-    if (iso != null) return iso;
-    // Türk formatı: "07.03.2025" veya "07.03.2025 - 10.03.2025"
-    try {
-      final part = s.split(' ').first.trim();
-      final parts = part.split('.');
-      if (parts.length == 3) {
-        return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
-      }
-    } catch (_) {}
-    return DateTime.now();
-  }
+  // ── Helper Metodları (Gizlenmiş veya Silinmiş) ──
 
   /// fiyat_gecmisi map → sorted sparkline list
   static List<double> _buildSparkline(Map<String, dynamic> j) {
@@ -201,9 +195,6 @@ class HistoricalIpo {
       fonKullanim: j['fon_kullanim_yeri'] is String
           ? j['fon_kullanim_yeri']
           : null,
-      ilkGunKapanis: (j['ilk_gun_kapanis'] as num?)?.toDouble(),
-      maxFiyat: (j['max_fiyat'] as num?)?.toDouble(),
-      minFiyat: (j['min_fiyat'] as num?)?.toDouble(),
       tavanGunSayisi: (j['tavan_gun'] as num?)?.toInt(),
       sparkline:
           _buildSparkline(j),
@@ -231,9 +222,6 @@ class HistoricalIpo {
     'katilim_endeksine_uygun': katilimEndeksi,
     'sektor': sektor,
     'fon_kullanim_yeri': fonKullanim,
-    'ilk_gun_kapanis': ilkGunKapanis,
-    'max_fiyat': maxFiyat,
-    'min_fiyat': minFiyat,
     'tavan_gun': tavanGunSayisi,
     'sparkline': sparkline,
     'sparkline_dates': sparklineDates,
@@ -363,9 +351,6 @@ class HistoricalIpoService {
       if (ipo.staticFetched != true) {
         final old = cachedMap[ipo.sirketKodu];
         if (old != null && old.staticFetched == true) {
-          ipo.ilkGunKapanis = old.ilkGunKapanis;
-          ipo.maxFiyat = old.maxFiyat;
-          ipo.minFiyat = old.minFiyat;
           ipo.tavanGunSayisi = old.tavanGunSayisi;
           ipo.sparkline = old.sparkline;
           ipo.staticFetched = old.staticFetched;
