@@ -2,8 +2,8 @@ name: Canlı Fiyat Takibi
 
 on:
   schedule:
-    # Her 8 dk'da bir, hafta içi, borsa saatleri (UTC 06:30–15:10 = TR 09:30–18:10)
-    - cron: '*/8 6-15 * * 1-5'
+    # Her 5 dk'da bir, hafta içi, borsa saatleri (UTC 06:30–15:10 = TR 09:30–18:10)
+    - cron: '*/5 6-15 * * 1-5'
   workflow_dispatch:
 
 jobs:

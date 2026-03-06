@@ -28,72 +28,73 @@ class HistoricalIpoDetailScreen extends StatelessWidget {
         slivers: [
           // ── App Bar ──
           SliverAppBar(
-            backgroundColor: const Color(0xFF0A0E21),
-            expandedHeight: 180,
+            backgroundColor: const Color(0xFF1A0A3B), // Top gradient color
+            elevation: 0,
             pinned: true,
             leading: IconButton(
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
             ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFF1A0A3B), Color(0xFF0A0E21)],
-                  ),
+          ),
+          
+          // ── Dinamik Başlık Alanı (Sığdığı kadar aşağı genişler) ──
+          SliverToBoxAdapter(
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF1A0A3B), Color(0xFF0A0E21)],
                 ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: renk.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: renk.withValues(alpha: 0.4)),
-                              ),
-                              child: Text(
-                                ipo.sirketKodu,
-                                style: GoogleFonts.inter(
-                                  color: renk, fontWeight: FontWeight.w800,
-                                  fontSize: 16, letterSpacing: 1,
-                                ),
-                              ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: renk.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: renk.withValues(alpha: 0.4)),
+                          ),
+                          child: Text(
+                            ipo.sirketKodu,
+                            style: GoogleFonts.inter(
+                              color: renk, fontWeight: FontWeight.w800,
+                              fontSize: 16, letterSpacing: 1,
                             ),
-                            const SizedBox(width: 10),
-                            if (ipo.katilimEndeksi)
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.4)),
-                                ),
-                                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                                  const Icon(Icons.verified, color: Color(0xFF3B82F6), size: 12),
-                                  const SizedBox(width: 4),
-                                  Text('Katılım Endeksi', style: GoogleFonts.inter(
-                                    color: const Color(0xFF3B82F6), fontSize: 10, fontWeight: FontWeight.w600,
-                                  )),
-                                ]),
-                              ),
-                          ],
+                          ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          ipo.sirketAdi,
-                          style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
-                        ),
+                        const SizedBox(width: 10),
+                        if (ipo.katilimEndeksi)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.4)),
+                            ),
+                            child: Row(mainAxisSize: MainAxisSize.min, children: [
+                              const Icon(Icons.verified, color: Color(0xFF3B82F6), size: 12),
+                              const SizedBox(width: 4),
+                              Text('Katılım Endeksi', style: GoogleFonts.inter(
+                                color: const Color(0xFF3B82F6), fontSize: 10, fontWeight: FontWeight.w600,
+                              )),
+                            ]),
+                          ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 8),
+                    Text(
+                      ipo.sirketAdi,
+                      style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
+                    ),
+                  ],
                 ),
               ),
             ),
