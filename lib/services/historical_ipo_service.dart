@@ -19,7 +19,6 @@ class HistoricalIpo {
   final String? fonKullanim;
 
   // Yarı-statik (Yahoo Finance'den, sadece 1 kez çekilir)
-  int? tavanGunSayisi;
   List<double> sparkline;
   List<String> sparklineDates;
   bool? staticFetched;
@@ -39,7 +38,6 @@ class HistoricalIpo {
     this.katilimEndeksi = false,
     this.sektor,
     this.fonKullanim,
-    this.tavanGunSayisi,
     this.sparkline = const [],
     this.sparklineDates = const [],
     this.staticFetched,
@@ -63,6 +61,25 @@ class HistoricalIpo {
   double? get minFiyat {
     if (sparkline.isEmpty) return null;
     return sparkline.reduce((a, b) => a < b ? a : b);
+  }
+
+  int? get tavanGunSayisi {
+    if (sparkline.isEmpty || arzFiyati <= 0) return null;
+    int count = 0;
+    double prev = arzFiyati;
+
+    for (final price in sparkline) {
+      if (prev <= 0) break;
+      final yuzde = (price - prev) / prev;
+      // BIST tavan kuralı: ~%10. Tolerans için %9.5 üstü tavan sayılır.
+      if (yuzde >= 0.095) {
+        count++;
+        prev = price;
+      } else {
+        break; // Tavan bozdu
+      }
+    }
+    return count > 0 ? count : null;
   }
 
   double get getiviYuzde {
@@ -195,7 +212,6 @@ class HistoricalIpo {
       fonKullanim: j['fon_kullanim_yeri'] is String
           ? j['fon_kullanim_yeri']
           : null,
-      tavanGunSayisi: (j['tavan_gun'] as num?)?.toInt(),
       sparkline:
           _buildSparkline(j),
       sparklineDates:
@@ -222,7 +238,6 @@ class HistoricalIpo {
     'katilim_endeksine_uygun': katilimEndeksi,
     'sektor': sektor,
     'fon_kullanim_yeri': fonKullanim,
-    'tavan_gun': tavanGunSayisi,
     'sparkline': sparkline,
     'sparkline_dates': sparklineDates,
     'fiyat_gecmisi': Map.fromIterables(
@@ -351,7 +366,6 @@ class HistoricalIpoService {
       if (ipo.staticFetched != true) {
         final old = cachedMap[ipo.sirketKodu];
         if (old != null && old.staticFetched == true) {
-          ipo.tavanGunSayisi = old.tavanGunSayisi;
           ipo.sparkline = old.sparkline;
           ipo.staticFetched = old.staticFetched;
           ipo.staticFetchedAt = old.staticFetchedAt;
